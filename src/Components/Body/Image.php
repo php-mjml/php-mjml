@@ -199,10 +199,6 @@ final class Image extends BodyComponent
 
     private function addFluidMobileStyle(): void
     {
-        if (!$this->getAttribute('fluid-on-mobile')) {
-            return;
-        }
-
         if (null === $this->context) {
             return;
         }
@@ -217,12 +213,12 @@ final class Image extends BodyComponent
         );
 
         // Check if this style is already present
-        foreach ($this->context->getStyles() as $style) {
+        foreach ($this->context->getComponentHeadStyles() as $style) {
             if (str_contains($style, 'mj-full-width-mobile')) {
                 return;
             }
         }
 
-        $this->context->globalData->addStyle($css);
+        $this->context->globalData->addComponentHeadStyle($css);
     }
 }

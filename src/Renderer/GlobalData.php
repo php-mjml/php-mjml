@@ -22,12 +22,14 @@ namespace PhpMjml\Renderer;
 final class GlobalData
 {
     /**
-     * @param array<string, string> $mediaQueries Media query CSS indexed by class name
-     * @param array<int, string>    $styles       CSS style strings
+     * @param array<string, string> $mediaQueries       Media query CSS indexed by class name
+     * @param array<int, string>    $styles             CSS style strings
+     * @param array<int, string>    $componentHeadStyle Component head styles (output after media queries)
      */
     public function __construct(
         public array $mediaQueries = [],
         public array $styles = [],
+        public array $componentHeadStyle = [],
     ) {
     }
 
@@ -61,5 +63,13 @@ final class GlobalData
     public function addStyle(string $style): void
     {
         $this->styles[] = $style;
+    }
+
+    /**
+     * Add a component head style string (output after media queries).
+     */
+    public function addComponentHeadStyle(string $style): void
+    {
+        $this->componentHeadStyle[] = $style;
     }
 }

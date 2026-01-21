@@ -61,6 +61,16 @@ final class RenderContext
     }
 
     /**
+     * Get the component head styles array from global data.
+     *
+     * @return array<int, string>
+     */
+    public function getComponentHeadStyles(): array
+    {
+        return $this->globalData->componentHeadStyle;
+    }
+
+    /**
      * Add a media query for responsive column widths.
      *
      * @param string                                      $className CSS class name (e.g., 'mj-column-per-50')

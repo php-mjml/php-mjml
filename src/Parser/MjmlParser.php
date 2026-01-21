@@ -15,6 +15,11 @@ namespace PhpMjml\Parser;
 
 final class MjmlParser
 {
+    /**
+     * Tags that should capture inner HTML as raw content instead of parsing children.
+     */
+    private const RAW_CONTENT_TAGS = ['mj-raw'];
+
     public function parse(string $mjml): Node
     {
         $dom = new \DOMDocument();
@@ -47,14 +52,19 @@ final class MjmlParser
                 $attributes[$attr->nodeName] = $attr->nodeValue ?? '';
             }
 
-            // Parse children
-            foreach ($domNode->childNodes as $child) {
-                if ($child instanceof \DOMElement) {
-                    $children[] = $this->parseNode($child);
-                } elseif ($child instanceof \DOMText) {
-                    $text = trim($child->textContent);
-                    if ('' !== $text) {
-                        $content .= $text;
+            // For raw content tags, get inner HTML directly without parsing children
+            if (\in_array($tagName, self::RAW_CONTENT_TAGS, true)) {
+                $content = $this->getInnerHtml($domNode);
+            } else {
+                // Parse children
+                foreach ($domNode->childNodes as $child) {
+                    if ($child instanceof \DOMElement) {
+                        $children[] = $this->parseNode($child);
+                    } elseif ($child instanceof \DOMText) {
+                        $text = trim($child->textContent);
+                        if ('' !== $text) {
+                            $content .= $text;
+                        }
                     }
                 }
             }
@@ -66,5 +76,15 @@ final class MjmlParser
             children: $children,
             content: $content,
         );
+    }
+
+    private function getInnerHtml(\DOMElement $element): string
+    {
+        $innerHTML = '';
+        foreach ($element->childNodes as $child) {
+            $innerHTML .= $element->ownerDocument?->saveHTML($child) ?? '';
+        }
+
+        return trim($innerHTML);
     }
 }

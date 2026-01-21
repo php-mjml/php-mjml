@@ -217,6 +217,7 @@ final class Mjml2Html
         $styles = $this->buildStyles($context);
         $fonts = $this->buildFonts($bodyHtml, $context);
         $mediaQueries = $this->buildMediaQueriesStyles($context);
+        $componentHeadStyles = $this->buildComponentHeadStyles($context);
         $bodyStyle = $this->buildBodyStyle($context);
 
         // Build html tag attributes - lang and dir always included with defaults
@@ -238,7 +239,7 @@ final class Mjml2Html
 <!--<![endif]-->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{$styles}{$fonts}{$mediaQueries}</head>
+{$styles}{$fonts}{$mediaQueries}{$componentHeadStyles}</head>
 <body{$bodyStyle}>
 {$preview}{$bodyHtml}
 </body>
@@ -352,6 +353,19 @@ CSS;
     private function buildMediaQueriesStyles(RenderContext $context): string
     {
         return $this->buildMediaQueries($context);
+    }
+
+    private function buildComponentHeadStyles(RenderContext $context): string
+    {
+        $styles = $context->getComponentHeadStyles();
+
+        if ([] === $styles) {
+            return '';
+        }
+
+        $content = implode("\n", $styles);
+
+        return "<style type=\"text/css\">\n{$content}\n</style>";
     }
 
     private function buildMediaQueries(RenderContext $context): string

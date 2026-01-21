@@ -14,10 +14,16 @@ declare(strict_types=1);
 namespace PhpMjml\Preset;
 
 use PhpMjml\Components\Body\Body;
+use PhpMjml\Components\Body\Button;
 use PhpMjml\Components\Body\Column;
+use PhpMjml\Components\Body\Divider;
+use PhpMjml\Components\Body\Hero;
 use PhpMjml\Components\Body\Image;
+use PhpMjml\Components\Body\Raw;
 use PhpMjml\Components\Body\Section;
+use PhpMjml\Components\Body\Spacer;
 use PhpMjml\Components\Body\Text;
+use PhpMjml\Components\Head\Title;
 
 final class CorePreset
 {
@@ -29,10 +35,18 @@ final class CorePreset
         return [
             // Body components
             Body::class,
-            Section::class,
+            Button::class,
             Column::class,
+            Divider::class,
+            Hero::class,
             Image::class,
+            Raw::class,
+            Section::class,
+            Spacer::class,
             Text::class,
+
+            // Head components
+            Title::class,
         ];
     }
 }

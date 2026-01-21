@@ -69,10 +69,10 @@ abstract class ParityTestCase extends TestCase
         $original = $html;
 
         // Remove FILE comments added by MJML CLI
-        $html = preg_replace('/<!-- FILE: [^>]+ -->/', '', $html);
+        $html = preg_replace('/<!-- FILE: [^>]+ -->/', '', $html) ?? $html;
 
         // Remove whitespace between tags
-        $html = preg_replace('/>\s+</', '><', $html);
+        $html = preg_replace('/>\s+</', '><', $html) ?? $html;
 
         // Normalize whitespace inside style tags
         $html = preg_replace_callback('/<style[^>]*>(.*?)<\/style>/s', function ($matches) {
@@ -80,18 +80,14 @@ abstract class ParityTestCase extends TestCase
             // Remove leading whitespace from each line inside style
             $content = preg_replace('/^\s+/m', '', $content);
 
-            return $content;
-        }, $html);
+            return $content ?? $matches[0];
+        }, $html) ?? $html;
 
         // Normalize spaces before > in tags (remove trailing spaces in attributes)
-        $html = preg_replace('/\s+>/', '>', $html);
+        $html = preg_replace('/\s+>/', '>', $html) ?? $html;
 
         // Normalize multiple spaces to single space
-        $html = preg_replace('/\s+/', ' ', $html);
-
-        if (null === $html) {
-            return $original;
-        }
+        $html = preg_replace('/\s+/', ' ', $html) ?? $html;
 
         // Normalize attribute order by parsing and re-serializing
         $dom = new \DOMDocument();
@@ -103,7 +99,9 @@ abstract class ParityTestCase extends TestCase
         $dom->loadHTML($html, \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
 
-        return $dom->saveHTML() ?: $original;
+        $result = $dom->saveHTML();
+
+        return false !== $result ? $result : $original;
     }
 
     protected function getFixturePath(string $name): string
