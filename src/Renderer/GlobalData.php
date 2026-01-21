@@ -1,0 +1,65 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace PhpMjml\Renderer;
+
+/**
+ * Shared global data that persists across context clones.
+ *
+ * This class holds data that needs to be accumulated during rendering
+ * and accessed from the root context, such as media queries and styles.
+ */
+final class GlobalData
+{
+    /**
+     * @param array<string, string> $mediaQueries Media query CSS indexed by class name
+     * @param array<int, string>    $styles       CSS style strings
+     */
+    public function __construct(
+        public array $mediaQueries = [],
+        public array $styles = [],
+    ) {
+    }
+
+    /**
+     * Add a media query for responsive column widths.
+     *
+     * @param string                                      $className CSS class name (e.g., 'mj-column-per-50')
+     * @param array{parsedWidth: float|int, unit: string} $data      Width data
+     */
+    public function addMediaQuery(string $className, array $data): void
+    {
+        if (isset($this->mediaQueries[$className])) {
+            return;
+        }
+
+        $parsedWidth = $data['parsedWidth'];
+        $unit = $data['unit'];
+
+        $cssValue = match ($unit) {
+            '%' => "{ width:{$parsedWidth}% !important; max-width: {$parsedWidth}%; }",
+            'px' => "{ width:{$parsedWidth}px !important; max-width: {$parsedWidth}px; }",
+            default => "{ width:{$parsedWidth}{$unit} !important; max-width: {$parsedWidth}{$unit}; }",
+        };
+
+        $this->mediaQueries[$className] = $cssValue;
+    }
+
+    /**
+     * Add a style string.
+     */
+    public function addStyle(string $style): void
+    {
+        $this->styles[] = $style;
+    }
+}

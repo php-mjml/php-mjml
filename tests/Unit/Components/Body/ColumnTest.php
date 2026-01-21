@@ -155,7 +155,7 @@ final class ColumnTest extends TestCase
         $column->render();
 
         // Media query should be registered
-        $this->assertArrayHasKey('mj-column-per-50', $context->mediaQueries);
+        $this->assertArrayHasKey('mj-column-per-50', $context->getMediaQueries());
     }
 
     private function createContext(int $containerWidth = 600): RenderContext

@@ -17,11 +17,11 @@ use PhpMjml\Component\Registry;
 
 final class RenderContext
 {
+    public GlobalData $globalData;
+
     /**
      * @param array<string, string>               $fonts          Font URLs indexed by name
-     * @param array<int, string>                  $styles         CSS style strings
      * @param array<string, array<string, mixed>> $headAttributes Head element attributes
-     * @param array<string, string>               $mediaQueries   Media query CSS indexed by class name
      */
     public function __construct(
         public readonly Registry $registry,
@@ -29,15 +29,35 @@ final class RenderContext
         public string $title = '',
         public string $preview = '',
         public array $fonts = [],
-        public array $styles = [],
         public array $headAttributes = [],
         public int $containerWidth = 600,
         public string $breakpoint = '480px',
-        public array $mediaQueries = [],
         public ?string $backgroundColor = null,
-        public ?string $lang = null,
-        public ?string $dir = null,
+        public string $lang = 'und',
+        public string $dir = 'auto',
+        ?GlobalData $globalData = null,
     ) {
+        $this->globalData = $globalData ?? new GlobalData();
+    }
+
+    /**
+     * Get the styles array from global data.
+     *
+     * @return array<int, string>
+     */
+    public function getStyles(): array
+    {
+        return $this->globalData->styles;
+    }
+
+    /**
+     * Get the media queries array from global data.
+     *
+     * @return array<string, string>
+     */
+    public function getMediaQueries(): array
+    {
+        return $this->globalData->mediaQueries;
     }
 
     /**
@@ -48,20 +68,7 @@ final class RenderContext
      */
     public function addMediaQuery(string $className, array $data): void
     {
-        if (isset($this->mediaQueries[$className])) {
-            return;
-        }
-
-        $parsedWidth = $data['parsedWidth'];
-        $unit = $data['unit'];
-
-        $cssValue = match ($unit) {
-            '%' => "{ width:{$parsedWidth}% !important; max-width: {$parsedWidth}%; }",
-            'px' => "{ width:{$parsedWidth}px !important; max-width: {$parsedWidth}px; }",
-            default => "{ width:{$parsedWidth}{$unit} !important; max-width: {$parsedWidth}{$unit}; }",
-        };
-
-        $this->mediaQueries[$className] = $cssValue;
+        $this->globalData->addMediaQuery($className, $data);
     }
 
     /**
@@ -92,14 +99,13 @@ final class RenderContext
      *     title: string,
      *     preview: string,
      *     fonts: array<string, string>,
-     *     styles: array<int, string>,
      *     headAttributes: array<string, array<string, mixed>>,
      *     containerWidth: int,
      *     breakpoint: string,
-     *     mediaQueries: array<string, string>,
      *     backgroundColor: string|null,
-     *     lang: string|null,
-     *     dir: string|null
+     *     lang: string,
+     *     dir: string,
+     *     globalData: GlobalData
      * }
      */
     public function toArray(): array
@@ -110,14 +116,13 @@ final class RenderContext
             'title' => $this->title,
             'preview' => $this->preview,
             'fonts' => $this->fonts,
-            'styles' => $this->styles,
             'headAttributes' => $this->headAttributes,
             'containerWidth' => $this->containerWidth,
             'breakpoint' => $this->breakpoint,
-            'mediaQueries' => $this->mediaQueries,
             'backgroundColor' => $this->backgroundColor,
             'lang' => $this->lang,
             'dir' => $this->dir,
+            'globalData' => $this->globalData,
         ];
     }
 
@@ -134,14 +139,13 @@ final class RenderContext
             title: $data['title'] ?? $base->title,
             preview: $data['preview'] ?? $base->preview,
             fonts: $data['fonts'] ?? $base->fonts,
-            styles: $data['styles'] ?? $base->styles,
             headAttributes: $data['headAttributes'] ?? $base->headAttributes,
             containerWidth: $data['containerWidth'] ?? $base->containerWidth,
             breakpoint: $data['breakpoint'] ?? $base->breakpoint,
-            mediaQueries: $data['mediaQueries'] ?? $base->mediaQueries,
             backgroundColor: $data['backgroundColor'] ?? $base->backgroundColor,
             lang: $data['lang'] ?? $base->lang,
             dir: $data['dir'] ?? $base->dir,
+            globalData: $data['globalData'] ?? $base->globalData,
         );
     }
 }

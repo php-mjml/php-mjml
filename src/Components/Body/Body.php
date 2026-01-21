@@ -69,16 +69,12 @@ final class Body extends BodyComponent
             $this->context->setBackgroundColor($backgroundColor);
         }
 
-        $attributes = [
-            'style' => 'div',
-        ];
-
         // Add aria attributes
+        $attributes = [];
         if (null !== $this->context?->title && '' !== $this->context->title) {
             $attributes['aria-label'] = $this->context->title;
         }
         $attributes['aria-roledescription'] = 'email';
-        $attributes['role'] = 'article';
 
         // Add css-class if set
         $cssClass = $this->getAttribute('css-class');
@@ -86,13 +82,12 @@ final class Body extends BodyComponent
             $attributes['class'] = $cssClass;
         }
 
+        $attributes['style'] = 'div';
+        $attributes['role'] = 'article';
+
         // Add language attributes
-        if (null !== $this->context?->lang) {
-            $attributes['lang'] = $this->context->lang;
-        }
-        if (null !== $this->context?->dir) {
-            $attributes['dir'] = $this->context->dir;
-        }
+        $attributes['lang'] = null !== $this->context ? $this->context->lang : 'und';
+        $attributes['dir'] = null !== $this->context ? $this->context->dir : 'auto';
 
         return \sprintf(
             '<div %s>%s</div>',

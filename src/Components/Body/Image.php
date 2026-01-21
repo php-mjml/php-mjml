@@ -217,12 +217,12 @@ final class Image extends BodyComponent
         );
 
         // Check if this style is already present
-        foreach ($this->context->styles as $style) {
+        foreach ($this->context->getStyles() as $style) {
             if (str_contains($style, 'mj-full-width-mobile')) {
                 return;
             }
         }
 
-        $this->context->styles[] = $css;
+        $this->context->globalData->addStyle($css);
     }
 }

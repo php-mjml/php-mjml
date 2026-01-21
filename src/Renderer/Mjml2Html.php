@@ -16,6 +16,7 @@ namespace PhpMjml\Renderer;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Registry;
+use PhpMjml\Helper\OutlookConditionalHelper;
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\Node;
 
@@ -43,6 +44,9 @@ final class Mjml2Html
 
         // Render body
         $bodyHtml = $this->processBody($ast, $context);
+
+        // Merge adjacent MSO conditionals
+        $bodyHtml = OutlookConditionalHelper::mergeConditionals($bodyHtml);
 
         // Build final HTML
         $html = $this->buildSkeleton($bodyHtml, $context);
@@ -210,18 +214,19 @@ final class Mjml2Html
     {
         $title = htmlspecialchars($context->title, \ENT_QUOTES, 'UTF-8');
         $preview = '' !== $context->preview ? $this->buildPreview($context->preview) : '';
-        $fonts = $this->buildFonts($context->fonts);
         $styles = $this->buildStyles($context);
+        $fonts = $this->buildFonts($bodyHtml, $context);
+        $mediaQueries = $this->buildMediaQueriesStyles($context);
         $bodyStyle = $this->buildBodyStyle($context);
 
-        // Build html tag attributes
-        $htmlAttrs = 'xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"';
-        if (null !== $context->lang) {
-            $htmlAttrs .= \sprintf(' lang="%s"', htmlspecialchars($context->lang, \ENT_QUOTES, 'UTF-8'));
-        }
-        if (null !== $context->dir) {
-            $htmlAttrs .= \sprintf(' dir="%s"', htmlspecialchars($context->dir, \ENT_QUOTES, 'UTF-8'));
-        }
+        // Build html tag attributes - lang and dir always included with defaults
+        $lang = htmlspecialchars($context->lang, \ENT_QUOTES, 'UTF-8');
+        $dir = htmlspecialchars($context->dir, \ENT_QUOTES, 'UTF-8');
+        $htmlAttrs = \sprintf(
+            'lang="%s" dir="%s" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
+            $lang,
+            $dir
+        );
 
         return <<<HTML
 <!doctype html>
@@ -233,7 +238,7 @@ final class Mjml2Html
 <!--<![endif]-->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{$fonts}{$styles}</head>
+{$styles}{$fonts}{$mediaQueries}</head>
 <body{$bodyStyle}>
 {$preview}{$bodyHtml}
 </body>
@@ -264,22 +269,47 @@ HTML;
     }
 
     /**
-     * @param array<string, string> $fonts Font URLs indexed by font name
+     * Build font tags by detecting which fonts are used in the content.
+     *
+     * @param string $content The rendered body HTML content
      */
-    private function buildFonts(array $fonts): string
+    private function buildFonts(string $content, RenderContext $context): string
     {
+        $fonts = $context->options->fonts;
+
         if ([] === $fonts) {
             return '';
         }
 
+        $toImport = [];
+
+        foreach ($fonts as $fontName => $fontUrl) {
+            // Check if font is used in font-family declarations
+            $pattern = '/font-family:[^;}]*'.preg_quote($fontName, '/').'/i';
+            if (preg_match($pattern, $content)) {
+                $toImport[] = $fontUrl;
+            }
+        }
+
+        if ([] === $toImport) {
+            return '';
+        }
+
         $links = '';
-        foreach ($fonts as $font) {
-            $links .= \sprintf('<link href="%s" rel="stylesheet" type="text/css">'."\n", htmlspecialchars($font, \ENT_QUOTES, 'UTF-8'));
+        $imports = '';
+        foreach ($toImport as $url) {
+            $escapedUrl = htmlspecialchars($url, \ENT_QUOTES, 'UTF-8');
+            $links .= \sprintf('<link href="%s" rel="stylesheet" type="text/css">', $escapedUrl);
+            $imports .= \sprintf('@import url(%s);', $url);
         }
 
         return <<<HTML
 <!--[if !mso]><!-->
-{$links}<!--<![endif]-->
+{$links}
+<style type="text/css">
+{$imports}
+</style>
+<!--<![endif]-->
 HTML;
     }
 
@@ -293,6 +323,16 @@ table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; 
 img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }
 p { display:block;margin:13px 0; }
 </style>
+<!--[if mso]>
+<noscript>
+<xml>
+<o:OfficeDocumentSettings>
+<o:AllowPNG/>
+<o:PixelsPerInch>96</o:PixelsPerInch>
+</o:OfficeDocumentSettings>
+</xml>
+</noscript>
+<![endif]-->
 <!--[if lte mso 11]>
 <style type="text/css">
 .mj-outlook-group-fix { width:100% !important; }
@@ -300,20 +340,25 @@ p { display:block;margin:13px 0; }
 <![endif]-->
 CSS;
 
-        if ([] !== $context->styles) {
-            $customStyles = implode("\n", $context->styles);
+        $styles = $context->getStyles();
+        if ([] !== $styles) {
+            $customStyles = implode("\n", $styles);
             $css .= "\n<style type=\"text/css\">\n{$customStyles}\n</style>";
         }
-
-        // Add media queries for responsive columns
-        $css .= $this->buildMediaQueries($context);
 
         return $css;
     }
 
+    private function buildMediaQueriesStyles(RenderContext $context): string
+    {
+        return $this->buildMediaQueries($context);
+    }
+
     private function buildMediaQueries(RenderContext $context): string
     {
-        if ([] === $context->mediaQueries) {
+        $mediaQueries = $context->getMediaQueries();
+
+        if ([] === $mediaQueries) {
             return '';
         }
 
@@ -321,7 +366,7 @@ CSS;
         $queries = [];
         $thunderbirdQueries = [];
 
-        foreach ($context->mediaQueries as $className => $cssValue) {
+        foreach ($mediaQueries as $className => $cssValue) {
             $queries[] = ".{$className} {$cssValue}";
             $thunderbirdQueries[] = ".moz-text-html .{$className} {$cssValue}";
         }

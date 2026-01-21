@@ -200,9 +200,10 @@ final class ImageTest extends TestCase
         $html = $image->render();
 
         $this->assertStringContainsString('class="mj-full-width-mobile"', $html);
-        $this->assertCount(1, $context->styles);
-        $this->assertStringContainsString('@media only screen and (max-width:479px)', $context->styles[0]);
-        $this->assertStringContainsString('table.mj-full-width-mobile { width: 100% !important; }', $context->styles[0]);
+        $styles = $context->getStyles();
+        $this->assertCount(1, $styles);
+        $this->assertStringContainsString('@media only screen and (max-width:479px)', $styles[0]);
+        $this->assertStringContainsString('table.mj-full-width-mobile { width: 100% !important; }', $styles[0]);
     }
 
     public function testRenderWithWidth(): void
