@@ -1,0 +1,12 @@
+<mjml>
+  <mj-head>
+    <mj-title>Test Head Component</mj-title>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Testing mj-head container</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
