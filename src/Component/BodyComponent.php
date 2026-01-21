@@ -139,10 +139,7 @@ abstract class BodyComponent extends AbstractComponent
                 } elseif (\is_array($value)) {
                     $value = $this->inlineStyles($value);
                 }
-
-                if ('' === $value) {
-                    continue;
-                }
+            // Output style="" even when empty to match JS MJML
             } elseif (\is_array($value)) {
                 // Skip arrays for non-style attributes
                 continue;
@@ -171,7 +168,12 @@ abstract class BodyComponent extends AbstractComponent
             $result[] = \sprintf('%s:%s', $property, $value);
         }
 
-        return implode(';', $result);
+        if ([] === $result) {
+            return '';
+        }
+
+        // Add trailing semicolon to match JS MJML output
+        return implode(';', $result).';';
     }
 
     /**

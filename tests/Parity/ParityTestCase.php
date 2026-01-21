@@ -68,8 +68,26 @@ abstract class ParityTestCase extends TestCase
     {
         $original = $html;
 
+        // Remove FILE comments added by MJML CLI
+        $html = preg_replace('/<!-- FILE: [^>]+ -->/', '', $html);
+
         // Remove whitespace between tags
         $html = preg_replace('/>\s+</', '><', $html);
+
+        // Normalize whitespace inside style tags
+        $html = preg_replace_callback('/<style[^>]*>(.*?)<\/style>/s', function ($matches) {
+            $content = $matches[0];
+            // Remove leading whitespace from each line inside style
+            $content = preg_replace('/^\s+/m', '', $content);
+
+            return $content;
+        }, $html);
+
+        // Normalize spaces before > in tags (remove trailing spaces in attributes)
+        $html = preg_replace('/\s+>/', '>', $html);
+
+        // Normalize multiple spaces to single space
+        $html = preg_replace('/\s+/', ' ', $html);
 
         if (null === $html) {
             return $original;

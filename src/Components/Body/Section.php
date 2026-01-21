@@ -250,20 +250,21 @@ final class Section extends BodyComponent
             ? ['bgcolor' => $this->getAttribute('background-color')]
             : [];
 
+        $cssClass = $this->getAttribute('css-class');
+        $outlookClass = (null !== $cssClass && '' !== $cssClass)
+            ? CssHelper::suffixCssClasses($cssClass, 'outlook')
+            : '';
+
         $tableAttributes = array_merge([
             'align' => 'center',
             'border' => '0',
             'cellpadding' => '0',
             'cellspacing' => '0',
+            'class' => $outlookClass,
             'role' => 'presentation',
             'style' => ['width' => "{$containerWidth}px"],
             'width' => $containerWidth,
         ], $bgcolorAttr);
-
-        $cssClass = $this->getAttribute('css-class');
-        if (null !== $cssClass && '' !== $cssClass) {
-            $tableAttributes['class'] = CssHelper::suffixCssClasses($cssClass, 'outlook');
-        }
 
         $tableHtml = \sprintf(
             '<table %s><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">',
@@ -297,14 +298,15 @@ final class Section extends BodyComponent
 
     private function renderWrappedChild(ComponentInterface $child): string
     {
-        $tdAttributes = [
-            'align' => $child->getAttribute('align'),
-        ];
-
         $cssClass = $child->getAttribute('css-class');
-        if (null !== $cssClass && '' !== $cssClass) {
-            $tdAttributes['class'] = CssHelper::suffixCssClasses($cssClass, 'outlook');
-        }
+        $outlookClass = (null !== $cssClass && '' !== $cssClass)
+            ? CssHelper::suffixCssClasses($cssClass, 'outlook')
+            : '';
+
+        $tdAttributes = [
+            'class' => $outlookClass,
+            'style' => null,
+        ];
 
         // Get tdOutlook style from child if available (for Column components)
         if ($child instanceof BodyComponent) {
