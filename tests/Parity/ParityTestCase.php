@@ -38,6 +38,10 @@ abstract class ParityTestCase extends TestCase
 
     protected function renderWithJs(string $mjml): string
     {
+        if (!$this->isMjmlCliAvailable()) {
+            $this->markTestSkipped('MJML CLI (npx mjml) is not available');
+        }
+
         $tempFile = tempnam(sys_get_temp_dir(), 'mjml_');
         file_put_contents($tempFile, $mjml);
 
@@ -53,7 +57,19 @@ abstract class ParityTestCase extends TestCase
             throw new \RuntimeException('Failed to execute mjml CLI');
         }
 
+        // Check if output looks like an error (not HTML)
+        if (!str_contains($output, '<!doctype html>') && !str_contains($output, '<!DOCTYPE html>')) {
+            throw new \RuntimeException('MJML CLI returned an error: '.$output);
+        }
+
         return $output;
+    }
+
+    private function isMjmlCliAvailable(): bool
+    {
+        $output = shell_exec('npx mjml --version 2>&1');
+
+        return null !== $output && str_contains($output, 'mjml-core:');
     }
 
     protected function assertHtmlEquals(string $expected, string $actual, string $message = ''): void

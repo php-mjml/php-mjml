@@ -33,6 +33,14 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: dom, libxml
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install MJML CLI
+        run: npm install -g mjml
+
       - name: Install dependencies
         uses: ramsey/composer-install@v3
         with:
