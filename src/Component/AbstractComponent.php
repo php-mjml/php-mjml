@@ -45,10 +45,10 @@ abstract class AbstractComponent implements ComponentInterface
         ?RenderContext $context = null,
         array $props = [],
     ) {
-        $this->attributes = array_merge(static::getDefaultAttributes(), $attributes);
+        $this->context = $context;
+        $this->attributes = $this->mergeAttributes($attributes);
         $this->children = $children;
         $this->content = trim($content);
-        $this->context = $context;
         $this->props = $props;
     }
 
@@ -97,5 +97,41 @@ abstract class AbstractComponent implements ComponentInterface
     public function getProps(): array
     {
         return $this->props;
+    }
+
+    /**
+     * Merge attributes from various sources.
+     *
+     * Priority (lowest to highest):
+     * 1. Component default attributes
+     * 2. mj-all attributes (from mj-attributes)
+     * 3. Component-specific default attributes (from mj-attributes)
+     * 4. Instance attributes passed to constructor
+     *
+     * @param array<string, string|null> $instanceAttributes
+     *
+     * @return array<string, string|null>
+     */
+    private function mergeAttributes(array $instanceAttributes): array
+    {
+        $merged = static::getDefaultAttributes();
+
+        if (null !== $this->context) {
+            // Apply mj-all defaults
+            $mjAllDefaults = $this->context->headAttributes['mj-all'] ?? [];
+            if ([] !== $mjAllDefaults) {
+                $merged = array_merge($merged, $mjAllDefaults);
+            }
+
+            // Apply component-specific defaults (e.g., mj-text defaults)
+            $componentName = static::getComponentName();
+            $componentDefaults = $this->context->headAttributes[$componentName] ?? [];
+            if ([] !== $componentDefaults) {
+                $merged = array_merge($merged, $componentDefaults);
+            }
+        }
+
+        // Instance attributes have highest priority
+        return array_merge($merged, $instanceAttributes);
     }
 }

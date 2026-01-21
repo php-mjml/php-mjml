@@ -65,13 +65,6 @@ abstract class ParityTestCase extends TestCase
         return $output;
     }
 
-    private function isMjmlCliAvailable(): bool
-    {
-        $output = shell_exec('npx mjml --version 2>&1');
-
-        return null !== $output && str_contains($output, 'mjml-core:');
-    }
-
     protected function assertHtmlEquals(string $expected, string $actual, string $message = ''): void
     {
         $normalizedExpected = $this->normalizeHtml($expected);
@@ -101,6 +94,9 @@ abstract class ParityTestCase extends TestCase
 
         // Normalize spaces before > in tags (remove trailing spaces in attributes)
         $html = preg_replace('/\s+>/', '>', $html) ?? $html;
+
+        // Normalize empty style attributes: style="" -> style (for HTML5 compatibility)
+        $html = preg_replace('/\bstyle=""/', 'style', $html) ?? $html;
 
         // Normalize multiple spaces to single space
         $html = preg_replace('/\s+/', ' ', $html) ?? $html;
@@ -140,5 +136,12 @@ abstract class ParityTestCase extends TestCase
         }
 
         return $content;
+    }
+
+    private function isMjmlCliAvailable(): bool
+    {
+        $output = shell_exec('npx mjml --version 2>&1');
+
+        return \is_string($output) && str_contains($output, 'mjml-core:');
     }
 }

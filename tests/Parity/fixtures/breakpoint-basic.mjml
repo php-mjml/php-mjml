@@ -1,0 +1,15 @@
+<mjml>
+  <mj-head>
+    <mj-breakpoint width="600px" />
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Testing custom breakpoint</mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text>Second column</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

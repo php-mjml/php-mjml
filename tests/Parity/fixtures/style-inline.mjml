@@ -1,0 +1,12 @@
+<mjml>
+  <mj-head>
+    <mj-style inline="inline">.test { color: blue; }</mj-style>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Testing inline style</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

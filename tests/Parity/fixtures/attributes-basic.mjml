@@ -1,0 +1,16 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-text color="blue" font-size="16px" />
+      <mj-button background-color="green" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Text with default blue color</mj-text>
+        <mj-button href="#">Button with default green</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

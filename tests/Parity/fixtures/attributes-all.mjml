@@ -1,0 +1,15 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text color="red" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Text with red color and Arial font</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

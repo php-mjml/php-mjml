@@ -77,6 +77,11 @@ final class Mjml2Html
                 context: $context,
             );
 
+            // Pass raw children to components that need them (e.g., mj-attributes)
+            if (method_exists($component, 'setRawChildren')) {
+                $component->setRawChildren($child->children);
+            }
+
             if (method_exists($component, 'handle')) {
                 $component->handle($context);
             }
@@ -272,7 +277,8 @@ HTML;
      */
     private function buildFonts(string $content, RenderContext $context): string
     {
-        $fonts = $context->options->fonts;
+        // Merge fonts from options and context (mj-font sets context->fonts)
+        $fonts = array_merge($context->options->fonts, $context->fonts);
 
         if ([] === $fonts) {
             return '';
