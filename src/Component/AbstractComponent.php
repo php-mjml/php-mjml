@@ -35,8 +35,8 @@ abstract class AbstractComponent implements ComponentInterface
 
     /**
      * @param array<string, string|null> $attributes
-     * @param array<ComponentInterface> $children
-     * @param array<string, mixed> $props
+     * @param array<ComponentInterface>  $children
+     * @param array<string, mixed>       $props
      */
     public function __construct(
         array $attributes = [],

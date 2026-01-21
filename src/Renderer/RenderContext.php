@@ -18,10 +18,10 @@ use PhpMjml\Component\Registry;
 final class RenderContext
 {
     /**
-     * @param array<string, string>                                   $fonts          Font URLs indexed by name
-     * @param array<int, string>                                      $styles         CSS style strings
-     * @param array<string, array<string, mixed>>                     $headAttributes Head element attributes
-     * @param array<string, string>                                   $mediaQueries   Media query CSS indexed by class name
+     * @param array<string, string>               $fonts          Font URLs indexed by name
+     * @param array<int, string>                  $styles         CSS style strings
+     * @param array<string, array<string, mixed>> $headAttributes Head element attributes
+     * @param array<string, string>               $mediaQueries   Media query CSS indexed by class name
      */
     public function __construct(
         public readonly Registry $registry,
