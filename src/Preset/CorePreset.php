@@ -23,8 +23,12 @@ use PhpMjml\Components\Body\Raw;
 use PhpMjml\Components\Body\Section;
 use PhpMjml\Components\Body\Spacer;
 use PhpMjml\Components\Body\Text;
+use PhpMjml\Components\Head\Attributes;
+use PhpMjml\Components\Head\Breakpoint;
+use PhpMjml\Components\Head\Font;
 use PhpMjml\Components\Head\Head;
 use PhpMjml\Components\Head\Preview;
+use PhpMjml\Components\Head\Style;
 use PhpMjml\Components\Head\Title;
 
 final class CorePreset
@@ -48,8 +52,12 @@ final class CorePreset
             Text::class,
 
             // Head components
+            Attributes::class,
+            Breakpoint::class,
+            Font::class,
             Head::class,
             Preview::class,
+            Style::class,
             Title::class,
         ];
     }

@@ -25,11 +25,13 @@ final class GlobalData
      * @param array<string, string> $mediaQueries       Media query CSS indexed by class name
      * @param array<int, string>    $styles             CSS style strings
      * @param array<int, string>    $componentHeadStyle Component head styles (output after media queries)
+     * @param array<int, string>    $inlineStyles       Inline CSS styles for inlining into elements
      */
     public function __construct(
         public array $mediaQueries = [],
         public array $styles = [],
         public array $componentHeadStyle = [],
+        public array $inlineStyles = [],
     ) {
     }
 
