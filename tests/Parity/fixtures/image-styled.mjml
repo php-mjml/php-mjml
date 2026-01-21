@@ -1,0 +1,17 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image
+          src="https://via.placeholder.com/400x200"
+          alt="Styled image"
+          width="400px"
+          height="200px"
+          border="2px solid #ff0000"
+          border-radius="10px"
+          padding="20px"
+        />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

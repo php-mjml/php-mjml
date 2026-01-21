@@ -1,0 +1,16 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image
+          src="https://via.placeholder.com/300x150"
+          alt="Clickable image"
+          href="https://example.com"
+          target="_blank"
+          rel="noopener"
+          title="Click me"
+        />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

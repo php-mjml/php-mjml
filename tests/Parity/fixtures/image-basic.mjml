@@ -1,0 +1,9 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image src="https://via.placeholder.com/600x300" alt="Placeholder image" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image
+          src="https://via.placeholder.com/300x150"
+          alt="Fluid mobile image"
+          fluid-on-mobile="true"
+        />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
