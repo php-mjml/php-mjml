@@ -11,6 +11,9 @@
         "ext-libxml": "*"
     },
     "require-dev": {
+        "php-cs-fixer/shim": "^3.91",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^11.0"
     },
     "autoload": {
@@ -26,7 +29,11 @@
     "scripts": {
         "test": "phpunit",
         "test:parity": "phpunit --testsuite=parity",
-        "test:unit": "phpunit --testsuite=unit"
+        "test:unit": "phpunit --testsuite=unit",
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix",
+        "phpstan": "phpstan",
+        "ca": ["@cs", "@phpstan", "@test"]
     },
     "config": {
         "sort-packages": true
