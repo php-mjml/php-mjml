@@ -1,0 +1,9 @@
+<mjml>
+  <mj-body>
+    <mj-hero height="400px" background-color="#f4f4f4">
+      <mj-text align="center" color="#333333">
+        Welcome to our newsletter
+      </mj-text>
+    </mj-hero>
+  </mj-body>
+</mjml>

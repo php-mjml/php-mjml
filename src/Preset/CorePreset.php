@@ -24,6 +24,7 @@ use PhpMjml\Components\Body\Section;
 use PhpMjml\Components\Body\Spacer;
 use PhpMjml\Components\Body\Text;
 use PhpMjml\Components\Head\Head;
+use PhpMjml\Components\Head\Preview;
 use PhpMjml\Components\Head\Title;
 
 final class CorePreset
@@ -48,6 +49,7 @@ final class CorePreset
 
             // Head components
             Head::class,
+            Preview::class,
             Title::class,
         ];
     }

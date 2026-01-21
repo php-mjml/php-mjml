@@ -1,0 +1,19 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-button
+          background-color="#007bff"
+          color="#ffffff"
+          font-size="16px"
+          border-radius="10px"
+          padding="15px 30px"
+          inner-padding="15px 30px"
+          font-weight="bold"
+        >
+          Styled Button
+        </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

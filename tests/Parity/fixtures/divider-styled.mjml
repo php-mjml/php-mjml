@@ -1,0 +1,16 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-divider
+          border-color="#ff0000"
+          border-style="dashed"
+          border-width="2px"
+          width="50%"
+          align="left"
+          padding="20px 10px"
+        />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
