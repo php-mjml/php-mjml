@@ -1,0 +1,34 @@
+{
+    "name": "php-mjml/php-mjml",
+    "description": "PHP port of the MJML email templating library",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.4",
+        "ext-dom": "*",
+        "ext-libxml": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpMjml\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PhpMjml\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:parity": "phpunit --testsuite=parity",
+        "test:unit": "phpunit --testsuite=unit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

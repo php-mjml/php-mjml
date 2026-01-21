@@ -1,0 +1,9 @@
+<mjml>
+  <mj-body>
+    <mj-section padding="40px 20px" background-color="#ffffff">
+      <mj-column>
+        <mj-text>Section with padding and background</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

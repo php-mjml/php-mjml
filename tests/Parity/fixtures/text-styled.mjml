@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text color="#ff0000" font-size="20px" font-weight="bold" align="center">
+          Styled Text
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

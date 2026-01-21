@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column width="200px">
+        <mj-text>200px wide</mj-text>
+      </mj-column>
+      <mj-column width="60%">
+        <mj-text>60% wide</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

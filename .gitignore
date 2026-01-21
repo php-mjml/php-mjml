@@ -1,0 +1,23 @@
+# Reference JS library
+reference/
+
+# Composer
+/vendor/
+composer.lock
+
+# PHPUnit
+.phpunit.cache/
+.phpunit.result.cache
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (for parity tests)
+node_modules/
+package-lock.json
