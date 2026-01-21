@@ -2,9 +2,19 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Renderer;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Registry;
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\Node;
@@ -14,7 +24,8 @@ final class Mjml2Html
     public function __construct(
         private readonly Registry $registry,
         private readonly MjmlParser $parser,
-    ) {}
+    ) {
+    }
 
     public function render(string $mjml, ?RenderOptions $options = null): RenderResult
     {
@@ -45,13 +56,13 @@ final class Mjml2Html
     private function processHead(Node $ast, RenderContext $context): void
     {
         $head = $ast->findChild('mj-head');
-        if ($head === null) {
+        if (null === $head) {
             return;
         }
 
         foreach ($head->children as $child) {
             $componentClass = $this->registry->get($child->tagName);
-            if ($componentClass === null) {
+            if (null === $componentClass) {
                 continue;
             }
 
@@ -71,12 +82,12 @@ final class Mjml2Html
     private function processBody(Node $ast, RenderContext $context): string
     {
         $body = $ast->findChild('mj-body');
-        if ($body === null) {
+        if (null === $body) {
             return '';
         }
 
         $componentClass = $this->registry->get($body->tagName);
-        if ($componentClass === null) {
+        if (null === $componentClass) {
             return '';
         }
 
@@ -108,9 +119,11 @@ final class Mjml2Html
     /**
      * Build children with proper context propagation.
      *
-     * @param Node[] $nodes
+     * @param Node[]        $nodes              Child nodes to build
      * @param RenderContext $parentChildContext The child context from parent component
-     * @param RenderContext $rootContext The root context (for media query registration)
+     * @param RenderContext $rootContext        The root context (for media query registration)
+     *
+     * @return list<ComponentInterface>
      */
     private function buildChildrenWithContext(array $nodes, RenderContext $parentChildContext, RenderContext $rootContext): array
     {
@@ -120,23 +133,23 @@ final class Mjml2Html
         $nonRawSiblings = 0;
         foreach ($nodes as $node) {
             $componentClass = $this->registry->get($node->tagName);
-            if ($componentClass !== null && !$componentClass::isRawElement()) {
-                $nonRawSiblings++;
+            if (null !== $componentClass && is_subclass_of($componentClass, BodyComponent::class) && !$componentClass::isRawElement()) {
+                ++$nonRawSiblings;
             }
         }
 
         $index = 0;
         foreach ($nodes as $node) {
             $componentClass = $this->registry->get($node->tagName);
-            if ($componentClass === null) {
+            if (null === $componentClass) {
                 continue;
             }
 
             $props = [
-                'first' => $index === 0,
+                'first' => 0 === $index,
                 'index' => $index,
-                'last' => $index + 1 === count($nodes),
-                'sibling' => count($nodes),
+                'last' => $index + 1 === \count($nodes),
+                'sibling' => \count($nodes),
                 'nonRawSiblings' => $nonRawSiblings,
             ];
 
@@ -165,7 +178,7 @@ final class Mjml2Html
             );
 
             $children[] = $component;
-            $index++;
+            ++$index;
         }
 
         return $children;
@@ -180,16 +193,12 @@ final class Mjml2Html
             return $baseContext;
         }
 
-        if (!method_exists($component, 'getChildContext')) {
-            return $baseContext;
-        }
-
         $childContextArray = $component->getChildContext();
 
         // Handle containerWidth specially - parse it if it's a string with unit
         if (isset($childContextArray['containerWidth'])) {
             $width = $childContextArray['containerWidth'];
-            if (is_string($width)) {
+            if (\is_string($width)) {
                 $childContextArray['containerWidth'] = (int) $width;
             }
         }
@@ -199,19 +208,19 @@ final class Mjml2Html
 
     private function buildSkeleton(string $bodyHtml, RenderContext $context): string
     {
-        $title = htmlspecialchars($context->title, ENT_QUOTES, 'UTF-8');
-        $preview = $context->preview !== '' ? $this->buildPreview($context->preview) : '';
+        $title = htmlspecialchars($context->title, \ENT_QUOTES, 'UTF-8');
+        $preview = '' !== $context->preview ? $this->buildPreview($context->preview) : '';
         $fonts = $this->buildFonts($context->fonts);
         $styles = $this->buildStyles($context);
         $bodyStyle = $this->buildBodyStyle($context);
 
         // Build html tag attributes
         $htmlAttrs = 'xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"';
-        if ($context->lang !== null) {
-            $htmlAttrs .= sprintf(' lang="%s"', htmlspecialchars($context->lang, ENT_QUOTES, 'UTF-8'));
+        if (null !== $context->lang) {
+            $htmlAttrs .= \sprintf(' lang="%s"', htmlspecialchars($context->lang, \ENT_QUOTES, 'UTF-8'));
         }
-        if ($context->dir !== null) {
-            $htmlAttrs .= sprintf(' dir="%s"', htmlspecialchars($context->dir, ENT_QUOTES, 'UTF-8'));
+        if (null !== $context->dir) {
+            $htmlAttrs .= \sprintf(' dir="%s"', htmlspecialchars($context->dir, \ENT_QUOTES, 'UTF-8'));
         }
 
         return <<<HTML
@@ -236,16 +245,16 @@ HTML;
     {
         $styles = ['word-spacing:normal'];
 
-        if ($context->backgroundColor !== null && $context->backgroundColor !== '') {
+        if (null !== $context->backgroundColor && '' !== $context->backgroundColor) {
             $styles[] = "background-color:{$context->backgroundColor}";
         }
 
-        return ' style="' . implode(';', $styles) . ';"';
+        return ' style="'.implode(';', $styles).';"';
     }
 
     private function buildPreview(string $preview): string
     {
-        $escaped = htmlspecialchars($preview, ENT_QUOTES, 'UTF-8');
+        $escaped = htmlspecialchars($preview, \ENT_QUOTES, 'UTF-8');
 
         return <<<HTML
 <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
@@ -254,15 +263,18 @@ HTML;
 HTML;
     }
 
+    /**
+     * @param array<string, string> $fonts Font URLs indexed by font name
+     */
     private function buildFonts(array $fonts): string
     {
-        if ($fonts === []) {
+        if ([] === $fonts) {
             return '';
         }
 
         $links = '';
         foreach ($fonts as $font) {
-            $links .= sprintf('<link href="%s" rel="stylesheet" type="text/css">' . "\n", htmlspecialchars($font, ENT_QUOTES, 'UTF-8'));
+            $links .= \sprintf('<link href="%s" rel="stylesheet" type="text/css">'."\n", htmlspecialchars($font, \ENT_QUOTES, 'UTF-8'));
         }
 
         return <<<HTML
@@ -288,7 +300,7 @@ p { display:block;margin:13px 0; }
 <![endif]-->
 CSS;
 
-        if ($context->styles !== []) {
+        if ([] !== $context->styles) {
             $customStyles = implode("\n", $context->styles);
             $css .= "\n<style type=\"text/css\">\n{$customStyles}\n</style>";
         }
@@ -301,7 +313,7 @@ CSS;
 
     private function buildMediaQueries(RenderContext $context): string
     {
-        if ($context->mediaQueries === []) {
+        if ([] === $context->mediaQueries) {
             return '';
         }
 

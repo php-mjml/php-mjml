@@ -2,12 +2,21 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
-use PhpMjml\Helper\CssHelper;
 use PhpMjml\Helper\ConditionalTag;
+use PhpMjml\Helper\CssHelper;
 
 final class Section extends BodyComponent
 {
@@ -16,6 +25,9 @@ final class Section extends BodyComponent
         return 'mj-section';
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getAllowedAttributes(): array
     {
         return [
@@ -44,6 +56,9 @@ final class Section extends BodyComponent
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getDefaultAttributes(): array
     {
         return [
@@ -57,6 +72,9 @@ final class Section extends BodyComponent
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getChildContext(): array
     {
         $context = $this->context?->toArray() ?? [];
@@ -67,13 +85,16 @@ final class Section extends BodyComponent
         return $context;
     }
 
+    /**
+     * @return array<string, array<string, string|null>>
+     */
     public function getStyles(): array
     {
-        $containerWidth = $this->context?->containerWidth ?? 600;
+        $containerWidth = $this->context->containerWidth ?? 600;
         $fullWidth = $this->isFullWidth();
         $hasBorderRadius = $this->hasBorderRadius();
 
-        $background = $this->getAttribute('background-url') !== null
+        $background = null !== $this->getAttribute('background-url')
             ? [
                 'background' => $this->getBackground(),
                 'background-position' => $this->getBackgroundString(),
@@ -129,17 +150,22 @@ final class Section extends BodyComponent
         ];
     }
 
+    public function render(): string
+    {
+        return $this->isFullWidth() ? $this->renderFullWidth() : $this->renderSimple();
+    }
+
     private function getBackground(): string
     {
         $parts = array_filter([
             $this->getAttribute('background-color'),
             $this->hasBackground()
-                ? sprintf("url('%s')", $this->getAttribute('background-url'))
+                ? \sprintf("url('%s')", $this->getAttribute('background-url'))
                 : null,
             $this->hasBackground() ? $this->getBackgroundString() : null,
-            $this->hasBackground() ? sprintf('/ %s', $this->getAttribute('background-size')) : null,
+            $this->hasBackground() ? \sprintf('/ %s', $this->getAttribute('background-size')) : null,
             $this->hasBackground() ? $this->getAttribute('background-repeat') : null,
-        ], fn($v) => $v !== null && $v !== '');
+        ], fn ($v) => null !== $v && '' !== $v);
 
         return implode(' ', $parts);
     }
@@ -172,21 +198,25 @@ final class Section extends BodyComponent
         $position = $this->getAttribute('background-position') ?? 'top center';
         $parts = preg_split('/\s+/', trim($position));
 
-        if (count($parts) === 1) {
+        if (false === $parts) {
+            return ['x' => 'center', 'y' => 'top'];
+        }
+
+        if (1 === \count($parts)) {
             $val = $parts[0];
-            if (in_array($val, ['top', 'bottom'], true)) {
+            if (\in_array($val, ['top', 'bottom'], true)) {
                 return ['x' => 'center', 'y' => $val];
             }
 
             return ['x' => $val, 'y' => 'center'];
         }
 
-        if (count($parts) === 2) {
+        if (2 === \count($parts)) {
             $val1 = $parts[0];
             $val2 = $parts[1];
 
-            if (in_array($val1, ['top', 'bottom'], true)
-                || ($val1 === 'center' && in_array($val2, ['left', 'right'], true))) {
+            if (\in_array($val1, ['top', 'bottom'], true)
+                || ('center' === $val1 && \in_array($val2, ['left', 'right'], true))) {
                 return ['x' => $val2, 'y' => $val1];
             }
 
@@ -198,25 +228,25 @@ final class Section extends BodyComponent
 
     private function hasBackground(): bool
     {
-        return $this->getAttribute('background-url') !== null;
+        return null !== $this->getAttribute('background-url');
     }
 
     private function isFullWidth(): bool
     {
-        return $this->getAttribute('full-width') === 'full-width';
+        return 'full-width' === $this->getAttribute('full-width');
     }
 
     private function hasBorderRadius(): bool
     {
         $borderRadius = $this->getAttribute('border-radius');
 
-        return $borderRadius !== null && $borderRadius !== '';
+        return null !== $borderRadius && '' !== $borderRadius;
     }
 
     private function renderBefore(): string
     {
-        $containerWidth = $this->context?->containerWidth ?? 600;
-        $bgcolorAttr = $this->getAttribute('background-color') !== null
+        $containerWidth = $this->context->containerWidth ?? 600;
+        $bgcolorAttr = null !== $this->getAttribute('background-color')
             ? ['bgcolor' => $this->getAttribute('background-color')]
             : [];
 
@@ -231,26 +261,26 @@ final class Section extends BodyComponent
         ], $bgcolorAttr);
 
         $cssClass = $this->getAttribute('css-class');
-        if ($cssClass !== null && $cssClass !== '') {
+        if (null !== $cssClass && '' !== $cssClass) {
             $tableAttributes['class'] = CssHelper::suffixCssClasses($cssClass, 'outlook');
         }
 
-        $tableHtml = sprintf(
+        $tableHtml = \sprintf(
             '<table %s><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">',
             $this->htmlAttributes($tableAttributes),
         );
 
-        return ConditionalTag::START_CONDITIONAL . $tableHtml . ConditionalTag::END_CONDITIONAL;
+        return ConditionalTag::START_CONDITIONAL.$tableHtml.ConditionalTag::END_CONDITIONAL;
     }
 
     private function renderAfter(): string
     {
-        return ConditionalTag::START_CONDITIONAL . '</td></tr></table>' . ConditionalTag::END_CONDITIONAL;
+        return ConditionalTag::START_CONDITIONAL.'</td></tr></table>'.ConditionalTag::END_CONDITIONAL;
     }
 
     private function renderWrappedChildren(): string
     {
-        $output = ConditionalTag::START_CONDITIONAL . '<tr>' . ConditionalTag::END_CONDITIONAL;
+        $output = ConditionalTag::START_CONDITIONAL.'<tr>'.ConditionalTag::END_CONDITIONAL;
 
         foreach ($this->children as $child) {
             if ($child instanceof BodyComponent && $child::isRawElement()) {
@@ -260,7 +290,7 @@ final class Section extends BodyComponent
             }
         }
 
-        $output .= ConditionalTag::START_CONDITIONAL . '</tr>' . ConditionalTag::END_CONDITIONAL;
+        $output .= ConditionalTag::START_CONDITIONAL.'</tr>'.ConditionalTag::END_CONDITIONAL;
 
         return $output;
     }
@@ -272,7 +302,7 @@ final class Section extends BodyComponent
         ];
 
         $cssClass = $child->getAttribute('css-class');
-        if ($cssClass !== null && $cssClass !== '') {
+        if (null !== $cssClass && '' !== $cssClass) {
             $tdAttributes['class'] = CssHelper::suffixCssClasses($cssClass, 'outlook');
         }
 
@@ -285,20 +315,20 @@ final class Section extends BodyComponent
         }
 
         return ConditionalTag::START_CONDITIONAL
-            . sprintf('<td %s>', $this->htmlAttributes($tdAttributes))
-            . ConditionalTag::END_CONDITIONAL
-            . $child->render()
-            . ConditionalTag::START_CONDITIONAL
-            . '</td>'
-            . ConditionalTag::END_CONDITIONAL;
+            .\sprintf('<td %s>', $this->htmlAttributes($tdAttributes))
+            .ConditionalTag::END_CONDITIONAL
+            .$child->render()
+            .ConditionalTag::START_CONDITIONAL
+            .'</td>'
+            .ConditionalTag::END_CONDITIONAL;
     }
 
     private function renderWithBackground(string $content): string
     {
         $fullWidth = $this->isFullWidth();
-        $containerWidth = $this->context?->containerWidth ?? 600;
+        $containerWidth = $this->context->containerWidth ?? 600;
 
-        $isPercentage = fn(string $str): bool => (bool) preg_match('/^\d+(\.\d+)?%$/', $str);
+        $isPercentage = fn (string $str): bool => (bool) preg_match('/^\d+(\.\d+)?%$/', $str);
 
         $pos = $this->getBackgroundPosition();
         $bgPosX = $pos['posX'];
@@ -318,7 +348,7 @@ final class Section extends BodyComponent
             default => $isPercentage($bgPosY) ? $bgPosY : '0%',
         };
 
-        $bgRepeat = $this->getAttribute('background-repeat') === 'repeat';
+        $bgRepeat = 'repeat' === $this->getAttribute('background-repeat');
 
         // Calculate VML origin and position
         $calculateVmlValues = function (string $pos, bool $isX) use ($isPercentage, $bgRepeat): array {
@@ -349,15 +379,15 @@ final class Section extends BodyComponent
         $vSizeAttributes = [];
         $backgroundSize = $this->getAttribute('background-size');
 
-        if ($backgroundSize === 'cover' || $backgroundSize === 'contain') {
+        if ('cover' === $backgroundSize || 'contain' === $backgroundSize) {
             $vSizeAttributes = [
                 'size' => '1,1',
-                'aspect' => $backgroundSize === 'cover' ? 'atleast' : 'atmost',
+                'aspect' => 'cover' === $backgroundSize ? 'atleast' : 'atmost',
             ];
-        } elseif ($backgroundSize !== 'auto') {
+        } elseif ('auto' !== $backgroundSize) {
             $bgSplit = preg_split('/\s+/', $backgroundSize);
 
-            if (count($bgSplit) === 1) {
+            if (false === $bgSplit || 1 === \count($bgSplit)) {
                 $vSizeAttributes = [
                     'size' => $backgroundSize,
                     'aspect' => 'atmost',
@@ -369,9 +399,9 @@ final class Section extends BodyComponent
             }
         }
 
-        $vmlType = $this->getAttribute('background-repeat') === 'no-repeat' ? 'frame' : 'tile';
+        $vmlType = 'no-repeat' === $this->getAttribute('background-repeat') ? 'frame' : 'tile';
 
-        if ($backgroundSize === 'auto') {
+        if ('auto' === $backgroundSize) {
             $vmlType = 'tile';
             $vOriginX = 0.5;
             $vPosX = 0.5;
@@ -398,7 +428,7 @@ final class Section extends BodyComponent
             'type' => $vmlType,
         ], $vSizeAttributes);
 
-        $vmlStart = sprintf(
+        $vmlStart = \sprintf(
             '<v:rect %s><v:fill %s /><v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">',
             $this->htmlAttributes($vRectAttributes),
             $this->htmlAttributes($vFillAttributes),
@@ -407,12 +437,12 @@ final class Section extends BodyComponent
         $vmlEnd = '</v:textbox></v:rect>';
 
         return ConditionalTag::START_CONDITIONAL
-            . $vmlStart
-            . ConditionalTag::END_CONDITIONAL
-            . $content
-            . ConditionalTag::START_CONDITIONAL
-            . $vmlEnd
-            . ConditionalTag::END_CONDITIONAL;
+            .$vmlStart
+            .ConditionalTag::END_CONDITIONAL
+            .$content
+            .ConditionalTag::START_CONDITIONAL
+            .$vmlEnd
+            .ConditionalTag::END_CONDITIONAL;
     }
 
     private function renderSection(): string
@@ -425,12 +455,12 @@ final class Section extends BodyComponent
 
         if (!$this->isFullWidth()) {
             $cssClass = $this->getAttribute('css-class');
-            if ($cssClass !== null && $cssClass !== '') {
+            if (null !== $cssClass && '' !== $cssClass) {
                 $divAttributes['class'] = $cssClass;
             }
         }
 
-        $innerDivStart = $hasBackground ? sprintf('<div %s>', $this->htmlAttributes(['style' => 'innerDiv'])) : '';
+        $innerDivStart = $hasBackground ? \sprintf('<div %s>', $this->htmlAttributes(['style' => 'innerDiv'])) : '';
         $innerDivEnd = $hasBackground ? '</div>' : '';
 
         $tableAttributes = [
@@ -447,14 +477,14 @@ final class Section extends BodyComponent
         }
 
         $innerTable = ConditionalTag::START_CONDITIONAL
-            . '<table role="presentation" border="0" cellpadding="0" cellspacing="0">'
-            . ConditionalTag::END_CONDITIONAL
-            . $this->renderWrappedChildren()
-            . ConditionalTag::START_CONDITIONAL
-            . '</table>'
-            . ConditionalTag::END_CONDITIONAL;
+            .'<table role="presentation" border="0" cellpadding="0" cellspacing="0">'
+            .ConditionalTag::END_CONDITIONAL
+            .$this->renderWrappedChildren()
+            .ConditionalTag::START_CONDITIONAL
+            .'</table>'
+            .ConditionalTag::END_CONDITIONAL;
 
-        return sprintf(
+        return \sprintf(
             '<div %s>%s<table %s><tbody><tr><td %s>%s</td></tr></tbody></table>%s</div>',
             $this->htmlAttributes($divAttributes),
             $innerDivStart,
@@ -467,7 +497,7 @@ final class Section extends BodyComponent
 
     private function renderFullWidth(): string
     {
-        $section = $this->renderBefore() . $this->renderSection() . $this->renderAfter();
+        $section = $this->renderBefore().$this->renderSection().$this->renderAfter();
         $content = $this->hasBackground()
             ? $this->renderWithBackground($section)
             : $section;
@@ -482,7 +512,7 @@ final class Section extends BodyComponent
         ];
 
         $cssClass = $this->getAttribute('css-class');
-        if ($cssClass !== null && $cssClass !== '') {
+        if (null !== $cssClass && '' !== $cssClass) {
             $tableAttributes['class'] = $cssClass;
         }
 
@@ -490,7 +520,7 @@ final class Section extends BodyComponent
             $tableAttributes['background'] = $this->getAttribute('background-url');
         }
 
-        return sprintf(
+        return \sprintf(
             '<table %s><tbody><tr><td>%s</td></tr></tbody></table>',
             $this->htmlAttributes($tableAttributes),
             $content,
@@ -502,12 +532,7 @@ final class Section extends BodyComponent
         $section = $this->renderSection();
 
         return $this->renderBefore()
-            . ($this->hasBackground() ? $this->renderWithBackground($section) : $section)
-            . $this->renderAfter();
-    }
-
-    public function render(): string
-    {
-        return $this->isFullWidth() ? $this->renderFullWidth() : $this->renderSimple();
+            .($this->hasBackground() ? $this->renderWithBackground($section) : $section)
+            .$this->renderAfter();
     }
 }

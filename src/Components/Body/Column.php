@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
@@ -51,10 +60,13 @@ final class Column extends BodyComponent
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getChildContext(): array
     {
         $context = $this->context?->toArray() ?? [];
-        $parentWidth = $this->context?->containerWidth ?? 600;
+        $parentWidth = $this->context->containerWidth ?? 600;
         $nonRawSiblings = $this->props['nonRawSiblings'] ?? 1;
 
         $boxWidths = $this->getBoxWidths();
@@ -67,16 +79,16 @@ final class Column extends BodyComponent
         $allPaddings = $paddings + $borders + $innerBorders;
 
         $width = $this->getAttribute('width');
-        $containerWidth = $width ?? sprintf('%dpx', (int) ($parentWidth / $nonRawSiblings));
+        $containerWidth = $width ?? \sprintf('%dpx', (int) ($parentWidth / $nonRawSiblings));
 
         $parsed = WidthParser::parse($containerWidth, parseFloatToInt: false);
         $unit = $parsed['unit'];
         $parsedWidth = $parsed['parsedWidth'];
 
-        if ($unit === '%') {
-            $containerWidth = sprintf('%dpx', (int) (($parentWidth * $parsedWidth) / 100 - $allPaddings));
+        if ('%' === $unit) {
+            $containerWidth = \sprintf('%dpx', (int) (($parentWidth * $parsedWidth) / 100 - $allPaddings));
         } else {
-            $containerWidth = sprintf('%dpx', (int) ($parsedWidth - $allPaddings));
+            $containerWidth = \sprintf('%dpx', (int) ($parsedWidth - $allPaddings));
         }
 
         $context['containerWidth'] = (int) $containerWidth;
@@ -144,59 +156,70 @@ final class Column extends BodyComponent
         ];
     }
 
+    public function render(): string
+    {
+        $classesName = $this->getColumnClass().' mj-outlook-group-fix';
+
+        $cssClass = $this->getAttribute('css-class');
+        if (null !== $cssClass && '' !== $cssClass) {
+            $classesName .= ' '.$cssClass;
+        }
+
+        return \sprintf(
+            '<div %s>%s</div>',
+            $this->htmlAttributes([
+                'class' => $classesName,
+                'style' => 'div',
+            ]),
+            $this->hasGutter() ? $this->renderGutter() : $this->renderColumn(),
+        );
+    }
+
     private function getMobileWidth(): string
     {
         $nonRawSiblings = $this->props['nonRawSiblings'] ?? 1;
         $width = $this->getAttribute('width');
         $mobileWidth = $this->getAttribute('mobileWidth');
 
-        if ($mobileWidth !== 'mobileWidth') {
+        if ('mobileWidth' !== $mobileWidth) {
             return '100%';
         }
 
-        if ($width === null) {
-            return sprintf('%d%%', (int) (100 / $nonRawSiblings));
+        if (null === $width) {
+            return \sprintf('%d%%', (int) (100 / $nonRawSiblings));
         }
 
         $parsed = WidthParser::parse($width, parseFloatToInt: false);
 
         return match ($parsed['unit']) {
             '%' => $width,
-            'px' => sprintf('%d%%', (int) (($parsed['parsedWidth'] / ($this->context?->containerWidth ?? 600)) * 100)),
-            default => sprintf('%d%%', (int) (($parsed['parsedWidth'] / ($this->context?->containerWidth ?? 600)) * 100)),
+            'px' => \sprintf('%d%%', (int) (($parsed['parsedWidth'] / ($this->context->containerWidth ?? 600)) * 100)),
+            default => \sprintf('%d%%', (int) (($parsed['parsedWidth'] / ($this->context->containerWidth ?? 600)) * 100)),
         };
     }
 
     private function getWidthAsPixel(): string
     {
-        $containerWidth = $this->context?->containerWidth ?? 600;
-        $parsedWidth = $this->getParsedWidth(toString: true);
+        $containerWidth = $this->context->containerWidth ?? 600;
+        $parsed = $this->getParsedWidth();
 
-        $parsed = WidthParser::parse($parsedWidth, parseFloatToInt: false);
-
-        if ($parsed['unit'] === '%') {
-            return sprintf('%dpx', (int) (($containerWidth * $parsed['parsedWidth']) / 100));
+        if ('%' === $parsed['unit']) {
+            return \sprintf('%dpx', (int) (($containerWidth * $parsed['parsedWidth']) / 100));
         }
 
-        return sprintf('%dpx', (int) $parsed['parsedWidth']);
+        return \sprintf('%dpx', (int) $parsed['parsedWidth']);
     }
 
     /**
-     * @return array{parsedWidth: float|int, unit: string}|string
+     * @return array{parsedWidth: float|int, unit: string}
      */
-    private function getParsedWidth(bool $toString = false): array|string
+    private function getParsedWidth(): array
     {
         $nonRawSiblings = $this->props['nonRawSiblings'] ?? 1;
 
-        $width = $this->getAttribute('width') ?? sprintf('%d%%', (int) (100 / $nonRawSiblings));
+        $width = $this->getAttribute('width') ?? \sprintf('%d%%', (int) (100 / $nonRawSiblings));
 
-        $parsed = WidthParser::parse($width, parseFloatToInt: false);
-
-        if ($toString) {
-            return sprintf('%s%s', $parsed['parsedWidth'], $parsed['unit']);
-        }
-
-        return $parsed;
+        return WidthParser::parse($width, parseFloatToInt: false);
     }
 
     private function getColumnClass(): string
@@ -226,14 +249,14 @@ final class Column extends BodyComponent
     {
         $borderRadius = $this->getAttribute('border-radius');
 
-        return $borderRadius !== null && $borderRadius !== '';
+        return null !== $borderRadius && '' !== $borderRadius;
     }
 
     private function hasInnerBorderRadius(): bool
     {
         $innerBorderRadius = $this->getAttribute('inner-border-radius');
 
-        return $innerBorderRadius !== null && $innerBorderRadius !== '';
+        return null !== $innerBorderRadius && '' !== $innerBorderRadius;
     }
 
     private function hasGutter(): bool
@@ -241,7 +264,7 @@ final class Column extends BodyComponent
         $paddingAttrs = ['padding', 'padding-bottom', 'padding-left', 'padding-right', 'padding-top'];
 
         foreach ($paddingAttrs as $attr) {
-            if ($this->getAttribute($attr) !== null) {
+            if (null !== $this->getAttribute($attr)) {
                 return true;
             }
         }
@@ -265,7 +288,7 @@ final class Column extends BodyComponent
             $tableAttributes['style'] = ['border-collapse' => 'separate'];
         }
 
-        return sprintf(
+        return \sprintf(
             '<table %s><tbody><tr><td %s>%s</td></tr></tbody></table>',
             $this->htmlAttributes($tableAttributes),
             $this->htmlAttributes(['style' => 'gutter']),
@@ -285,7 +308,7 @@ final class Column extends BodyComponent
             }
         }
 
-        return sprintf(
+        return \sprintf(
             '<table %s><tbody>%s</tbody></table>',
             $this->htmlAttributes([
                 'border' => '0',
@@ -316,33 +339,14 @@ final class Column extends BodyComponent
         ];
 
         $cssClass = $child->getAttribute('css-class');
-        if ($cssClass !== null && $cssClass !== '') {
+        if (null !== $cssClass && '' !== $cssClass) {
             $tdAttributes['class'] = $cssClass;
         }
 
-        return sprintf(
+        return \sprintf(
             '<tr><td %s>%s</td></tr>',
             $this->htmlAttributes($tdAttributes),
             $child->render(),
-        );
-    }
-
-    public function render(): string
-    {
-        $classesName = $this->getColumnClass() . ' mj-outlook-group-fix';
-
-        $cssClass = $this->getAttribute('css-class');
-        if ($cssClass !== null && $cssClass !== '') {
-            $classesName .= ' ' . $cssClass;
-        }
-
-        return sprintf(
-            '<div %s>%s</div>',
-            $this->htmlAttributes([
-                'class' => $classesName,
-                'style' => 'div',
-            ]),
-            $this->hasGutter() ? $this->renderGutter() : $this->renderColumn(),
         );
     }
 }

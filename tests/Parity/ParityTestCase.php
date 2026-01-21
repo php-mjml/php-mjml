@@ -2,14 +2,22 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Tests\Parity;
 
-use PHPUnit\Framework\TestCase;
-use PhpMjml\Renderer\Mjml2Html;
-use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Component\Registry;
+use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Preset\CorePreset;
-use RuntimeException;
+use PhpMjml\Renderer\Mjml2Html;
+use PHPUnit\Framework\TestCase;
 
 abstract class ParityTestCase extends TestCase
 {
@@ -33,7 +41,7 @@ abstract class ParityTestCase extends TestCase
         $tempFile = tempnam(sys_get_temp_dir(), 'mjml_');
         file_put_contents($tempFile, $mjml);
 
-        $command = sprintf(
+        $command = \sprintf(
             'npx mjml %s --config.minify false --config.beautify false 2>&1',
             escapeshellarg($tempFile)
         );
@@ -41,8 +49,8 @@ abstract class ParityTestCase extends TestCase
         $output = shell_exec($command);
         unlink($tempFile);
 
-        if ($output === null || $output === false) {
-            throw new RuntimeException('Failed to execute mjml CLI');
+        if (null === $output || false === $output) {
+            throw new \RuntimeException('Failed to execute mjml CLI');
         }
 
         return $output;
@@ -58,8 +66,14 @@ abstract class ParityTestCase extends TestCase
 
     protected function normalizeHtml(string $html): string
     {
+        $original = $html;
+
         // Remove whitespace between tags
         $html = preg_replace('/>\s+</', '><', $html);
+
+        if (null === $html) {
+            return $original;
+        }
 
         // Normalize attribute order by parsing and re-serializing
         $dom = new \DOMDocument();
@@ -68,15 +82,15 @@ abstract class ParityTestCase extends TestCase
 
         // Suppress warnings for HTML5 elements
         libxml_use_internal_errors(true);
-        $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $dom->loadHTML($html, \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
 
-        return $dom->saveHTML() ?: $html;
+        return $dom->saveHTML() ?: $original;
     }
 
     protected function getFixturePath(string $name): string
     {
-        return __DIR__ . '/fixtures/' . $name . '.mjml';
+        return __DIR__.'/fixtures/'.$name.'.mjml';
     }
 
     protected function loadFixture(string $name): string
@@ -84,9 +98,15 @@ abstract class ParityTestCase extends TestCase
         $path = $this->getFixturePath($name);
 
         if (!file_exists($path)) {
-            throw new RuntimeException(sprintf('Fixture not found: %s', $path));
+            throw new \RuntimeException(\sprintf('Fixture not found: %s', $path));
         }
 
-        return file_get_contents($path);
+        $content = file_get_contents($path);
+
+        if (false === $content) {
+            throw new \RuntimeException(\sprintf('Failed to read fixture file: %s', $path));
+        }
+
+        return $content;
     }
 }

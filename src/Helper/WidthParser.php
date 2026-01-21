@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Helper;
 
 final class WidthParser
@@ -18,7 +27,7 @@ final class WidthParser
         preg_match(self::UNIT_REGEX, $width, $matches);
         $unit = $matches[1] ?? 'px';
 
-        if ($unit === '') {
+        if ('' === $unit) {
             $unit = 'px';
         }
 

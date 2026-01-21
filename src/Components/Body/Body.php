@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
@@ -28,6 +37,9 @@ final class Body extends BodyComponent
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getChildContext(): array
     {
         $context = $this->context?->toArray() ?? [];
@@ -53,7 +65,7 @@ final class Body extends BodyComponent
         $backgroundColor = $this->getAttribute('background-color');
 
         // Set background color on context for body tag styling
-        if ($backgroundColor !== null && $this->context !== null) {
+        if (null !== $backgroundColor && null !== $this->context) {
             $this->context->setBackgroundColor($backgroundColor);
         }
 
@@ -62,7 +74,7 @@ final class Body extends BodyComponent
         ];
 
         // Add aria attributes
-        if ($this->context?->title !== null && $this->context->title !== '') {
+        if (null !== $this->context?->title && '' !== $this->context->title) {
             $attributes['aria-label'] = $this->context->title;
         }
         $attributes['aria-roledescription'] = 'email';
@@ -70,19 +82,19 @@ final class Body extends BodyComponent
 
         // Add css-class if set
         $cssClass = $this->getAttribute('css-class');
-        if ($cssClass !== null && $cssClass !== '') {
+        if (null !== $cssClass && '' !== $cssClass) {
             $attributes['class'] = $cssClass;
         }
 
         // Add language attributes
-        if ($this->context?->lang !== null) {
+        if (null !== $this->context?->lang) {
             $attributes['lang'] = $this->context->lang;
         }
-        if ($this->context?->dir !== null) {
+        if (null !== $this->context?->dir) {
             $attributes['dir'] = $this->context->dir;
         }
 
-        return sprintf(
+        return \sprintf(
             '<div %s>%s</div>',
             $this->htmlAttributes($attributes),
             $this->renderChildren(),

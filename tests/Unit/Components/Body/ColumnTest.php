@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Tests\Unit\Components\Body;
 
-use PHPUnit\Framework\TestCase;
+use PhpMjml\Component\Registry;
 use PhpMjml\Components\Body\Column;
 use PhpMjml\Components\Body\Text;
 use PhpMjml\Renderer\RenderContext;
 use PhpMjml\Renderer\RenderOptions;
-use PhpMjml\Component\Registry;
+use PHPUnit\Framework\TestCase;
 
 final class ColumnTest extends TestCase
 {
-    private function createContext(int $containerWidth = 600): RenderContext
-    {
-        return new RenderContext(
-            registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: $containerWidth,
-        );
-    }
-
     public function testGetComponentName(): void
     {
         $this->assertSame('mj-column', Column::getComponentName());
@@ -156,5 +156,14 @@ final class ColumnTest extends TestCase
 
         // Media query should be registered
         $this->assertArrayHasKey('mj-column-per-50', $context->mediaQueries);
+    }
+
+    private function createContext(int $containerWidth = 600): RenderContext
+    {
+        return new RenderContext(
+            registry: new Registry(),
+            options: new RenderOptions(),
+            containerWidth: $containerWidth,
+        );
     }
 }

@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Helper;
 
 final class ShorthandParser
@@ -14,18 +23,22 @@ final class ShorthandParser
     /**
      * Parse a CSS shorthand value (like padding/margin) and return the value for a specific direction.
      *
-     * @param string $cssValue The shorthand CSS value (e.g., "10px 20px" or "10px 20px 30px 40px")
+     * @param string $cssValue  The shorthand CSS value (e.g., "10px 20px" or "10px 20px 30px 40px")
      * @param string $direction The direction to get ('top', 'right', 'bottom', 'left')
      */
     public static function parse(string $cssValue, string $direction): int
     {
-        $values = preg_split('/\s+/', trim($cssValue));
-        $values = array_filter($values, fn($v) => $v !== '');
+        $splitValues = preg_split('/\s+/', trim($cssValue));
+        if (false === $splitValues) {
+            return 0;
+        }
+
+        $values = array_filter($splitValues, fn (string $v): bool => '' !== $v);
         $values = array_values($values);
 
-        $count = count($values);
+        $count = \count($values);
 
-        if ($count === 0) {
+        if (0 === $count) {
             return 0;
         }
 

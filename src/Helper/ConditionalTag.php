@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Helper;
 
 final class ConditionalTag
@@ -23,7 +32,7 @@ final class ConditionalTag
         $start = $negation ? self::START_NEGATION_CONDITIONAL : self::START_CONDITIONAL;
         $end = $negation ? self::END_NEGATION_CONDITIONAL : self::END_CONDITIONAL;
 
-        return $start . $content . $end;
+        return $start.$content.$end;
     }
 
     /**
@@ -34,6 +43,6 @@ final class ConditionalTag
         $start = $negation ? self::START_MSO_NEGATION : self::START_MSO_CONDITIONAL;
         $end = $negation ? self::END_NEGATION_CONDITIONAL : self::END_CONDITIONAL;
 
-        return $start . $content . $end;
+        return $start.$content.$end;
     }
 }

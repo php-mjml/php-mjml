@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Tests\Unit\Components\Body;
 
-use PHPUnit\Framework\TestCase;
-use PhpMjml\Components\Body\Section;
+use PhpMjml\Component\Registry;
 use PhpMjml\Components\Body\Column;
+use PhpMjml\Components\Body\Section;
 use PhpMjml\Components\Body\Text;
 use PhpMjml\Renderer\RenderContext;
 use PhpMjml\Renderer\RenderOptions;
-use PhpMjml\Component\Registry;
+use PHPUnit\Framework\TestCase;
 
 final class SectionTest extends TestCase
 {
-    private function createContext(int $containerWidth = 600): RenderContext
-    {
-        return new RenderContext(
-            registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: $containerWidth,
-        );
-    }
-
     public function testGetComponentName(): void
     {
         $this->assertSame('mj-section', Section::getComponentName());
@@ -195,5 +195,14 @@ final class SectionTest extends TestCase
         $html = $section->render();
 
         $this->assertStringContainsString('direction:rtl', $html);
+    }
+
+    private function createContext(int $containerWidth = 600): RenderContext
+    {
+        return new RenderContext(
+            registry: new Registry(),
+            options: new RenderOptions(),
+            containerWidth: $containerWidth,
+        );
     }
 }

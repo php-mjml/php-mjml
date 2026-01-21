@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
@@ -16,6 +25,9 @@ final class Text extends BodyComponent
         return 'mj-text';
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getAllowedAttributes(): array
     {
         return [
@@ -41,6 +53,9 @@ final class Text extends BodyComponent
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getDefaultAttributes(): array
     {
         return [
@@ -53,6 +68,9 @@ final class Text extends BodyComponent
         ];
     }
 
+    /**
+     * @return array<string, array<string, string|null>>
+     */
     public function getStyles(): array
     {
         return [
@@ -72,32 +90,32 @@ final class Text extends BodyComponent
         ];
     }
 
-    private function renderContent(): string
-    {
-        return sprintf(
-            '<div %s>%s</div>',
-            $this->htmlAttributes(['style' => 'text']),
-            $this->getContent(),
-        );
-    }
-
     public function render(): string
     {
         $height = $this->getAttribute('height');
 
-        if ($height !== null && $height !== '') {
-            $tableHtml = sprintf(
+        if (null !== $height && '' !== $height) {
+            $tableHtml = \sprintf(
                 '<table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td height="%s" style="vertical-align:top;height:%s;">',
-                htmlspecialchars((string) $height, ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string) $height, ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars((string) $height, \ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars((string) $height, \ENT_QUOTES, 'UTF-8'),
             );
             $tableEndHtml = '</td></tr></table>';
 
             return ConditionalTag::wrap($tableHtml)
-                . $this->renderContent()
-                . ConditionalTag::wrap($tableEndHtml);
+                .$this->renderContent()
+                .ConditionalTag::wrap($tableEndHtml);
         }
 
         return $this->renderContent();
+    }
+
+    private function renderContent(): string
+    {
+        return \sprintf(
+            '<div %s>%s</div>',
+            $this->htmlAttributes(['style' => 'text']),
+            $this->getContent(),
+        );
     }
 }

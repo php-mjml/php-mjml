@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Tests\Unit\Components\Body;
 
-use PHPUnit\Framework\TestCase;
+use PhpMjml\Component\Registry;
 use PhpMjml\Components\Body\Text;
 use PhpMjml\Renderer\RenderContext;
 use PhpMjml\Renderer\RenderOptions;
-use PhpMjml\Component\Registry;
+use PHPUnit\Framework\TestCase;
 
 final class TextTest extends TestCase
 {
-    private function createContext(): RenderContext
-    {
-        return new RenderContext(
-            registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-        );
-    }
-
     public function testGetComponentName(): void
     {
         $this->assertSame('mj-text', Text::getComponentName());
@@ -112,5 +112,14 @@ final class TextTest extends TestCase
         $this->assertSame('16px', $styles['text']['font-size']);
         $this->assertSame('#333333', $styles['text']['color']);
         $this->assertSame('center', $styles['text']['text-align']);
+    }
+
+    private function createContext(): RenderContext
+    {
+        return new RenderContext(
+            registry: new Registry(),
+            options: new RenderOptions(),
+            containerWidth: 600,
+        );
     }
 }

@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Component;
 
 use PhpMjml\Helper\BorderParser;
@@ -34,6 +43,8 @@ abstract class BodyComponent extends AbstractComponent
 
     /**
      * Get the context to pass to child components.
+     *
+     * @return array<string, mixed>
      */
     public function getChildContext(): array
     {
@@ -50,12 +61,12 @@ abstract class BodyComponent extends AbstractComponent
     {
         $directionAttr = $this->getAttribute("{$attribute}-{$direction}");
 
-        if ($directionAttr !== null && $directionAttr !== '') {
+        if (null !== $directionAttr && '' !== $directionAttr) {
             return (int) $directionAttr;
         }
 
         $baseAttr = $this->getAttribute($attribute);
-        if ($baseAttr === null || $baseAttr === '') {
+        if (null === $baseAttr || '' === $baseAttr) {
             return 0;
         }
 
@@ -83,7 +94,7 @@ abstract class BodyComponent extends AbstractComponent
      */
     protected function getBoxWidths(): array
     {
-        $containerWidth = $this->context?->containerWidth ?? 600;
+        $containerWidth = (null !== $this->context) ? $this->context->containerWidth : 600;
         $parsedWidth = (int) $containerWidth;
 
         $paddings = $this->getShorthandAttrValue('padding', 'right')
@@ -103,36 +114,41 @@ abstract class BodyComponent extends AbstractComponent
     /**
      * Builds an HTML attribute string from an array of attributes.
      * If the 'style' key contains a string, it's treated as a style key from getStyles().
+     *
+     * @param array<string, string|bool|int|array<string, string|null>|null> $attributes
      */
     protected function htmlAttributes(array $attributes): string
     {
         $result = [];
 
         foreach ($attributes as $key => $value) {
-            if ($value === null || $value === false) {
+            if (null === $value || false === $value) {
                 continue;
             }
 
-            if ($value === true) {
+            if (true === $value) {
                 $result[] = $key;
                 continue;
             }
 
             // Handle style attribute specially - can be string key or array
-            if ($key === 'style') {
-                if (is_string($value)) {
+            if ('style' === $key) {
+                if (\is_string($value)) {
                     $styles = $this->getStyles()[$value] ?? [];
                     $value = $this->inlineStyles($styles);
-                } elseif (is_array($value)) {
+                } elseif (\is_array($value)) {
                     $value = $this->inlineStyles($value);
                 }
 
-                if ($value === '') {
+                if ('' === $value) {
                     continue;
                 }
+            } elseif (\is_array($value)) {
+                // Skip arrays for non-style attributes
+                continue;
             }
 
-            $result[] = sprintf('%s="%s"', $key, htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'));
+            $result[] = \sprintf('%s="%s"', $key, htmlspecialchars((string) $value, \ENT_QUOTES, 'UTF-8'));
         }
 
         return implode(' ', $result);
@@ -140,17 +156,19 @@ abstract class BodyComponent extends AbstractComponent
 
     /**
      * Converts a styles array to an inline CSS string.
+     *
+     * @param array<string, string|null> $styles
      */
     protected function inlineStyles(array $styles): string
     {
         $result = [];
 
         foreach ($styles as $property => $value) {
-            if ($value === null || $value === '') {
+            if (null === $value || '' === $value) {
                 continue;
             }
 
-            $result[] = sprintf('%s:%s', $property, $value);
+            $result[] = \sprintf('%s:%s', $property, $value);
         }
 
         return implode(';', $result);

@@ -2,12 +2,27 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the PHP-MJML package.
+ *
+ * (c) David Gorges
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PhpMjml\Renderer;
 
 use PhpMjml\Component\Registry;
 
 final class RenderContext
 {
+    /**
+     * @param array<string, string>                                   $fonts          Font URLs indexed by name
+     * @param array<int, string>                                      $styles         CSS style strings
+     * @param array<string, array<string, mixed>>                     $headAttributes Head element attributes
+     * @param array<string, string>                                   $mediaQueries   Media query CSS indexed by class name
+     */
     public function __construct(
         public readonly Registry $registry,
         public readonly RenderOptions $options,
@@ -22,13 +37,14 @@ final class RenderContext
         public ?string $backgroundColor = null,
         public ?string $lang = null,
         public ?string $dir = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Add a media query for responsive column widths.
      *
-     * @param string $className CSS class name (e.g., 'mj-column-per-50')
-     * @param array{parsedWidth: float|int, unit: string} $data Width data
+     * @param string                                      $className CSS class name (e.g., 'mj-column-per-50')
+     * @param array{parsedWidth: float|int, unit: string} $data      Width data
      */
     public function addMediaQuery(string $className, array $data): void
     {
@@ -69,6 +85,22 @@ final class RenderContext
 
     /**
      * Convert context to array for child context propagation.
+     *
+     * @return array{
+     *     registry: Registry,
+     *     options: RenderOptions,
+     *     title: string,
+     *     preview: string,
+     *     fonts: array<string, string>,
+     *     styles: array<int, string>,
+     *     headAttributes: array<string, array<string, mixed>>,
+     *     containerWidth: int,
+     *     breakpoint: string,
+     *     mediaQueries: array<string, string>,
+     *     backgroundColor: string|null,
+     *     lang: string|null,
+     *     dir: string|null
+     * }
      */
     public function toArray(): array
     {
@@ -91,6 +123,8 @@ final class RenderContext
 
     /**
      * Create a new context from array data.
+     *
+     * @param array<string, mixed> $data Array of context data
      */
     public static function fromArray(array $data, self $base): self
     {
