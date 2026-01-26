@@ -15,6 +15,8 @@ namespace PhpMjml\Preset;
 
 use PhpMjml\Components\Body\Body;
 use PhpMjml\Components\Body\Button;
+use PhpMjml\Components\Body\Carousel;
+use PhpMjml\Components\Body\CarouselImage;
 use PhpMjml\Components\Body\Column;
 use PhpMjml\Components\Body\Divider;
 use PhpMjml\Components\Body\Group;
@@ -48,6 +50,8 @@ final class CorePreset
             // Body components
             Body::class,
             Button::class,
+            Carousel::class,
+            CarouselImage::class,
             Column::class,
             Divider::class,
             Group::class,
