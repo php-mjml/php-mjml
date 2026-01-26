@@ -1,0 +1,17 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social>
+          <mj-social-element
+            src="https://example.com/icons/custom.png"
+            background-color="#ff5722"
+            href="https://example.com"
+          >
+            Custom Link
+          </mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

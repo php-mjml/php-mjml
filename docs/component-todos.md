@@ -25,6 +25,8 @@ This document tracks the implementation status of MJML components in the PHP-MJM
 | `mj-class` | Head | ✅ Done (handled within mj-attributes) |
 | `mj-breakpoint` | Head | ✅ Done |
 | `mj-html-attributes` | Head | ✅ Done |
+| `mj-social` | Body | ✅ Done |
+| `mj-social-element` | Body | ✅ Done |
 
 ---
 
@@ -36,8 +38,6 @@ Frequently used components in email templates.
 
 | # | Component | Type | Description | Complexity |
 |---|-----------|------|-------------|------------|
-| 2 | `mj-social` | Body | Container for social media icons/links | Medium |
-| 3 | `mj-social-element` | Body | Individual social icon (Facebook, Twitter, etc.) | Medium |
 | 4 | `mj-table` | Body | HTML table rendering with styling | Medium |
 | 5 | `mj-wrapper` | Body | Full-width section wrapper with gap support | Medium |
 | 6 | `mj-group` | Body | Groups columns horizontally with direction control | Medium |
@@ -82,13 +82,13 @@ Register new components in `src/Preset/CorePreset.php`.
 ## Progress Tracker
 
 - **Total Components**: 32
-- **Implemented**: 19 (59%)
-- **Remaining**: 13 (41%)
+- **Implemented**: 21 (66%)
+- **Remaining**: 11 (34%)
 
 ### Milestones
 
 - [x] **Milestone 1**: All head components
-- [ ] **Milestone 2**: Social and table components (4 components)
+- [ ] **Milestone 2**: Social and table components (4 components) - mj-social and mj-social-element done
 - [ ] **Milestone 3**: Layout components - wrapper, group (2 components)
 - [ ] **Milestone 4**: Navigation components (2 components)
 - [ ] **Milestone 5**: Accordion components (4 components)

@@ -21,6 +21,8 @@ use PhpMjml\Components\Body\Hero;
 use PhpMjml\Components\Body\Image;
 use PhpMjml\Components\Body\Raw;
 use PhpMjml\Components\Body\Section;
+use PhpMjml\Components\Body\Social;
+use PhpMjml\Components\Body\SocialElement;
 use PhpMjml\Components\Body\Spacer;
 use PhpMjml\Components\Body\Text;
 use PhpMjml\Components\Head\Attributes;
@@ -49,6 +51,8 @@ final class CorePreset
             Image::class,
             Raw::class,
             Section::class,
+            Social::class,
+            SocialElement::class,
             Spacer::class,
             Text::class,
 

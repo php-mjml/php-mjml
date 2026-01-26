@@ -20,8 +20,9 @@ final class RenderContext
     public GlobalData $globalData;
 
     /**
-     * @param array<string, string>               $fonts          Font URLs indexed by name
-     * @param array<string, array<string, mixed>> $headAttributes Head element attributes
+     * @param array<string, string>               $fonts               Font URLs indexed by name
+     * @param array<string, array<string, mixed>> $headAttributes      Head element attributes
+     * @param array<string, string|null>          $inheritedAttributes Attributes inherited from parent component
      */
     public function __construct(
         public readonly Registry $registry,
@@ -35,6 +36,7 @@ final class RenderContext
         public ?string $backgroundColor = null,
         public string $lang = 'und',
         public string $dir = 'auto',
+        public array $inheritedAttributes = [],
         ?GlobalData $globalData = null,
     ) {
         $this->globalData = $globalData ?? new GlobalData();
@@ -115,6 +117,7 @@ final class RenderContext
      *     backgroundColor: string|null,
      *     lang: string,
      *     dir: string,
+     *     inheritedAttributes: array<string, string|null>,
      *     globalData: GlobalData
      * }
      */
@@ -132,6 +135,7 @@ final class RenderContext
             'backgroundColor' => $this->backgroundColor,
             'lang' => $this->lang,
             'dir' => $this->dir,
+            'inheritedAttributes' => $this->inheritedAttributes,
             'globalData' => $this->globalData,
         ];
     }
@@ -155,6 +159,7 @@ final class RenderContext
             backgroundColor: $data['backgroundColor'] ?? $base->backgroundColor,
             lang: $data['lang'] ?? $base->lang,
             dir: $data['dir'] ?? $base->dir,
+            inheritedAttributes: $data['inheritedAttributes'] ?? [],
             globalData: $data['globalData'] ?? $base->globalData,
         );
     }

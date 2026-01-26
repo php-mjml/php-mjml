@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-social font-size="15px" icon-size="30px" color="#ffffff" border-radius="5px">
+          <mj-social-element name="facebook" href="https://facebook.com" />
+          <mj-social-element name="linkedin" href="https://linkedin.com" />
+          <mj-social-element name="youtube" href="https://youtube.com" />
+        </mj-social>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

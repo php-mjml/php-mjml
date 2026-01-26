@@ -106,7 +106,8 @@ abstract class AbstractComponent implements ComponentInterface
      * 1. Component default attributes
      * 2. mj-all attributes (from mj-attributes)
      * 3. Component-specific default attributes (from mj-attributes)
-     * 4. Instance attributes passed to constructor
+     * 4. Inherited attributes from parent component (e.g., mj-social -> mj-social-element)
+     * 5. Instance attributes passed to constructor
      *
      * @param array<string, string|null> $instanceAttributes
      *
@@ -128,6 +129,12 @@ abstract class AbstractComponent implements ComponentInterface
             $componentDefaults = $this->context->headAttributes[$componentName] ?? [];
             if ([] !== $componentDefaults) {
                 $merged = array_merge($merged, $componentDefaults);
+            }
+
+            // Apply inherited attributes from parent component
+            $inheritedAttributes = $this->context->inheritedAttributes;
+            if ([] !== $inheritedAttributes) {
+                $merged = array_merge($merged, $inheritedAttributes);
             }
         }
 
