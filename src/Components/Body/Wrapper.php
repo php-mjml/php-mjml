@@ -18,11 +18,17 @@ use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\CssHelper;
 
-final class Section extends BodyComponent
+/**
+ * mj-wrapper is a full-width section container that stacks mj-section children vertically.
+ *
+ * Unlike mj-section which arranges columns horizontally, mj-wrapper arranges
+ * sections vertically with optional gap spacing between them.
+ */
+final class Wrapper extends BodyComponent
 {
     public static function getComponentName(): string
     {
-        return 'mj-section';
+        return 'mj-wrapper';
     }
 
     /**
@@ -53,6 +59,7 @@ final class Section extends BodyComponent
             'padding-right' => 'unit(px,%)',
             'text-align' => 'enum(left,center,right)',
             'text-padding' => 'unit(px,%){1,4}',
+            'gap' => 'unit(px)',
         ];
     }
 
@@ -143,7 +150,6 @@ final class Section extends BodyComponent
                     'border-radius' => $this->getAttribute('border-radius'),
                 ],
                 $hasBorderRadius ? ['overflow' => 'hidden'] : [],
-                !$this->isFirstSection() && $this->hasGap() ? ['margin-top' => $this->getGap()] : [],
             ),
             'innerDiv' => [
                 'line-height' => '0',
@@ -155,32 +161,6 @@ final class Section extends BodyComponent
     public function render(): string
     {
         return $this->isFullWidth() ? $this->renderFullWidth() : $this->renderSimple();
-    }
-
-    /**
-     * Check if this section has a gap defined in its context (from parent wrapper).
-     */
-    private function hasGap(): bool
-    {
-        $gap = $this->context->gap ?? null;
-
-        return null !== $gap && '' !== $gap;
-    }
-
-    /**
-     * Get the gap value from context.
-     */
-    private function getGap(): ?string
-    {
-        return $this->context->gap ?? null;
-    }
-
-    /**
-     * Check if this is the first section (index 0).
-     */
-    private function isFirstSection(): bool
-    {
-        return 0 === ($this->props['index'] ?? 0);
     }
 
     private function getBackground(): string
@@ -274,10 +254,7 @@ final class Section extends BodyComponent
     private function renderBefore(): string
     {
         $containerWidth = $this->context->containerWidth ?? 600;
-        $isFirstSection = $this->isFirstSection();
-        $hasGap = $this->hasGap();
-
-        $bgcolorAttr = null !== $this->getAttribute('background-color') && !$hasGap
+        $bgcolorAttr = null !== $this->getAttribute('background-color')
             ? ['bgcolor' => $this->getAttribute('background-color')]
             : [];
 
@@ -286,11 +263,6 @@ final class Section extends BodyComponent
             ? CssHelper::suffixCssClasses($cssClass, 'outlook')
             : '';
 
-        $tableStyle = ['width' => "{$containerWidth}px"];
-        if (!$isFirstSection && $hasGap) {
-            $tableStyle['padding-top'] = $this->getGap();
-        }
-
         $tableAttributes = array_merge([
             'align' => 'center',
             'border' => '0',
@@ -298,7 +270,7 @@ final class Section extends BodyComponent
             'cellspacing' => '0',
             'class' => $outlookClass,
             'role' => 'presentation',
-            'style' => $tableStyle,
+            'style' => ['width' => "{$containerWidth}px"],
             'width' => $containerWidth,
         ], $bgcolorAttr);
 
@@ -315,50 +287,44 @@ final class Section extends BodyComponent
         return ConditionalTag::START_CONDITIONAL.'</td></tr></table>'.ConditionalTag::END_CONDITIONAL;
     }
 
+    /**
+     * Render wrapped children - each child gets its own <tr> for vertical stacking.
+     *
+     * This is the key difference from mj-section: wrapper renders each child section
+     * in its own table row, while section renders all columns in a single row.
+     */
     private function renderWrappedChildren(): string
     {
-        $output = ConditionalTag::START_CONDITIONAL.'<tr>'.ConditionalTag::END_CONDITIONAL;
+        $containerWidth = $this->context->containerWidth ?? 600;
+        $output = '';
 
         foreach ($this->children as $child) {
             if ($child instanceof BodyComponent && $child::isRawElement()) {
                 $output .= $child->render();
             } elseif ($child instanceof ComponentInterface) {
-                $output .= $this->renderWrappedChild($child);
+                $cssClass = $child->getAttribute('css-class');
+                $outlookClass = (null !== $cssClass && '' !== $cssClass)
+                    ? CssHelper::suffixCssClasses($cssClass, 'outlook')
+                    : '';
+
+                $tdAttributes = [
+                    'align' => $child->getAttribute('align'),
+                    'class' => $outlookClass,
+                    'width' => "{$containerWidth}px",
+                ];
+
+                $output .= ConditionalTag::START_CONDITIONAL
+                    .'<tr>'
+                    .\sprintf('<td %s>', $this->htmlAttributes($tdAttributes))
+                    .ConditionalTag::END_CONDITIONAL
+                    .$child->render()
+                    .ConditionalTag::START_CONDITIONAL
+                    .'</td></tr>'
+                    .ConditionalTag::END_CONDITIONAL;
             }
         }
-
-        $output .= ConditionalTag::START_CONDITIONAL.'</tr>'.ConditionalTag::END_CONDITIONAL;
 
         return $output;
-    }
-
-    private function renderWrappedChild(ComponentInterface $child): string
-    {
-        $cssClass = $child->getAttribute('css-class');
-        $outlookClass = (null !== $cssClass && '' !== $cssClass)
-            ? CssHelper::suffixCssClasses($cssClass, 'outlook')
-            : '';
-
-        $tdAttributes = [
-            'class' => $outlookClass,
-            'style' => null,
-        ];
-
-        // Get tdOutlook style from child if available (for Column components)
-        if ($child instanceof BodyComponent) {
-            $childStyles = $child->getStyles();
-            if (isset($childStyles['tdOutlook'])) {
-                $tdAttributes['style'] = $childStyles['tdOutlook'];
-            }
-        }
-
-        return ConditionalTag::START_CONDITIONAL
-            .\sprintf('<td %s>', $this->htmlAttributes($tdAttributes))
-            .ConditionalTag::END_CONDITIONAL
-            .$child->render()
-            .ConditionalTag::START_CONDITIONAL
-            .'</td>'
-            .ConditionalTag::END_CONDITIONAL;
     }
 
     private function renderWithBackground(string $content): string

@@ -179,7 +179,8 @@ final class Column extends BodyComponent
     {
         $nonRawSiblings = $this->props['nonRawSiblings'] ?? 1;
         $width = $this->getAttribute('width');
-        $mobileWidth = $this->getAttribute('mobileWidth');
+        $mobileWidth = $this->getAttribute('mobileWidth')
+            ?? ($this->context->inheritedAttributes['mobileWidth'] ?? null);
 
         if ('mobileWidth' !== $mobileWidth) {
             return '100%';

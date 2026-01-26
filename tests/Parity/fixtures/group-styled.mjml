@@ -1,0 +1,14 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-group background-color="#f4f4f4" vertical-align="middle">
+        <mj-column>
+          <mj-text>Column 1</mj-text>
+        </mj-column>
+        <mj-column>
+          <mj-text>Column 2</mj-text>
+        </mj-column>
+      </mj-group>
+    </mj-section>
+  </mj-body>
+</mjml>

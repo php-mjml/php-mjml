@@ -23,6 +23,7 @@ final class RenderContext
      * @param array<string, string>               $fonts               Font URLs indexed by name
      * @param array<string, array<string, mixed>> $headAttributes      Head element attributes
      * @param array<string, string|null>          $inheritedAttributes Attributes inherited from parent component
+     * @param string|null                         $gap                 Gap value for spacing between sections in a wrapper
      */
     public function __construct(
         public readonly Registry $registry,
@@ -38,6 +39,7 @@ final class RenderContext
         public string $dir = 'auto',
         public array $inheritedAttributes = [],
         ?GlobalData $globalData = null,
+        public ?string $gap = null,
     ) {
         $this->globalData = $globalData ?? new GlobalData();
     }
@@ -118,7 +120,8 @@ final class RenderContext
      *     lang: string,
      *     dir: string,
      *     inheritedAttributes: array<string, string|null>,
-     *     globalData: GlobalData
+     *     globalData: GlobalData,
+     *     gap: string|null
      * }
      */
     public function toArray(): array
@@ -137,6 +140,7 @@ final class RenderContext
             'dir' => $this->dir,
             'inheritedAttributes' => $this->inheritedAttributes,
             'globalData' => $this->globalData,
+            'gap' => $this->gap,
         ];
     }
 
@@ -161,6 +165,7 @@ final class RenderContext
             dir: $data['dir'] ?? $base->dir,
             inheritedAttributes: $data['inheritedAttributes'] ?? [],
             globalData: $data['globalData'] ?? $base->globalData,
+            gap: $data['gap'] ?? null,
         );
     }
 }

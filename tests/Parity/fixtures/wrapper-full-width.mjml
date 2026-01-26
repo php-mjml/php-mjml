@@ -1,0 +1,11 @@
+<mjml>
+  <mj-body>
+    <mj-wrapper full-width="full-width" background-color="#4A90A4">
+      <mj-section>
+        <mj-column>
+          <mj-text color="#ffffff">Full-width wrapper content</mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

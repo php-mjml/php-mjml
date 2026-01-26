@@ -1,0 +1,14 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-group width="50%">
+        <mj-column>
+          <mj-text>Column in 50% Group</mj-text>
+        </mj-column>
+      </mj-group>
+      <mj-column width="50%">
+        <mj-text>Regular Column</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

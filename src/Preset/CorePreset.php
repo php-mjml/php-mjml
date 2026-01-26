@@ -17,6 +17,7 @@ use PhpMjml\Components\Body\Body;
 use PhpMjml\Components\Body\Button;
 use PhpMjml\Components\Body\Column;
 use PhpMjml\Components\Body\Divider;
+use PhpMjml\Components\Body\Group;
 use PhpMjml\Components\Body\Hero;
 use PhpMjml\Components\Body\Image;
 use PhpMjml\Components\Body\Raw;
@@ -25,6 +26,7 @@ use PhpMjml\Components\Body\Social;
 use PhpMjml\Components\Body\SocialElement;
 use PhpMjml\Components\Body\Spacer;
 use PhpMjml\Components\Body\Text;
+use PhpMjml\Components\Body\Wrapper;
 use PhpMjml\Components\Head\Attributes;
 use PhpMjml\Components\Head\Breakpoint;
 use PhpMjml\Components\Head\Font;
@@ -47,6 +49,7 @@ final class CorePreset
             Button::class,
             Column::class,
             Divider::class,
+            Group::class,
             Hero::class,
             Image::class,
             Raw::class,
@@ -55,6 +58,7 @@ final class CorePreset
             SocialElement::class,
             Spacer::class,
             Text::class,
+            Wrapper::class,
 
             // Head components
             Attributes::class,
