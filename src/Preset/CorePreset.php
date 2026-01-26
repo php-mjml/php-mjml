@@ -27,6 +27,7 @@ use PhpMjml\Components\Head\Attributes;
 use PhpMjml\Components\Head\Breakpoint;
 use PhpMjml\Components\Head\Font;
 use PhpMjml\Components\Head\Head;
+use PhpMjml\Components\Head\HtmlAttributes;
 use PhpMjml\Components\Head\Preview;
 use PhpMjml\Components\Head\Style;
 use PhpMjml\Components\Head\Title;
@@ -56,6 +57,7 @@ final class CorePreset
             Breakpoint::class,
             Font::class,
             Head::class,
+            HtmlAttributes::class,
             Preview::class,
             Style::class,
             Title::class,

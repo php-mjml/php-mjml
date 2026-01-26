@@ -101,6 +101,9 @@ abstract class ParityTestCase extends TestCase
         // Normalize multiple spaces to single space
         $html = preg_replace('/\s+/', ' ', $html) ?? $html;
 
+        // Normalize attribute order by sorting attributes within each tag alphabetically
+        $html = $this->normalizeAttributeOrder($html);
+
         // Normalize attribute order by parsing and re-serializing
         $dom = new \DOMDocument();
         $dom->preserveWhiteSpace = false;
@@ -136,6 +139,73 @@ abstract class ParityTestCase extends TestCase
         }
 
         return $content;
+    }
+
+    /**
+     * Normalize attribute order within HTML tags by sorting alphabetically.
+     */
+    private function normalizeAttributeOrder(string $html): string
+    {
+        // Match opening HTML tags with attributes
+        return preg_replace_callback(
+            '/<([a-zA-Z][a-zA-Z0-9]*)\s+([^>]+)>/s',
+            function ($matches) {
+                $tagName = $matches[1];
+                $attrsString = $matches[2];
+
+                // Don't process script, style, or comment-like content
+                if (\in_array(strtolower($tagName), ['script', 'style'], true)) {
+                    return $matches[0];
+                }
+
+                // Parse attributes - handle both quoted and unquoted values
+                $attrs = [];
+                $pattern = '/([a-zA-Z][a-zA-Z0-9_-]*)\s*(?:=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+)))?/s';
+                if (preg_match_all($pattern, $attrsString, $attrMatches, \PREG_SET_ORDER)) {
+                    foreach ($attrMatches as $match) {
+                        $name = $match[1];
+                        $doubleQuoted = $match[2] ?? '';
+                        $singleQuoted = $match[3] ?? '';
+                        $unquoted = $match[4] ?? '';
+
+                        if ('' !== $doubleQuoted) {
+                            $value = '"'.$doubleQuoted.'"';
+                        } elseif ('' !== $singleQuoted) {
+                            $value = '"'.$singleQuoted.'"';
+                        } elseif ('' !== $unquoted) {
+                            $value = '"'.$unquoted.'"';
+                        } elseif (str_contains($match[0], '=')) {
+                            $value = '""';
+                        } else {
+                            $value = null;
+                        }
+                        $attrs[$name] = $value;
+                    }
+                }
+
+                // Sort by attribute name
+                ksort($attrs);
+
+                // Rebuild attributes string
+                $sortedAttrs = [];
+                foreach ($attrs as $name => $value) {
+                    if (null !== $value) {
+                        $sortedAttrs[] = $name.'='.$value;
+                    } else {
+                        $sortedAttrs[] = $name;
+                    }
+                }
+
+                // Handle self-closing tag marker
+                $closing = '';
+                if (str_ends_with(trim($attrsString), '/')) {
+                    $closing = '/';
+                }
+
+                return '<'.$tagName.' '.implode(' ', $sortedAttrs).$closing.'>';
+            },
+            $html
+        ) ?? $html;
     }
 
     private function isMjmlCliAvailable(): bool

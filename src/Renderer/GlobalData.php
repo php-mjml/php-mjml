@@ -22,16 +22,18 @@ namespace PhpMjml\Renderer;
 final class GlobalData
 {
     /**
-     * @param array<string, string> $mediaQueries       Media query CSS indexed by class name
-     * @param array<int, string>    $styles             CSS style strings
-     * @param array<int, string>    $componentHeadStyle Component head styles (output after media queries)
-     * @param array<int, string>    $inlineStyles       Inline CSS styles for inlining into elements
+     * @param array<string, string>                     $mediaQueries       Media query CSS indexed by class name
+     * @param array<int, string>                        $styles             CSS style strings
+     * @param array<int, string>                        $componentHeadStyle Component head styles (output after media queries)
+     * @param array<int, string>                        $inlineStyles       Inline CSS styles for inlining into elements
+     * @param array<string, array<string, string|null>> $htmlAttributes     Custom HTML attributes indexed by CSS selector
      */
     public function __construct(
         public array $mediaQueries = [],
         public array $styles = [],
         public array $componentHeadStyle = [],
         public array $inlineStyles = [],
+        public array $htmlAttributes = [],
     ) {
     }
 
@@ -73,5 +75,23 @@ final class GlobalData
     public function addComponentHeadStyle(string $style): void
     {
         $this->componentHeadStyle[] = $style;
+    }
+
+    /**
+     * Add custom HTML attributes for a CSS selector.
+     *
+     * @param string                     $selector   CSS selector (e.g., ".custom div")
+     * @param array<string, string|null> $attributes Attribute name/value pairs
+     */
+    public function addHtmlAttributes(string $selector, array $attributes): void
+    {
+        if (!isset($this->htmlAttributes[$selector])) {
+            $this->htmlAttributes[$selector] = [];
+        }
+
+        $this->htmlAttributes[$selector] = array_merge(
+            $this->htmlAttributes[$selector],
+            $attributes
+        );
     }
 }

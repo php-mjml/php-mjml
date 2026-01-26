@@ -19,6 +19,7 @@ use PhpMjml\Component\Registry;
 use PhpMjml\Helper\OutlookConditionalHelper;
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\Node;
+use Symfony\Component\DomCrawler\Crawler;
 
 final class Mjml2Html
 {
@@ -44,6 +45,9 @@ final class Mjml2Html
 
         // Render body
         $bodyHtml = $this->processBody($ast, $context);
+
+        // Apply custom HTML attributes from mj-html-attributes
+        $bodyHtml = $this->applyHtmlAttributes($bodyHtml, $context);
 
         // Merge adjacent MSO conditionals
         $bodyHtml = OutlookConditionalHelper::mergeConditionals($bodyHtml);
@@ -123,6 +127,47 @@ final class Mjml2Html
         );
 
         return $bodyComponent->render();
+    }
+
+    /**
+     * Apply custom HTML attributes from mj-html-attributes.
+     *
+     * Uses CSS selectors to find elements and add custom attributes.
+     */
+    private function applyHtmlAttributes(string $html, RenderContext $context): string
+    {
+        $htmlAttributes = $context->globalData->htmlAttributes;
+
+        if ([] === $htmlAttributes) {
+            return $html;
+        }
+
+        // Use Symfony DomCrawler with XML mode to preserve structure
+        // Wrap in a root element to ensure valid XML parsing
+        $wrappedHtml = '<mjml-root xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">'.$html.'</mjml-root>';
+
+        $crawler = new Crawler($wrappedHtml);
+
+        foreach ($htmlAttributes as $selector => $attributes) {
+            try {
+                $crawler->filter($selector)->each(function (Crawler $node) use ($attributes): void {
+                    $domNode = $node->getNode(0);
+                    if ($domNode instanceof \DOMElement) {
+                        foreach ($attributes as $attrName => $attrValue) {
+                            $domNode->setAttribute($attrName, $attrValue ?? '');
+                        }
+                    }
+                });
+            } catch (\InvalidArgumentException) {
+                // Invalid CSS selector, skip silently
+                continue;
+            }
+        }
+
+        // Extract content from the wrapper
+        $result = $crawler->filter('mjml-root')->html();
+
+        return $result;
     }
 
     /**
