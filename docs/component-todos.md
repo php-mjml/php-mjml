@@ -30,6 +30,10 @@ This document tracks the implementation status of MJML components in the PHP-MJM
 | `mj-wrapper` | Body | ✅ Done |
 | `mj-group` | Body | ✅ Done |
 | `mj-table` | Body | ✅ Done |
+| `mj-carousel` | Body | ✅ Done |
+| `mj-carousel-image` | Body | ✅ Done |
+| `mj-navbar` | Body | ✅ Done |
+| `mj-navbar-link` | Body | ✅ Done |
 
 ---
 
@@ -41,14 +45,10 @@ More complex components with interactive features.
 
 | # | Component | Type | Description | Complexity |
 |---|-----------|------|-------------|------------|
-| 7 | `mj-navbar` | Body | Navigation bar with responsive hamburger menu | High |
-| 8 | `mj-navbar-link` | Body | Individual navigation link | Low |
 | 9 | `mj-accordion` | Body | Expandable/collapsible content sections | High |
 | 10 | `mj-accordion-element` | Body | Individual accordion item | Medium |
 | 11 | `mj-accordion-title` | Body | Accordion item title/header | Low |
 | 12 | `mj-accordion-text` | Body | Accordion item content body | Low |
-| 13 | `mj-carousel` | Body | Image carousel/slider with navigation | High |
-| 14 | `mj-carousel-image` | Body | Individual carousel slide | Medium |
 
 ---
 
@@ -75,14 +75,14 @@ Register new components in `src/Preset/CorePreset.php`.
 ## Progress Tracker
 
 - **Total Components**: 32
-- **Implemented**: 24 (75%)
-- **Remaining**: 8 (25%)
+- **Implemented**: 28 (88%)
+- **Remaining**: 4 (12%)
 
 ### Milestones
 
 - [x] **Milestone 1**: All head components
 - [x] **Milestone 2**: Social and table components (4 components)
 - [x] **Milestone 3**: Layout components - wrapper, group (2 components)
-- [ ] **Milestone 4**: Navigation components (2 components)
+- [x] **Milestone 4**: Navigation components (2 components)
 - [ ] **Milestone 5**: Accordion components (4 components)
-- [ ] **Milestone 6**: Carousel components (2 components)
+- [x] **Milestone 6**: Carousel components (2 components)

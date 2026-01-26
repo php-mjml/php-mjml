@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-navbar align="left">
+          <mj-navbar-link href="/home" color="#ff0000" font-size="16px" font-weight="bold" text-transform="capitalize">Home</mj-navbar-link>
+          <mj-navbar-link href="/products" color="#00ff00" padding="20px 15px">Products</mj-navbar-link>
+          <mj-navbar-link href="/services" color="#0000ff" text-decoration="underline">Services</mj-navbar-link>
+        </mj-navbar>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

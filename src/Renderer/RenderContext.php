@@ -24,6 +24,7 @@ final class RenderContext
      * @param array<string, array<string, mixed>> $headAttributes      Head element attributes
      * @param array<string, string|null>          $inheritedAttributes Attributes inherited from parent component
      * @param string|null                         $gap                 Gap value for spacing between sections in a wrapper
+     * @param string|null                         $navbarBaseUrl       Base URL for navbar links
      */
     public function __construct(
         public readonly Registry $registry,
@@ -40,6 +41,7 @@ final class RenderContext
         public array $inheritedAttributes = [],
         ?GlobalData $globalData = null,
         public ?string $gap = null,
+        public ?string $navbarBaseUrl = null,
     ) {
         $this->globalData = $globalData ?? new GlobalData();
     }
@@ -121,7 +123,8 @@ final class RenderContext
      *     dir: string,
      *     inheritedAttributes: array<string, string|null>,
      *     globalData: GlobalData,
-     *     gap: string|null
+     *     gap: string|null,
+     *     navbarBaseUrl: string|null
      * }
      */
     public function toArray(): array
@@ -141,6 +144,7 @@ final class RenderContext
             'inheritedAttributes' => $this->inheritedAttributes,
             'globalData' => $this->globalData,
             'gap' => $this->gap,
+            'navbarBaseUrl' => $this->navbarBaseUrl,
         ];
     }
 
@@ -166,6 +170,7 @@ final class RenderContext
             inheritedAttributes: $data['inheritedAttributes'] ?? [],
             globalData: $data['globalData'] ?? $base->globalData,
             gap: $data['gap'] ?? null,
+            navbarBaseUrl: $data['navbarBaseUrl'] ?? null,
         );
     }
 }

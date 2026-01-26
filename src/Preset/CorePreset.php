@@ -22,6 +22,8 @@ use PhpMjml\Components\Body\Divider;
 use PhpMjml\Components\Body\Group;
 use PhpMjml\Components\Body\Hero;
 use PhpMjml\Components\Body\Image;
+use PhpMjml\Components\Body\Navbar;
+use PhpMjml\Components\Body\NavbarLink;
 use PhpMjml\Components\Body\Raw;
 use PhpMjml\Components\Body\Section;
 use PhpMjml\Components\Body\Social;
@@ -57,6 +59,8 @@ final class CorePreset
             Group::class,
             Hero::class,
             Image::class,
+            Navbar::class,
+            NavbarLink::class,
             Raw::class,
             Section::class,
             Social::class,
