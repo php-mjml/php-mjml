@@ -84,7 +84,7 @@ abstract class ParityTestCase extends TestCase
         $html = preg_replace('/>\s+</', '><', $html) ?? $html;
 
         // Normalize whitespace inside style tags
-        $html = preg_replace_callback('/<style[^>]*>(.*?)<\/style>/s', function ($matches) {
+        $html = preg_replace_callback('/<style[^>]*>(.*?)<\/style>/s', static function ($matches) {
             $content = $matches[0];
             // Remove leading whitespace from each line inside style
             $content = preg_replace('/^\s+/m', '', $content);
@@ -149,7 +149,7 @@ abstract class ParityTestCase extends TestCase
         // Match opening HTML tags with attributes
         return preg_replace_callback(
             '/<([a-zA-Z][a-zA-Z0-9]*)\s+([^>]+)>/s',
-            function ($matches) {
+            static function ($matches) {
                 $tagName = $matches[1];
                 $attrsString = $matches[2];
 

@@ -45,7 +45,7 @@ final readonly class Node
     {
         return array_filter(
             $this->children,
-            fn (Node $child) => $child->tagName === $tagName
+            static fn (Node $child) => $child->tagName === $tagName
         );
     }
 

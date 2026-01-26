@@ -150,7 +150,7 @@ final class Mjml2Html
 
         foreach ($htmlAttributes as $selector => $attributes) {
             try {
-                $crawler->filter($selector)->each(function (Crawler $node) use ($attributes): void {
+                $crawler->filter($selector)->each(static function (Crawler $node) use ($attributes): void {
                     $domNode = $node->getNode(0);
                     if ($domNode instanceof \DOMElement) {
                         foreach ($attributes as $attrName => $attrValue) {

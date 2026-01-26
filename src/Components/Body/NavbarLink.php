@@ -178,7 +178,7 @@ final class NavbarLink extends BodyComponent
         }
 
         return implode(' ', array_map(
-            fn (string $class) => "{$class}-{$suffix}",
+            static fn (string $class) => "{$class}-{$suffix}",
             $classArray
         ));
     }

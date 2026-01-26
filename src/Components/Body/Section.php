@@ -193,7 +193,7 @@ final class Section extends BodyComponent
             $this->hasBackground() ? $this->getBackgroundString() : null,
             $this->hasBackground() ? \sprintf('/ %s', $this->getAttribute('background-size')) : null,
             $this->hasBackground() ? $this->getAttribute('background-repeat') : null,
-        ], fn ($v) => null !== $v && '' !== $v);
+        ], static fn ($v) => null !== $v && '' !== $v);
 
         return implode(' ', $parts);
     }
@@ -366,7 +366,7 @@ final class Section extends BodyComponent
         $fullWidth = $this->isFullWidth();
         $containerWidth = $this->context->containerWidth ?? 600;
 
-        $isPercentage = fn (string $str): bool => (bool) preg_match('/^\d+(\.\d+)?%$/', $str);
+        $isPercentage = static fn (string $str): bool => (bool) preg_match('/^\d+(\.\d+)?%$/', $str);
 
         $pos = $this->getBackgroundPosition();
         $bgPosX = $pos['posX'];
@@ -389,7 +389,7 @@ final class Section extends BodyComponent
         $bgRepeat = 'repeat' === $this->getAttribute('background-repeat');
 
         // Calculate VML origin and position
-        $calculateVmlValues = function (string $pos, bool $isX) use ($isPercentage, $bgRepeat): array {
+        $calculateVmlValues = static function (string $pos, bool $isX) use ($isPercentage, $bgRepeat): array {
             if ($isPercentage($pos)) {
                 preg_match('/^(\d+(\.\d+)?)%$/', $pos, $matches);
                 $decimal = (float) $matches[1] / 100;

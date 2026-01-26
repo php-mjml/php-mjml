@@ -35,7 +35,7 @@ final class CssHelper
         }
 
         /** @var list<string> $suffixed */
-        $suffixed = array_map(fn (string $c): string => "{$c}-{$suffix}", $classList);
+        $suffixed = array_map(static fn (string $c): string => "{$c}-{$suffix}", $classList);
 
         return implode(' ', $suffixed);
     }

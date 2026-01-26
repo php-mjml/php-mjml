@@ -33,7 +33,7 @@ final class ShorthandParser
             return 0;
         }
 
-        $values = array_filter($splitValues, fn (string $v): bool => '' !== $v);
+        $values = array_filter($splitValues, static fn (string $v): bool => '' !== $v);
         $values = array_values($values);
 
         $count = \count($values);

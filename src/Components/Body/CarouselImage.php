@@ -213,7 +213,7 @@ final class CarouselImage extends BodyComponent
         }
 
         return implode(' ', array_map(
-            fn (string $class) => "{$class}-{$suffix}",
+            static fn (string $class) => "{$class}-{$suffix}",
             $classArray
         ));
     }

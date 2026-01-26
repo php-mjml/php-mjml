@@ -74,7 +74,7 @@ final class Attributes extends HeadComponent
                 // Store class attributes (excluding the 'name' attribute)
                 $classAttributes = array_filter(
                     $attributes,
-                    fn (string $key) => 'name' !== $key,
+                    static fn (string $key) => 'name' !== $key,
                     \ARRAY_FILTER_USE_KEY
                 );
                 $context->headAttributes[self::TAG_NAME_CLASS][$className] = $classAttributes;

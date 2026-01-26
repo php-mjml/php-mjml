@@ -247,7 +247,7 @@ final class Hero extends BodyComponent
             $parts[] = \sprintf('%s / cover', $this->getAttribute('background-position'));
         }
 
-        $parts = array_filter($parts, fn ($v) => null !== $v && '' !== $v);
+        $parts = array_filter($parts, static fn ($v) => null !== $v && '' !== $v);
 
         return implode(' ', $parts);
     }

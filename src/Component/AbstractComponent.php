@@ -162,7 +162,7 @@ abstract class AbstractComponent implements ComponentInterface
         // Instance attributes have highest priority (excluding mj-class which was already processed)
         $instanceAttributesWithoutMjClass = array_filter(
             $instanceAttributes,
-            fn (string $key) => 'mj-class' !== $key,
+            static fn (string $key) => 'mj-class' !== $key,
             \ARRAY_FILTER_USE_KEY
         );
 
