@@ -28,16 +28,47 @@ final class MjmlParser
         'mj-accordion-text',
     ];
 
+    /**
+     * HTML named entities mapped to their numeric equivalents.
+     * XML only supports &amp; &lt; &gt; &quot; &apos; natively.
+     *
+     * @var array<string, string>
+     */
+    private const HTML_ENTITY_MAP = [
+        '&nbsp;' => '&#160;',
+        '&copy;' => '&#169;',
+        '&reg;' => '&#174;',
+        '&trade;' => '&#8482;',
+        '&mdash;' => '&#8212;',
+        '&ndash;' => '&#8211;',
+        '&lsquo;' => '&#8216;',
+        '&rsquo;' => '&#8217;',
+        '&ldquo;' => '&#8220;',
+        '&rdquo;' => '&#8221;',
+        '&bull;' => '&#8226;',
+        '&hellip;' => '&#8230;',
+        '&euro;' => '&#8364;',
+        '&pound;' => '&#163;',
+        '&yen;' => '&#165;',
+        '&cent;' => '&#162;',
+        '&deg;' => '&#176;',
+        '&plusmn;' => '&#177;',
+        '&times;' => '&#215;',
+        '&divide;' => '&#247;',
+        '&frac12;' => '&#189;',
+        '&frac14;' => '&#188;',
+        '&frac34;' => '&#190;',
+    ];
+
     public function parse(string $mjml): Node
     {
-        // Use PHP 8.4's HTML5 DOM parser which properly handles HTML entities like &nbsp;
-        // The HTML5 parser is lenient and handles malformed input gracefully
+        // Convert HTML named entities to numeric equivalents for XML compatibility
+        $mjml = $this->convertHtmlEntitiesToNumeric($mjml);
+
         libxml_use_internal_errors(true);
 
-        $dom = \Dom\HTMLDocument::createFromString(
-            $mjml,
-            \LIBXML_NOERROR | \LIBXML_HTML_NOIMPLIED
-        );
+        // Use XML parser which correctly handles self-closing tags
+        $dom = \Dom\XMLDocument::createFromString($mjml, \LIBXML_NOERROR);
 
         $errors = libxml_get_errors();
         libxml_clear_errors();
@@ -48,6 +79,35 @@ final class MjmlParser
         }
 
         return $this->parseNode($root);
+    }
+
+    /**
+     * Prepare MJML for XML parsing by handling entities properly.
+     *
+     * XML only recognizes &amp; &lt; &gt; &quot; &apos; as named entities.
+     * This method:
+     * 1. Converts HTML named entities to numeric equivalents
+     * 2. Escapes bare ampersands that are not part of valid entity references
+     */
+    private function convertHtmlEntitiesToNumeric(string $mjml): string
+    {
+        // First, convert known HTML entities to numeric
+        $mjml = str_replace(
+            array_keys(self::HTML_ENTITY_MAP),
+            array_values(self::HTML_ENTITY_MAP),
+            $mjml
+        );
+
+        // Escape bare ampersands that are not part of valid entity references
+        // Valid entities: &name; or &#123; or &#x1A;
+        // We match & not followed by: word chars + semicolon, or # + digits + semicolon, or #x + hex + semicolon
+        $mjml = preg_replace(
+            '/&(?!(?:[a-zA-Z][a-zA-Z0-9]*|#[0-9]+|#x[0-9a-fA-F]+);)/',
+            '&amp;',
+            $mjml
+        ) ?? $mjml;
+
+        return $mjml;
     }
 
     /**
@@ -99,7 +159,6 @@ final class MjmlParser
 
     private function parseNode(\Dom\Node $domNode): Node
     {
-        // Use localName for lowercase tag names (HTML5 parser uppercases tagName)
         $tagName = $domNode instanceof \Dom\Element ? $domNode->localName : $domNode->nodeName;
         /** @var array<string, string> $attributes */
         $attributes = [];

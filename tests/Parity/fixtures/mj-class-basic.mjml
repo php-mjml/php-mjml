@@ -1,0 +1,30 @@
+<mjml>
+  <mj-head>
+    <mj-title>UGG Royale</mj-title>
+    <mj-attributes>
+      <mj-class
+        name="headline-text"
+        font-family="Big Caslon, Garamond, Times, serif"
+        color="#111111"
+        font-size="40px"
+        line-height="36px"
+        align="center"
+        text-transform="uppercase"
+      ></mj-class>
+    </mj-attributes>
+    <mj-font
+      name="Open Sans"
+      href="http://fonts.googleapis.com/css?family=Open+Sans"
+    ></mj-font>
+    <mj-style>
+      @media all and (max-width: 600px) { img[title*="img30"] { width:30% !important; } }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#ffffff">
+    <mj-section>
+      <mj-column>
+        <mj-text mj-class="headline-text">the<br />wait <br />is over</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

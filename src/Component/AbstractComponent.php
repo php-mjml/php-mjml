@@ -106,8 +106,9 @@ abstract class AbstractComponent implements ComponentInterface
      * 1. Component default attributes
      * 2. mj-all attributes (from mj-attributes)
      * 3. Component-specific default attributes (from mj-attributes)
-     * 4. Inherited attributes from parent component (e.g., mj-social -> mj-social-element)
-     * 5. Instance attributes passed to constructor
+     * 4. mj-class attributes (from mj-attributes)
+     * 5. Inherited attributes from parent component (e.g., mj-social -> mj-social-element)
+     * 6. Instance attributes passed to constructor (excluding mj-class)
      *
      * @param array<string, string|null> $instanceAttributes
      *
@@ -131,6 +132,26 @@ abstract class AbstractComponent implements ComponentInterface
                 $merged = array_merge($merged, $componentDefaults);
             }
 
+            // Apply mj-class attributes
+            $mjClassAttr = $instanceAttributes['mj-class'] ?? null;
+            if (null !== $mjClassAttr && '' !== $mjClassAttr) {
+                $classNames = preg_split('/\s+/', $mjClassAttr, -1, \PREG_SPLIT_NO_EMPTY);
+                if (false !== $classNames) {
+                    $existingCssClass = $merged['css-class'] ?? '';
+                    foreach ($classNames as $className) {
+                        $classAttributes = $this->context->headAttributes['mj-class'][$className] ?? [];
+                        if ([] !== $classAttributes) {
+                            // Handle css-class merging (multiple classes get concatenated)
+                            if (isset($classAttributes['css-class']) && '' !== $existingCssClass) {
+                                $classAttributes['css-class'] = $existingCssClass.' '.$classAttributes['css-class'];
+                            }
+                            $merged = array_merge($merged, $classAttributes);
+                            $existingCssClass = $merged['css-class'] ?? '';
+                        }
+                    }
+                }
+            }
+
             // Apply inherited attributes from parent component
             $inheritedAttributes = $this->context->inheritedAttributes;
             if ([] !== $inheritedAttributes) {
@@ -138,7 +159,13 @@ abstract class AbstractComponent implements ComponentInterface
             }
         }
 
-        // Instance attributes have highest priority
-        return array_merge($merged, $instanceAttributes);
+        // Instance attributes have highest priority (excluding mj-class which was already processed)
+        $instanceAttributesWithoutMjClass = array_filter(
+            $instanceAttributes,
+            fn (string $key) => 'mj-class' !== $key,
+            \ARRAY_FILTER_USE_KEY
+        );
+
+        return array_merge($merged, $instanceAttributesWithoutMjClass);
     }
 }
