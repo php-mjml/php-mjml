@@ -25,6 +25,7 @@ use PhpMjml\Components\Body\Section;
 use PhpMjml\Components\Body\Social;
 use PhpMjml\Components\Body\SocialElement;
 use PhpMjml\Components\Body\Spacer;
+use PhpMjml\Components\Body\Table;
 use PhpMjml\Components\Body\Text;
 use PhpMjml\Components\Body\Wrapper;
 use PhpMjml\Components\Head\Attributes;
@@ -57,6 +58,7 @@ final class CorePreset
             Social::class,
             SocialElement::class,
             Spacer::class,
+            Table::class,
             Text::class,
             Wrapper::class,
 

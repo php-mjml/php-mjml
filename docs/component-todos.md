@@ -29,18 +29,11 @@ This document tracks the implementation status of MJML components in the PHP-MJM
 | `mj-social-element` | Body | ✅ Done |
 | `mj-wrapper` | Body | ✅ Done |
 | `mj-group` | Body | ✅ Done |
+| `mj-table` | Body | ✅ Done |
 
 ---
 
 ## Components To Implement (Ordered by Priority)
-
-### Priority 2: Common Body Components
-
-Frequently used components in email templates.
-
-| # | Component | Type | Description | Complexity |
-|---|-----------|------|-------------|------------|
-| 4 | `mj-table` | Body | HTML table rendering with styling | Medium |
 
 ### Priority 3: Interactive Components
 
@@ -82,13 +75,13 @@ Register new components in `src/Preset/CorePreset.php`.
 ## Progress Tracker
 
 - **Total Components**: 32
-- **Implemented**: 23 (72%)
-- **Remaining**: 9 (28%)
+- **Implemented**: 24 (75%)
+- **Remaining**: 8 (25%)
 
 ### Milestones
 
 - [x] **Milestone 1**: All head components
-- [ ] **Milestone 2**: Social and table components (4 components) - mj-social and mj-social-element done
+- [x] **Milestone 2**: Social and table components (4 components)
 - [x] **Milestone 3**: Layout components - wrapper, group (2 components)
 - [ ] **Milestone 4**: Navigation components (2 components)
 - [ ] **Milestone 5**: Accordion components (4 components)

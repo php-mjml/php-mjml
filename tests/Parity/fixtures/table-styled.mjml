@@ -1,0 +1,35 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-table
+          color="#333333"
+          font-family="Arial, sans-serif"
+          font-size="14px"
+          line-height="20px"
+          table-layout="fixed"
+          width="100%"
+          border="1px solid #dddddd"
+          cellpadding="10"
+          cellspacing="5"
+        >
+          <tr style="border-bottom:1px solid #ecedee;text-align:left;">
+            <th style="padding:0 15px 0 0;">Product</th>
+            <th style="padding:0 15px;">Price</th>
+            <th style="padding:0 0 0 15px;">Quantity</th>
+          </tr>
+          <tr>
+            <td style="padding:0 15px 0 0;">Item A</td>
+            <td style="padding:0 15px;">$19.99</td>
+            <td style="padding:0 0 0 15px;">2</td>
+          </tr>
+          <tr>
+            <td style="padding:0 15px 0 0;">Item B</td>
+            <td style="padding:0 15px;">$29.99</td>
+            <td style="padding:0 0 0 15px;">1</td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

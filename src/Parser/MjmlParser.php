@@ -21,6 +21,7 @@ final class MjmlParser
      */
     private const RAW_CONTENT_TAGS = [
         'mj-raw',
+        'mj-table',
         'mj-text',
         'mj-button',
         'mj-navbar-link',
