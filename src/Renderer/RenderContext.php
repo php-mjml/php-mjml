@@ -20,11 +20,22 @@ final class RenderContext
     public GlobalData $globalData;
 
     /**
-     * @param array<string, string>               $fonts               Font URLs indexed by name
-     * @param array<string, array<string, mixed>> $headAttributes      Head element attributes
-     * @param array<string, string|null>          $inheritedAttributes Attributes inherited from parent component
-     * @param string|null                         $gap                 Gap value for spacing between sections in a wrapper
-     * @param string|null                         $navbarBaseUrl       Base URL for navbar links
+     * @param array<string, string>               $fonts                     Font URLs indexed by name
+     * @param array<string, array<string, mixed>> $headAttributes            Head element attributes
+     * @param array<string, string|null>          $inheritedAttributes       Attributes inherited from parent component
+     * @param string|null                         $gap                       Gap value for spacing between sections in a wrapper
+     * @param string|null                         $navbarBaseUrl             Base URL for navbar links
+     * @param string|null                         $accordionFontFamily       Font family inherited from accordion
+     * @param string|null                         $elementFontFamily         Font family inherited from accordion element
+     * @param string|null                         $accordionBorder           Border inherited from accordion
+     * @param string|null                         $accordionIconAlign        Icon alignment inherited from accordion
+     * @param string|null                         $accordionIconWidth        Icon width inherited from accordion
+     * @param string|null                         $accordionIconHeight       Icon height inherited from accordion
+     * @param string|null                         $accordionIconPosition     Icon position inherited from accordion
+     * @param string|null                         $accordionIconWrappedUrl   Icon URL for wrapped state
+     * @param string|null                         $accordionIconWrappedAlt   Icon alt for wrapped state
+     * @param string|null                         $accordionIconUnwrappedUrl Icon URL for unwrapped state
+     * @param string|null                         $accordionIconUnwrappedAlt Icon alt for unwrapped state
      */
     public function __construct(
         public readonly Registry $registry,
@@ -42,6 +53,17 @@ final class RenderContext
         ?GlobalData $globalData = null,
         public ?string $gap = null,
         public ?string $navbarBaseUrl = null,
+        public ?string $accordionFontFamily = null,
+        public ?string $elementFontFamily = null,
+        public ?string $accordionBorder = null,
+        public ?string $accordionIconAlign = null,
+        public ?string $accordionIconWidth = null,
+        public ?string $accordionIconHeight = null,
+        public ?string $accordionIconPosition = null,
+        public ?string $accordionIconWrappedUrl = null,
+        public ?string $accordionIconWrappedAlt = null,
+        public ?string $accordionIconUnwrappedUrl = null,
+        public ?string $accordionIconUnwrappedAlt = null,
     ) {
         $this->globalData = $globalData ?? new GlobalData();
     }
@@ -124,7 +146,18 @@ final class RenderContext
      *     inheritedAttributes: array<string, string|null>,
      *     globalData: GlobalData,
      *     gap: string|null,
-     *     navbarBaseUrl: string|null
+     *     navbarBaseUrl: string|null,
+     *     accordionFontFamily: string|null,
+     *     elementFontFamily: string|null,
+     *     accordionBorder: string|null,
+     *     accordionIconAlign: string|null,
+     *     accordionIconWidth: string|null,
+     *     accordionIconHeight: string|null,
+     *     accordionIconPosition: string|null,
+     *     accordionIconWrappedUrl: string|null,
+     *     accordionIconWrappedAlt: string|null,
+     *     accordionIconUnwrappedUrl: string|null,
+     *     accordionIconUnwrappedAlt: string|null
      * }
      */
     public function toArray(): array
@@ -145,6 +178,17 @@ final class RenderContext
             'globalData' => $this->globalData,
             'gap' => $this->gap,
             'navbarBaseUrl' => $this->navbarBaseUrl,
+            'accordionFontFamily' => $this->accordionFontFamily,
+            'elementFontFamily' => $this->elementFontFamily,
+            'accordionBorder' => $this->accordionBorder,
+            'accordionIconAlign' => $this->accordionIconAlign,
+            'accordionIconWidth' => $this->accordionIconWidth,
+            'accordionIconHeight' => $this->accordionIconHeight,
+            'accordionIconPosition' => $this->accordionIconPosition,
+            'accordionIconWrappedUrl' => $this->accordionIconWrappedUrl,
+            'accordionIconWrappedAlt' => $this->accordionIconWrappedAlt,
+            'accordionIconUnwrappedUrl' => $this->accordionIconUnwrappedUrl,
+            'accordionIconUnwrappedAlt' => $this->accordionIconUnwrappedAlt,
         ];
     }
 
@@ -171,6 +215,17 @@ final class RenderContext
             globalData: $data['globalData'] ?? $base->globalData,
             gap: $data['gap'] ?? null,
             navbarBaseUrl: $data['navbarBaseUrl'] ?? null,
+            accordionFontFamily: $data['accordionFontFamily'] ?? null,
+            elementFontFamily: $data['elementFontFamily'] ?? null,
+            accordionBorder: $data['accordionBorder'] ?? null,
+            accordionIconAlign: $data['accordionIconAlign'] ?? null,
+            accordionIconWidth: $data['accordionIconWidth'] ?? null,
+            accordionIconHeight: $data['accordionIconHeight'] ?? null,
+            accordionIconPosition: $data['accordionIconPosition'] ?? null,
+            accordionIconWrappedUrl: $data['accordionIconWrappedUrl'] ?? null,
+            accordionIconWrappedAlt: $data['accordionIconWrappedAlt'] ?? null,
+            accordionIconUnwrappedUrl: $data['accordionIconUnwrappedUrl'] ?? null,
+            accordionIconUnwrappedAlt: $data['accordionIconUnwrappedAlt'] ?? null,
         );
     }
 }

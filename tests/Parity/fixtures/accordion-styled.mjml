@@ -1,0 +1,18 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-accordion border="1px solid #dddddd" font-family="Arial, sans-serif">
+          <mj-accordion-element background-color="#f5f5f5">
+            <mj-accordion-title background-color="#e0e0e0" color="#333333" font-size="16px" padding="20px">
+              Styled Title
+            </mj-accordion-title>
+            <mj-accordion-text background-color="#fafafa" color="#666666" font-size="14px" line-height="1.5" padding="20px">
+              Styled content with custom colors and fonts.
+            </mj-accordion-text>
+          </mj-accordion-element>
+        </mj-accordion>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

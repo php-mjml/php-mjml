@@ -1,0 +1,14 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-accordion icon-position="left" icon-width="24px" icon-height="24px">
+          <mj-accordion-element>
+            <mj-accordion-title>Left Icon Position</mj-accordion-title>
+            <mj-accordion-text>Icons appear on the left side.</mj-accordion-text>
+          </mj-accordion-element>
+        </mj-accordion>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

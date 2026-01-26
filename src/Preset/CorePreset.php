@@ -13,6 +13,10 @@ declare(strict_types=1);
 
 namespace PhpMjml\Preset;
 
+use PhpMjml\Components\Body\Accordion;
+use PhpMjml\Components\Body\AccordionElement;
+use PhpMjml\Components\Body\AccordionText;
+use PhpMjml\Components\Body\AccordionTitle;
 use PhpMjml\Components\Body\Body;
 use PhpMjml\Components\Body\Button;
 use PhpMjml\Components\Body\Carousel;
@@ -50,6 +54,10 @@ final class CorePreset
     {
         return [
             // Body components
+            Accordion::class,
+            AccordionElement::class,
+            AccordionText::class,
+            AccordionTitle::class,
             Body::class,
             Button::class,
             Carousel::class,
