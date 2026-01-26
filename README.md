@@ -77,6 +77,21 @@ $options = new RenderOptions(
 $result = $renderer->render($mjml, $options);
 ```
 
+## Security
+
+When processing untrusted content (user input, external APIs), use the built-in sanitizer:
+
+```php
+use PhpMjml\Security\EmailContentSanitizer;
+
+$sanitizer = new EmailContentSanitizer();
+$safeContent = $sanitizer->sanitize($untrustedHtml);
+
+$mjml = "<mj-text>{$safeContent}</mj-text>";
+```
+
+See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security guidance.
+
 ## Available Components
 
 | Component | Description |

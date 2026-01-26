@@ -10,7 +10,8 @@
         "ext-dom": "*",
         "ext-libxml": "*",
         "symfony/css-selector": "^8.0",
-        "symfony/dom-crawler": "^8.0"
+        "symfony/dom-crawler": "^8.0",
+        "symfony/html-sanitizer": "^8.0"
     },
     "require-dev": {
         "php-cs-fixer/shim": "^3.91",
