@@ -108,10 +108,10 @@ final class AccordionTest extends TestCase
 
         $childContext = $accordion->getChildContext();
 
-        $this->assertArrayHasKey('accordionFontFamily', $childContext);
-        $this->assertSame('Arial, sans-serif', $childContext['accordionFontFamily']);
-        $this->assertSame('1px solid red', $childContext['accordionBorder']);
-        $this->assertSame('left', $childContext['accordionIconPosition']);
+        $this->assertArrayHasKey('accordionSettings', $childContext);
+        $this->assertSame('Arial, sans-serif', $childContext['accordionSettings']['fontFamily']);
+        $this->assertSame('1px solid red', $childContext['accordionSettings']['border']);
+        $this->assertSame('left', $childContext['accordionSettings']['iconPosition']);
     }
 
     public function testGetStyles(): void

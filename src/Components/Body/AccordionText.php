@@ -125,18 +125,21 @@ final class AccordionText extends BodyComponent
             return $fontFamily;
         }
 
-        if (null === $this->context) {
+        $settings = $this->context?->accordionSettings;
+        if (null === $settings) {
             return null;
         }
 
         // Check element font family (from AccordionElement)
-        if (null !== $this->context->elementFontFamily) {
-            return $this->context->elementFontFamily;
+        $elementFontFamily = $settings['elementFontFamily'] ?? null;
+        if (null !== $elementFontFamily) {
+            return $elementFontFamily;
         }
 
         // Check accordion font family (from Accordion)
-        if (null !== $this->context->accordionFontFamily) {
-            return $this->context->accordionFontFamily;
+        $fontFamily = $settings['fontFamily'] ?? null;
+        if (null !== $fontFamily) {
+            return $fontFamily;
         }
 
         return null;
@@ -151,20 +154,21 @@ final class AccordionText extends BodyComponent
         }
 
         // Fall back to parent context
-        if (null === $this->context) {
+        $settings = $this->context?->accordionSettings;
+        if (null === $settings) {
             return null;
         }
 
         return match ($name) {
-            'border' => $this->context->accordionBorder,
-            'icon-align' => $this->context->accordionIconAlign,
-            'icon-width' => $this->context->accordionIconWidth,
-            'icon-height' => $this->context->accordionIconHeight,
-            'icon-position' => $this->context->accordionIconPosition,
-            'icon-wrapped-url' => $this->context->accordionIconWrappedUrl,
-            'icon-wrapped-alt' => $this->context->accordionIconWrappedAlt,
-            'icon-unwrapped-url' => $this->context->accordionIconUnwrappedUrl,
-            'icon-unwrapped-alt' => $this->context->accordionIconUnwrappedAlt,
+            'border' => $settings['border'] ?? null,
+            'icon-align' => $settings['iconAlign'] ?? null,
+            'icon-width' => $settings['iconWidth'] ?? null,
+            'icon-height' => $settings['iconHeight'] ?? null,
+            'icon-position' => $settings['iconPosition'] ?? null,
+            'icon-wrapped-url' => $settings['iconWrappedUrl'] ?? null,
+            'icon-wrapped-alt' => $settings['iconWrappedAlt'] ?? null,
+            'icon-unwrapped-url' => $settings['iconUnwrappedUrl'] ?? null,
+            'icon-unwrapped-alt' => $settings['iconUnwrappedAlt'] ?? null,
             default => null,
         };
     }

@@ -103,18 +103,18 @@ final class Accordion extends BodyComponent
     public function getChildContext(): array
     {
         $context = parent::getChildContext();
-        $context['accordionFontFamily'] = $this->getAttribute('font-family');
-
-        // Pass icon attributes to children
-        $context['accordionBorder'] = $this->getAttribute('border');
-        $context['accordionIconAlign'] = $this->getAttribute('icon-align');
-        $context['accordionIconWidth'] = $this->getAttribute('icon-width');
-        $context['accordionIconHeight'] = $this->getAttribute('icon-height');
-        $context['accordionIconPosition'] = $this->getAttribute('icon-position');
-        $context['accordionIconWrappedUrl'] = $this->getAttribute('icon-wrapped-url');
-        $context['accordionIconWrappedAlt'] = $this->getAttribute('icon-wrapped-alt');
-        $context['accordionIconUnwrappedUrl'] = $this->getAttribute('icon-unwrapped-url');
-        $context['accordionIconUnwrappedAlt'] = $this->getAttribute('icon-unwrapped-alt');
+        $context['accordionSettings'] = [
+            'fontFamily' => $this->getAttribute('font-family'),
+            'border' => $this->getAttribute('border'),
+            'iconAlign' => $this->getAttribute('icon-align'),
+            'iconWidth' => $this->getAttribute('icon-width'),
+            'iconHeight' => $this->getAttribute('icon-height'),
+            'iconPosition' => $this->getAttribute('icon-position'),
+            'iconWrappedUrl' => $this->getAttribute('icon-wrapped-url'),
+            'iconWrappedAlt' => $this->getAttribute('icon-wrapped-alt'),
+            'iconUnwrappedUrl' => $this->getAttribute('icon-unwrapped-url'),
+            'iconUnwrappedAlt' => $this->getAttribute('icon-unwrapped-alt'),
+        ];
 
         return $context;
     }

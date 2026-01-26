@@ -162,7 +162,7 @@ final class AccordionTitleTest extends TestCase
             registry: new Registry(),
             options: new RenderOptions(),
             containerWidth: 600,
-            accordionFontFamily: 'Arial, sans-serif',
+            accordionSettings: ['fontFamily' => 'Arial, sans-serif'],
         );
 
         $title = new AccordionTitle(
@@ -184,8 +184,10 @@ final class AccordionTitleTest extends TestCase
             registry: new Registry(),
             options: new RenderOptions(),
             containerWidth: 600,
-            accordionFontFamily: 'Arial, sans-serif',
-            elementFontFamily: 'Georgia, serif',
+            accordionSettings: [
+                'fontFamily' => 'Arial, sans-serif',
+                'elementFontFamily' => 'Georgia, serif',
+            ],
         );
 
         $title = new AccordionTitle(
@@ -216,7 +218,7 @@ final class AccordionTitleTest extends TestCase
             registry: new Registry(),
             options: new RenderOptions(),
             containerWidth: 600,
-            accordionIconPosition: $position,
+            accordionSettings: ['iconPosition' => $position],
         );
     }
 }

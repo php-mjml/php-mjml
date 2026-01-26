@@ -80,18 +80,21 @@ final class AccordionElement extends BodyComponent
     public function getChildContext(): array
     {
         $context = parent::getChildContext();
-        $context['elementFontFamily'] = $this->getAttribute('font-family');
 
-        // Pass icon attributes from parent accordion or own attributes
-        $context['accordionBorder'] = $this->getIconAttribute('border');
-        $context['accordionIconAlign'] = $this->getIconAttribute('icon-align');
-        $context['accordionIconWidth'] = $this->getIconAttribute('icon-width');
-        $context['accordionIconHeight'] = $this->getIconAttribute('icon-height');
-        $context['accordionIconPosition'] = $this->getIconAttribute('icon-position');
-        $context['accordionIconWrappedUrl'] = $this->getIconAttribute('icon-wrapped-url');
-        $context['accordionIconWrappedAlt'] = $this->getIconAttribute('icon-wrapped-alt');
-        $context['accordionIconUnwrappedUrl'] = $this->getIconAttribute('icon-unwrapped-url');
-        $context['accordionIconUnwrappedAlt'] = $this->getIconAttribute('icon-unwrapped-alt');
+        // Merge with parent accordion settings, adding element-specific settings
+        $parentSettings = $this->context->accordionSettings ?? [];
+        $context['accordionSettings'] = array_merge($parentSettings, [
+            'elementFontFamily' => $this->getAttribute('font-family'),
+            'border' => $this->getIconAttribute('border'),
+            'iconAlign' => $this->getIconAttribute('icon-align'),
+            'iconWidth' => $this->getIconAttribute('icon-width'),
+            'iconHeight' => $this->getIconAttribute('icon-height'),
+            'iconPosition' => $this->getIconAttribute('icon-position'),
+            'iconWrappedUrl' => $this->getIconAttribute('icon-wrapped-url'),
+            'iconWrappedAlt' => $this->getIconAttribute('icon-wrapped-alt'),
+            'iconUnwrappedUrl' => $this->getIconAttribute('icon-unwrapped-url'),
+            'iconUnwrappedAlt' => $this->getIconAttribute('icon-unwrapped-alt'),
+        ]);
 
         return $context;
     }
@@ -204,20 +207,21 @@ final class AccordionElement extends BodyComponent
         }
 
         // Fall back to parent accordion context
-        if (null === $this->context) {
+        $settings = $this->context?->accordionSettings;
+        if (null === $settings) {
             return null;
         }
 
         return match ($name) {
-            'border' => $this->context->accordionBorder,
-            'icon-align' => $this->context->accordionIconAlign,
-            'icon-width' => $this->context->accordionIconWidth,
-            'icon-height' => $this->context->accordionIconHeight,
-            'icon-position' => $this->context->accordionIconPosition,
-            'icon-wrapped-url' => $this->context->accordionIconWrappedUrl,
-            'icon-wrapped-alt' => $this->context->accordionIconWrappedAlt,
-            'icon-unwrapped-url' => $this->context->accordionIconUnwrappedUrl,
-            'icon-unwrapped-alt' => $this->context->accordionIconUnwrappedAlt,
+            'border' => $settings['border'] ?? null,
+            'icon-align' => $settings['iconAlign'] ?? null,
+            'icon-width' => $settings['iconWidth'] ?? null,
+            'icon-height' => $settings['iconHeight'] ?? null,
+            'icon-position' => $settings['iconPosition'] ?? null,
+            'icon-wrapped-url' => $settings['iconWrappedUrl'] ?? null,
+            'icon-wrapped-alt' => $settings['iconWrappedAlt'] ?? null,
+            'icon-unwrapped-url' => $settings['iconUnwrappedUrl'] ?? null,
+            'icon-unwrapped-alt' => $settings['iconUnwrappedAlt'] ?? null,
             default => null,
         };
     }

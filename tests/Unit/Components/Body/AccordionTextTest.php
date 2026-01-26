@@ -132,7 +132,7 @@ final class AccordionTextTest extends TestCase
             registry: new Registry(),
             options: new RenderOptions(),
             containerWidth: 600,
-            accordionFontFamily: 'Arial, sans-serif',
+            accordionSettings: ['fontFamily' => 'Arial, sans-serif'],
         );
 
         $text = new AccordionText(
@@ -154,8 +154,10 @@ final class AccordionTextTest extends TestCase
             registry: new Registry(),
             options: new RenderOptions(),
             containerWidth: 600,
-            accordionFontFamily: 'Arial, sans-serif',
-            elementFontFamily: 'Georgia, serif',
+            accordionSettings: [
+                'fontFamily' => 'Arial, sans-serif',
+                'elementFontFamily' => 'Georgia, serif',
+            ],
         );
 
         $text = new AccordionText(
@@ -178,8 +180,10 @@ final class AccordionTextTest extends TestCase
             registry: new Registry(),
             options: new RenderOptions(),
             containerWidth: 600,
-            accordionFontFamily: 'Arial, sans-serif',
-            elementFontFamily: 'Georgia, serif',
+            accordionSettings: [
+                'fontFamily' => 'Arial, sans-serif',
+                'elementFontFamily' => 'Georgia, serif',
+            ],
         );
 
         $text = new AccordionText(

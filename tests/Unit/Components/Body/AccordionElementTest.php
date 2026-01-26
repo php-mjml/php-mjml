@@ -151,9 +151,9 @@ final class AccordionElementTest extends TestCase
 
         $childContext = $element->getChildContext();
 
-        $this->assertArrayHasKey('elementFontFamily', $childContext);
-        $this->assertSame('Georgia, serif', $childContext['elementFontFamily']);
-        $this->assertSame('left', $childContext['accordionIconPosition']);
+        $this->assertArrayHasKey('accordionSettings', $childContext);
+        $this->assertSame('Georgia, serif', $childContext['accordionSettings']['elementFontFamily']);
+        $this->assertSame('left', $childContext['accordionSettings']['iconPosition']);
     }
 
     public function testGetStyles(): void
