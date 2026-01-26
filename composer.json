@@ -38,6 +38,10 @@
         "phpstan": "phpstan",
         "ca": ["@cs", "@phpstan", "@test"]
     },
+    "suggest": {
+        "pfaciana/tiny-html-minifier": "For HTML minification of rendered output",
+        "gajus/dindent": "For HTML beautification/pretty-printing of rendered output"
+    },
     "config": {
         "sort-packages": true
     }

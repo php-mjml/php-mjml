@@ -69,12 +69,53 @@ $result = $renderer->render($mjml);
 use PhpMjml\Renderer\RenderOptions;
 
 $options = new RenderOptions(
-    minify: true,        // Minify HTML output
-    beautify: false,     // Beautify HTML output
-    keepComments: false, // Strip HTML comments
+    fonts: [
+        'Open Sans' => 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,700',
+        'Custom Font' => 'https://example.com/custom-font.css',
+    ],
 );
 
 $result = $renderer->render($mjml, $options);
+```
+
+## Post-Processing (Minify, Beautify)
+
+Like the JavaScript MJML library, post-processing (minification, beautification) is not
+handled by the core library. We recommend using dedicated tools:
+
+### Minification
+
+```bash
+composer require pfaciana/tiny-html-minifier
+```
+
+```php
+use TinyHtmlMinifier\TinyMinify;
+
+$result = $renderer->render($mjml);
+$minified = TinyMinify::html($result->html, ['collapse_whitespace' => true]);
+```
+
+### Beautification
+
+```bash
+composer require gajus/dindent
+```
+
+```php
+use Gajus\Dindent\Indenter;
+
+$result = $renderer->render($mjml);
+$indenter = new Indenter();
+$beautified = $indenter->indent($result->html);
+```
+
+### Stripping Comments
+
+To remove HTML comments while preserving Outlook conditional comments:
+
+```php
+$html = preg_replace('/<!--(?!\[if\s)(?!<!\[endif\]).*?-->/s', '', $result->html);
 ```
 
 ## Security
@@ -94,14 +135,46 @@ See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security guidance.
 
 ## Available Components
 
+### Body Components
+
 | Component | Description |
 |-----------|-------------|
 | `mj-body` | Root container for email content |
 | `mj-section` | Horizontal section with background support |
 | `mj-column` | Column within a section (auto-width distribution) |
+| `mj-group` | Groups columns together for consistent mobile behavior |
+| `mj-wrapper` | Wraps multiple sections with shared background |
 | `mj-text` | Text content with full typography control |
+| `mj-button` | Call-to-action button |
+| `mj-image` | Responsive image |
+| `mj-divider` | Horizontal divider line |
+| `mj-spacer` | Vertical spacing |
+| `mj-table` | HTML table for tabular data |
+| `mj-social` | Social media icon links |
+| `mj-social-element` | Individual social media icon |
+| `mj-navbar` | Navigation bar |
+| `mj-navbar-link` | Navigation link |
+| `mj-hero` | Hero section with background image |
+| `mj-carousel` | Image carousel/slideshow |
+| `mj-carousel-image` | Individual carousel image |
+| `mj-accordion` | Expandable accordion container |
+| `mj-accordion-element` | Individual accordion item |
+| `mj-accordion-title` | Accordion item title |
+| `mj-accordion-text` | Accordion item content |
+| `mj-raw` | Raw HTML passthrough |
 
-More components coming soon. Contributions welcome!
+### Head Components
+
+| Component | Description |
+|-----------|-------------|
+| `mj-head` | Container for head elements |
+| `mj-title` | Email title (shown in browser tab) |
+| `mj-preview` | Preview text (shown in inbox) |
+| `mj-attributes` | Default attribute values |
+| `mj-breakpoint` | Responsive breakpoint configuration |
+| `mj-font` | Custom web font registration |
+| `mj-style` | Custom CSS styles |
+| `mj-html-attributes` | Add attributes to rendered HTML elements |
 
 ## Requirements
 

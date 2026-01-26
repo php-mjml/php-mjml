@@ -27,10 +27,6 @@ final readonly class RenderOptions
      * @param array<string, string> $fonts Font URLs indexed by font name
      */
     public function __construct(
-        public bool $minify = false,
-        public bool $beautify = false,
-        public bool $keepComments = true,
-        public bool $validationLevel = true,
         public array $fonts = self::DEFAULT_FONTS,
     ) {
     }
