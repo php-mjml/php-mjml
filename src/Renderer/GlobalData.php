@@ -25,6 +25,7 @@ final class GlobalData
      * @param array<string, string>                     $mediaQueries       Media query CSS indexed by class name
      * @param array<int, string>                        $styles             CSS style strings
      * @param array<int, string>                        $componentHeadStyle Component head styles (output after media queries)
+     * @param array<string, string>                     $headStyle          Keyed head styles (deduplicated by component name)
      * @param array<int, string>                        $inlineStyles       Inline CSS styles for inlining into elements
      * @param array<string, array<string, string|null>> $htmlAttributes     Custom HTML attributes indexed by CSS selector
      */
@@ -32,6 +33,7 @@ final class GlobalData
         public array $mediaQueries = [],
         public array $styles = [],
         public array $componentHeadStyle = [],
+        public array $headStyle = [],
         public array $inlineStyles = [],
         public array $htmlAttributes = [],
     ) {
@@ -75,6 +77,17 @@ final class GlobalData
     public function addComponentHeadStyle(string $style): void
     {
         $this->componentHeadStyle[] = $style;
+    }
+
+    /**
+     * Add a keyed head style (deduplicated by key).
+     *
+     * Use this for component styles that should only be output once
+     * regardless of how many instances of the component exist.
+     */
+    public function addHeadStyle(string $key, string $style): void
+    {
+        $this->headStyle[$key] = $style;
     }
 
     /**

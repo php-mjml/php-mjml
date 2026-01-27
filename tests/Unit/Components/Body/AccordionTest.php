@@ -147,10 +147,10 @@ final class AccordionTest extends TestCase
 
         $accordion->render();
 
-        $headStyles = $context->getComponentHeadStyles();
-        $this->assertNotEmpty($headStyles);
+        $headStyles = $context->globalData->headStyle;
+        $this->assertArrayHasKey('mj-accordion', $headStyles);
 
-        $style = $headStyles[0];
+        $style = $headStyles['mj-accordion'];
         $this->assertStringContainsString('mj-accordion-checkbox', $style);
         $this->assertStringContainsString('mj-accordion-element', $style);
         $this->assertStringContainsString('mj-accordion-content', $style);

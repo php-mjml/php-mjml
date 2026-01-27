@@ -404,7 +404,10 @@ CSS;
 
     private function buildComponentHeadStyles(RenderContext $context): string
     {
-        $styles = $context->getComponentHeadStyles();
+        // Merge keyed head styles (deduplicated) with component head styles (array)
+        $keyedStyles = array_values($context->globalData->headStyle);
+        $componentStyles = $context->getComponentHeadStyles();
+        $styles = array_merge($keyedStyles, $componentStyles);
 
         if ([] === $styles) {
             return '';

@@ -179,10 +179,10 @@ final class NavbarTest extends TestCase
 
         $navbar->render();
 
-        $headStyles = $context->getComponentHeadStyles();
-        $this->assertNotEmpty($headStyles);
+        $headStyles = $context->globalData->headStyle;
+        $this->assertArrayHasKey('mj-navbar', $headStyles);
 
-        $style = $headStyles[0];
+        $style = $headStyles['mj-navbar'];
         $this->assertStringContainsString('.mj-menu-checkbox', $style);
         $this->assertStringContainsString('.mj-inline-links', $style);
         $this->assertStringContainsString('.mj-menu-trigger', $style);

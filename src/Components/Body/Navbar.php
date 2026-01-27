@@ -196,7 +196,7 @@ final class Navbar extends BodyComponent
       }
 CSS;
 
-        $this->context->globalData->addComponentHeadStyle($css);
+        $this->context->globalData->addHeadStyle('mj-navbar', $css);
     }
 
     private function makeLowerBreakpoint(string $breakpoint): string

@@ -163,6 +163,6 @@ final class Accordion extends BodyComponent
       @goodbye { @gmail }
 CSS;
 
-        $this->context->globalData->addComponentHeadStyle($css);
+        $this->context->globalData->addHeadStyle('mj-accordion', $css);
     }
 }
