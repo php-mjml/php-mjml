@@ -1,0 +1,275 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    background-color: #1e1e2e;
+    color: #cdd6f4;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    padding: 1rem 2rem;
+    background-color: #181825;
+    border-bottom: 1px solid #313244;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #cdd6f4;
+}
+
+header p {
+    font-size: 0.875rem;
+    color: #a6adc8;
+    margin-top: 0.25rem;
+}
+
+header a {
+    color: #89b4fa;
+    text-decoration: none;
+}
+
+header a:hover {
+    text-decoration: underline;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+#status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    background-color: #181825;
+    border-radius: 8px;
+    border: 1px solid #313244;
+}
+
+#status.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #313244;
+    border-top-color: #89b4fa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#status-text {
+    font-size: 0.875rem;
+    color: #a6adc8;
+}
+
+#editor-container {
+    display: none;
+    flex: 1;
+    gap: 1rem;
+}
+
+#editor-container.ready {
+    display: flex;
+}
+
+.panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #181825;
+    border-radius: 8px;
+    border: 1px solid #313244;
+    overflow: hidden;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: #11111b;
+    border-bottom: 1px solid #313244;
+}
+
+.panel-header h2 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #a6adc8;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e1e2e;
+    background-color: #89b4fa;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+    background-color: #b4befe;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#render-btn {
+    background-color: #a6e3a1;
+}
+
+#render-btn:hover:not(:disabled) {
+    background-color: #94e2d5;
+}
+
+#view-source-btn {
+    background-color: #fab387;
+}
+
+#view-source-btn:hover:not(:disabled) {
+    background-color: #f9e2af;
+}
+
+#mjml-input {
+    flex: 1;
+    padding: 1rem;
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #cdd6f4;
+    background-color: #181825;
+    border: none;
+    resize: none;
+    outline: none;
+}
+
+#mjml-input::placeholder {
+    color: #585b70;
+}
+
+#preview {
+    flex: 1;
+    border: none;
+    background-color: #ffffff;
+}
+
+footer {
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #585b70;
+    background-color: #181825;
+    border-top: 1px solid #313244;
+}
+
+footer a {
+    color: #89b4fa;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 900px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #181825;
+    border-radius: 8px;
+    border: 1px solid #313244;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: #11111b;
+    border-bottom: 1px solid #313244;
+}
+
+.modal-header h2 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #a6adc8;
+}
+
+#close-modal-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    background-color: transparent;
+    color: #a6adc8;
+}
+
+#close-modal-btn:hover {
+    color: #cdd6f4;
+    background-color: #313244;
+}
+
+#source-output {
+    flex: 1;
+    padding: 1rem;
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: #cdd6f4;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Responsive layout */
+@media (max-width: 900px) {
+    #editor-container {
+        flex-direction: column;
+    }
+
+    .panel {
+        min-height: 300px;
+    }
+}

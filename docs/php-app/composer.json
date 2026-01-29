@@ -1,0 +1,28 @@
+{
+    "name": "php-mjml/wasm-demo",
+    "description": "Browser-based demo of PHP-MJML using PHP-WASM",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "php-mjml/php-mjml": "dev-main"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../",
+            "options": {
+                "symlink": false
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "platform": {
+            "php": "8.3.11"
+        }
+    }
+}

@@ -27,3 +27,8 @@ Thumbs.db
 # Node (for parity tests)
 node_modules/
 package-lock.json
+
+# Demo (built by CI)
+docs/php-app/vendor/
+docs/php-app/composer.lock
+docs/backups/*.zip

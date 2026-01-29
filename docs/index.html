@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP-MJML Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>PHP-MJML Demo</h1>
+        <p>Native PHP port of MJML - running entirely in your browser via <a href="https://github.com/nickmandal/php-wasm" target="_blank">PHP-WASM</a></p>
+    </header>
+
+    <main>
+        <div id="status">
+            <div class="spinner"></div>
+            <span id="status-text">Initializing PHP runtime...</span>
+        </div>
+
+        <div id="editor-container">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>MJML Source</h2>
+                    <button id="render-btn" disabled>Render</button>
+                </div>
+                <textarea id="mjml-input" spellcheck="false"></textarea>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>HTML Preview</h2>
+                    <button id="view-source-btn" disabled>View Source</button>
+                </div>
+                <iframe id="preview" sandbox="allow-same-origin"></iframe>
+            </div>
+        </div>
+    </main>
+
+    <div id="source-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generated HTML</h2>
+                <button id="close-modal-btn">&times;</button>
+            </div>
+            <pre id="source-output"></pre>
+        </div>
+    </div>
+
+    <footer>
+        <a href="https://github.com/php-mjml/php-mjml" target="_blank">GitHub</a>
+        &middot;
+        <a href="https://mjml.io/documentation/" target="_blank">MJML Docs</a>
+    </footer>
+
+    <script type="module" src="app.mjs"></script>
+</body>
+</html>
