@@ -48,11 +48,20 @@ PHP-MJML is designed for **trusted input** by default. Like the JavaScript MJML 
 
 ### What Requires Manual Sanitization
 
-Components that render content as-is (to support rich HTML):
+**Ending Tags** are MJML components that render their content as-is without processing. This allows rich HTML but means user input must be sanitized:
 
-- `mj-text` - Renders inner HTML content directly
-- `mj-button` - Renders button text directly
-- `mj-raw` - Renders raw HTML (intentionally)
+| Component | Purpose | Risk Level |
+|-----------|---------|------------|
+| `mj-text` | Text blocks with HTML formatting | High |
+| `mj-button` | Button label with optional HTML | High |
+| `mj-raw` | Raw HTML passthrough | High |
+| `mj-table` | HTML table content | High |
+| `mj-navbar-link` | Navigation link text | Medium |
+| `mj-accordion-title` | Accordion header text | Medium |
+| `mj-accordion-text` | Accordion body content | High |
+| `mj-social-element` | Social link text | Medium |
+
+> **Important**: Content inside ending tags is **never sanitized** by the library. This matches the JavaScript MJML behavior and allows legitimate HTML use cases (MSO conditionals, custom styling, etc.).
 
 ## Using the Sanitizer
 
@@ -266,6 +275,119 @@ Document where user content can enter your email templates:
  * - $imageUrl: User-uploaded, validate URL scheme
  */
 ```
+
+## Twig Integration
+
+When using Twig to generate MJML templates, you have two options for handling user content: escaping (for plain text) or sanitizing (for HTML content).
+
+### Option 1: Escaping with Twig's `e` Filter (Recommended for Plain Text)
+
+Use Twig's built-in escaping for content that should be displayed as plain text:
+
+```twig
+{# For plain text content - escapes HTML special characters #}
+<mj-text>Hello, {{ userName|e }}</mj-text>
+
+{# For attribute values #}
+<mj-button href="{{ url|e('html_attr') }}">Click here</mj-button>
+
+{# For content that might contain < or > but shouldn't be HTML #}
+<mj-text>Your code: {{ codeSnippet|e }}</mj-text>
+```
+
+**Result**: `<script>` becomes `&lt;script&gt;` (displayed as text, not executed)
+
+### Option 2: Sanitizing with a Custom Filter (For HTML Content)
+
+When users need to submit formatted content (bold, links, lists), create a Twig filter that uses the sanitizer:
+
+```php
+// src/Twig/EmailExtension.php
+use PhpMjml\Security\EmailContentSanitizer;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+
+class EmailExtension extends AbstractExtension
+{
+    private EmailContentSanitizer $sanitizer;
+
+    public function __construct()
+    {
+        $this->sanitizer = new EmailContentSanitizer();
+    }
+
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('sanitize_email', [$this, 'sanitizeEmail'], ['is_safe' => ['html']]),
+        ];
+    }
+
+    public function sanitizeEmail(string $content): string
+    {
+        return $this->sanitizer->sanitize($content);
+    }
+}
+```
+
+```twig
+{# For HTML content from users - preserves safe HTML, removes dangerous elements #}
+<mj-text>{{ userMessage|sanitize_email }}</mj-text>
+
+{# Example: User submits "<p>Hello <strong>world</strong><script>alert(1)</script></p>" #}
+{# Result: "<p>Hello <strong>world</strong></p>" (script removed) #}
+```
+
+### Option 3: Using `raw` Filter (Only for Trusted Content)
+
+Never use `raw` with user content:
+
+```twig
+{# DANGEROUS - Only use with content you completely control #}
+<mj-text>{{ trustedHtmlFromCms|raw }}</mj-text>
+
+{# NEVER do this #}
+<mj-text>{{ userInput|raw }}</mj-text>  {# XSS vulnerability! #}
+```
+
+### Complete Twig Example
+
+```twig
+{# templates/email/order_confirmation.mjml.twig #}
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        {# Plain text - use escape #}
+        <mj-text>Order #{{ orderNumber|e }}</mj-text>
+
+        {# User's name - escape #}
+        <mj-text>Thank you, {{ customer.name|e }}!</mj-text>
+
+        {# User-submitted message with formatting - sanitize #}
+        <mj-text>{{ giftMessage|sanitize_email }}</mj-text>
+
+        {# Button with dynamic URL - escape for attribute #}
+        <mj-button href="{{ trackingUrl|e('html_attr') }}">
+          Track Order
+        </mj-button>
+
+        {# Static content from your templates - raw is OK #}
+        <mj-raw>{{ include('email/_mso_header.html')|raw }}</mj-raw>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+### Quick Reference
+
+| Content Type | Filter | Example |
+|--------------|--------|---------|
+| Plain text | `\|e` | `{{ name\|e }}` |
+| HTML attributes | `\|e('html_attr')` | `href="{{ url\|e('html_attr') }}"` |
+| User HTML content | `\|sanitize_email` | `{{ message\|sanitize_email }}` |
+| Trusted internal HTML | `\|raw` | `{{ include('...')\|raw }}` |
 
 ## Known Limitations
 
