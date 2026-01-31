@@ -6,7 +6,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.4",
         "ext-dom": "*",
         "ext-libxml": "*",
         "symfony/css-selector": "^7.0 || ^8.0",
