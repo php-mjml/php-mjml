@@ -1,0 +1,18 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-raw>
+          <div class="custom-wrapper">
+            <table role="presentation">
+              <tr>
+                <td>Cell 1</td>
+                <td>Cell 2</td>
+              </tr>
+            </table>
+          </div>
+        </mj-raw>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

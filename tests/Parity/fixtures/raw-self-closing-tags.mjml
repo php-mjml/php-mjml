@@ -1,0 +1,13 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-raw>
+          <br>
+          <hr>
+          <img src="https://example.com/image.jpg" alt="Test image">
+        </mj-raw>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

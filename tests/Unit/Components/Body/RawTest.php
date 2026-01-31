@@ -95,6 +95,134 @@ final class RawTest extends TestCase
         $this->assertSame('', $html);
     }
 
+    public function testRenderHtmlWithSelfClosingTags(): void
+    {
+        $content = '<br/><hr/><img src="test.jpg" alt="test"/>';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
+    public function testRenderHtmlWithNestedElements(): void
+    {
+        $content = '<div><p>Nested <strong>content</strong></p></div>';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
+    public function testRenderHtmlWithComments(): void
+    {
+        $content = '<!-- This is a comment --><div>Content</div>';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
+    public function testRenderHtmlWithConditionalComments(): void
+    {
+        $content = '<!--[if mso]><table><tr><td><![endif]-->';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
+    public function testRenderHtmlWithNumericEntities(): void
+    {
+        $content = '<p>Copyright &#169; 2024 &#8212; All rights reserved</p>';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
+    public function testRenderHtmlWithSpecialCharactersInAttributes(): void
+    {
+        $content = '<a href="https://example.com?foo=1&amp;bar=2">Link</a>';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
+    public function testRenderHtmlWithDataAttributes(): void
+    {
+        $content = '<div data-custom="value" data-json=\'{"key":"value"}\'>Content</div>';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
+    public function testRenderHtmlWithInlineStyles(): void
+    {
+        $content = '<div style="color: red; font-size: 14px;">Styled content</div>';
+
+        $raw = new Raw(
+            attributes: [],
+            children: [],
+            content: $content,
+            context: $this->createContext(),
+        );
+
+        $html = $raw->render();
+
+        $this->assertSame($content, $html);
+    }
+
     private function createContext(): RenderContext
     {
         return new RenderContext(
