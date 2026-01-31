@@ -1,0 +1,12 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-raw>
+          <p>Copyright &#169; 2024</p>
+          <a href="https://example.com?foo=1&bar=2">Link with unescaped ampersand</a>
+        </mj-raw>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

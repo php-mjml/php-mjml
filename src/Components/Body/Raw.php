@@ -47,4 +47,9 @@ final class Raw extends BodyComponent
     {
         return $this->getContent();
     }
+
+    protected function shouldPreserveContent(): bool
+    {
+        return true;
+    }
 }

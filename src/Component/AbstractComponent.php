@@ -51,7 +51,7 @@ abstract class AbstractComponent implements ComponentInterface
         $this->context = $context;
         $this->attributes = $this->resolveAttributes($attributes);
         $this->children = $children;
-        $this->content = trim($content);
+        $this->content = $this->shouldPreserveContent() ? $content : trim($content);
         $this->props = $props;
     }
 
@@ -100,6 +100,16 @@ abstract class AbstractComponent implements ComponentInterface
     public function getProps(): array
     {
         return $this->props;
+    }
+
+    /**
+     * Whether content should be preserved exactly as provided (no trimming).
+     *
+     * Override in subclasses that need to preserve raw content (e.g., mj-raw).
+     */
+    protected function shouldPreserveContent(): bool
+    {
+        return false;
     }
 
     /**

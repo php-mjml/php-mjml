@@ -16,17 +16,22 @@ namespace PhpMjml\Parser;
 final class MjmlParser
 {
     /**
-     * Tags that should capture inner HTML as raw content instead of parsing children.
-     * These are components that render their content as HTML directly.
+     * MJML "Ending Tags" - components that contain text/HTML content instead of other MJML tags.
+     *
+     * These components capture inner HTML as raw content without parsing children.
+     * The content remains unprocessed by the MJML engine.
+     *
+     * @see https://documentation.mjml.io/#ending-tags
      */
-    private const RAW_CONTENT_TAGS = [
-        'mj-raw',
-        'mj-table',
-        'mj-text',
+    private const ENDING_TAGS = [
+        'mj-accordion-text',
+        'mj-accordion-title',
         'mj-button',
         'mj-navbar-link',
-        'mj-accordion-title',
-        'mj-accordion-text',
+        'mj-raw',
+        'mj-social-element',
+        'mj-table',
+        'mj-text',
     ];
 
     /**
@@ -61,15 +66,30 @@ final class MjmlParser
         '&frac34;' => '&#190;',
     ];
 
+    /**
+     * @var array<string, string> Placeholder-to-original-content map for mj-raw tags
+     */
+    private array $rawContents = [];
+
     public function parse(string $mjml): Node
     {
-        // Convert HTML named entities to numeric equivalents for XML compatibility
+        // Step 1: Extract mj-raw content and replace with safe placeholders
+        // This allows invalid HTML inside mj-raw to pass through XML parsing
+        $this->rawContents = [];
+        $mjml = $this->extractRawContent($mjml);
+
+        // Step 2: Convert HTML named entities to numeric equivalents for XML compatibility
         $mjml = $this->convertHtmlEntitiesToNumeric($mjml);
 
         libxml_use_internal_errors(true);
 
-        // Use XML parser which correctly handles self-closing tags
-        $dom = \Dom\XMLDocument::createFromString($mjml, \LIBXML_NOERROR);
+        try {
+            // Use XML parser which correctly handles self-closing tags
+            $dom = \Dom\XMLDocument::createFromString($mjml, \LIBXML_NOERROR);
+        } catch (\DOMException $e) {
+            libxml_clear_errors();
+            throw new ParserException('Failed to parse MJML: '.$e->getMessage(), 0, $e);
+        }
 
         $errors = libxml_get_errors();
         libxml_clear_errors();
@@ -80,6 +100,33 @@ final class MjmlParser
         }
 
         return $this->parseNode($root);
+    }
+
+    /**
+     * Extract mj-raw content and replace with safe placeholders.
+     *
+     * This preserves the original content (which may contain invalid XML like
+     * HTML void tags, unclosed tags, or unescaped characters) and replaces it
+     * with a safe placeholder that the XML parser can handle.
+     */
+    private function extractRawContent(string $mjml): string
+    {
+        $counter = 0;
+        $rawContents = &$this->rawContents;
+
+        return preg_replace_callback(
+            '/<mj-raw([^>]*)>(.*?)<\/mj-raw>/s',
+            static function (array $matches) use (&$rawContents, &$counter): string {
+                $attrs = $matches[1];
+                $content = $matches[2];
+                $placeholder = "__MJML_RAW_{$counter}__";
+                $rawContents[$placeholder] = $content;
+                ++$counter;
+
+                return "<mj-raw{$attrs}>{$placeholder}</mj-raw>";
+            },
+            $mjml
+        ) ?? $mjml;
     }
 
     /**
@@ -174,8 +221,13 @@ final class MjmlParser
             }
 
             // For raw content tags, get inner HTML directly without parsing children
-            if (\in_array($tagName, self::RAW_CONTENT_TAGS, true)) {
+            if (\in_array($tagName, self::ENDING_TAGS, true)) {
                 $content = $this->getInnerHtml($domNode);
+
+                // For mj-raw, restore the original content from placeholder
+                if ('mj-raw' === $tagName) {
+                    $content = $this->restoreRawContent($content);
+                }
             } else {
                 // Parse children
                 foreach ($domNode->childNodes as $child) {
@@ -197,6 +249,24 @@ final class MjmlParser
             children: $children,
             content: $content,
         );
+    }
+
+    /**
+     * Restore original raw content from placeholder.
+     *
+     * Note: Only trims for placeholder matching, but preserves original content exactly.
+     */
+    private function restoreRawContent(string $content): string
+    {
+        $trimmedContent = trim($content);
+
+        // Check if content is a placeholder
+        if (isset($this->rawContents[$trimmedContent])) {
+            // Return the original content without trimming to preserve whitespace
+            return $this->rawContents[$trimmedContent];
+        }
+
+        return $content;
     }
 
     private function getInnerHtml(\Dom\Element $element): string
