@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Component\Context\NavbarContextResolver;
 use PhpMjml\Helper\ConditionalTag;
 
 final class NavbarLink extends BodyComponent
@@ -157,13 +158,9 @@ final class NavbarLink extends BodyComponent
 
     private function getNavbarBaseUrl(): ?string
     {
-        if (null === $this->context) {
-            return null;
-        }
+        $navbarSettings = $this->context?->getComponentData(NavbarContextResolver::KEY);
 
-        $contextArray = $this->context->toArray();
-
-        return $contextArray['navbarBaseUrl'] ?? null;
+        return $navbarSettings['baseUrl'] ?? null;
     }
 
     private function suffixCssClasses(?string $classes, string $suffix): string

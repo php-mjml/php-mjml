@@ -37,7 +37,7 @@ final class Mjml2Html
 
         $context = new RenderContext(
             registry: $this->registry,
-            options: $options,
+            renderOptions: $options,
         );
 
         // Process head components first
@@ -243,7 +243,7 @@ final class Mjml2Html
      */
     private function getChildContext(object $component, RenderContext $baseContext): RenderContext
     {
-        if (!($component instanceof BodyComponent)) {
+        if (!$component instanceof BodyComponent) {
             return $baseContext;
         }
 
@@ -262,8 +262,8 @@ final class Mjml2Html
 
     private function buildSkeleton(string $bodyHtml, RenderContext $context): string
     {
-        $title = htmlspecialchars($context->title, \ENT_QUOTES, 'UTF-8');
-        $preview = '' !== $context->preview ? $this->buildPreview($context->preview) : '';
+        $title = htmlspecialchars($context->getTitle(), \ENT_QUOTES, 'UTF-8');
+        $preview = '' !== $context->getPreview() ? $this->buildPreview($context->getPreview()) : '';
         $styles = $this->buildStyles($context);
         $fonts = $this->buildFonts($bodyHtml, $context);
         $mediaQueries = $this->buildMediaQueriesStyles($context);
@@ -271,8 +271,8 @@ final class Mjml2Html
         $bodyStyle = $this->buildBodyStyle($context);
 
         // Build html tag attributes - lang and dir always included with defaults
-        $lang = htmlspecialchars($context->lang, \ENT_QUOTES, 'UTF-8');
-        $dir = htmlspecialchars($context->dir, \ENT_QUOTES, 'UTF-8');
+        $lang = htmlspecialchars($context->getLang(), \ENT_QUOTES, 'UTF-8');
+        $dir = htmlspecialchars($context->getDir(), \ENT_QUOTES, 'UTF-8');
         $htmlAttrs = \sprintf(
             'lang="%s" dir="%s" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
             $lang,
@@ -300,9 +300,10 @@ HTML;
     private function buildBodyStyle(RenderContext $context): string
     {
         $styles = ['word-spacing:normal'];
+        $backgroundColor = $context->getBackgroundColor();
 
-        if (null !== $context->backgroundColor && '' !== $context->backgroundColor) {
-            $styles[] = "background-color:{$context->backgroundColor}";
+        if (null !== $backgroundColor && '' !== $backgroundColor) {
+            $styles[] = "background-color:{$backgroundColor}";
         }
 
         return ' style="'.implode(';', $styles).';"';
@@ -323,7 +324,7 @@ HTML;
     private function buildFonts(string $content, RenderContext $context): string
     {
         // Merge fonts from options and context (mj-font sets context->fonts)
-        $fonts = array_merge($context->options->fonts, $context->fonts);
+        $fonts = array_merge($context->renderOptions->fonts, $context->getFonts());
 
         if ([] === $fonts) {
             return '';
@@ -426,7 +427,7 @@ CSS;
             return '';
         }
 
-        $breakpoint = $context->breakpoint;
+        $breakpoint = $context->getBreakpoint();
         $queries = [];
         $thunderbirdQueries = [];
 

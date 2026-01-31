@@ -130,9 +130,13 @@ final class AccordionTextTest extends TestCase
         // Create context with accordion font family
         $context = new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            accordionSettings: ['fontFamily' => 'Arial, sans-serif'],
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'componentData' => [
+                    'accordion' => ['fontFamily' => 'Arial, sans-serif'],
+                ],
+            ],
         );
 
         $text = new AccordionText(
@@ -152,11 +156,15 @@ final class AccordionTextTest extends TestCase
         // Create context with both accordion and element font families
         $context = new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            accordionSettings: [
-                'fontFamily' => 'Arial, sans-serif',
-                'elementFontFamily' => 'Georgia, serif',
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'componentData' => [
+                    'accordion' => [
+                        'fontFamily' => 'Arial, sans-serif',
+                        'elementFontFamily' => 'Georgia, serif',
+                    ],
+                ],
             ],
         );
 
@@ -178,11 +186,15 @@ final class AccordionTextTest extends TestCase
         // Create context with font families
         $context = new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            accordionSettings: [
-                'fontFamily' => 'Arial, sans-serif',
-                'elementFontFamily' => 'Georgia, serif',
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'componentData' => [
+                    'accordion' => [
+                        'fontFamily' => 'Arial, sans-serif',
+                        'elementFontFamily' => 'Georgia, serif',
+                    ],
+                ],
             ],
         );
 
@@ -203,8 +215,8 @@ final class AccordionTextTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 }

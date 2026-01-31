@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Component;
 
 use PhpMjml\Renderer\RenderContext;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractComponent implements ComponentInterface
 {
@@ -32,6 +33,8 @@ abstract class AbstractComponent implements ComponentInterface
      * @var array<string, mixed>
      */
     protected array $props = [];
+    /** @var array<string, OptionsResolver> */
+    private static array $resolverCache = [];
 
     /**
      * @param array<string, string|null> $attributes
@@ -46,7 +49,7 @@ abstract class AbstractComponent implements ComponentInterface
         array $props = [],
     ) {
         $this->context = $context;
-        $this->attributes = $this->mergeAttributes($attributes);
+        $this->attributes = $this->resolveAttributes($attributes);
         $this->children = $children;
         $this->content = trim($content);
         $this->props = $props;
@@ -70,7 +73,7 @@ abstract class AbstractComponent implements ComponentInterface
 
     public function getAttribute(string $name): mixed
     {
-        return $this->attributes[$name] ?? static::getDefaultAttributes()[$name] ?? null;
+        return $this->attributes[$name] ?? null;
     }
 
     public function getContent(): string
@@ -100,21 +103,21 @@ abstract class AbstractComponent implements ComponentInterface
     }
 
     /**
-     * Merge attributes from various sources.
+     * Resolve and validate attributes using OptionsResolver.
      *
-     * Priority (lowest to highest):
-     * 1. Component default attributes
+     * Merges attributes from various sources with proper priority:
+     * 1. Component default attributes (lowest priority)
      * 2. mj-all attributes (from mj-attributes)
      * 3. Component-specific default attributes (from mj-attributes)
      * 4. mj-class attributes (from mj-attributes)
-     * 5. Inherited attributes from parent component (e.g., mj-social -> mj-social-element)
-     * 6. Instance attributes passed to constructor (excluding mj-class)
+     * 5. Inherited attributes from parent component
+     * 6. Instance attributes passed to constructor (highest priority)
      *
      * @param array<string, string|null> $instanceAttributes
      *
      * @return array<string, string|null>
      */
-    private function mergeAttributes(array $instanceAttributes): array
+    private function resolveAttributes(array $instanceAttributes): array
     {
         $merged = static::getDefaultAttributes();
 
@@ -166,6 +169,36 @@ abstract class AbstractComponent implements ComponentInterface
             \ARRAY_FILTER_USE_KEY
         );
 
-        return array_merge($merged, $instanceAttributesWithoutMjClass);
+        $merged = array_merge($merged, $instanceAttributesWithoutMjClass);
+
+        // Validate through cached OptionsResolver
+        return $this->validateAttributes($merged);
+    }
+
+    /**
+     * Validate attributes using a cached OptionsResolver.
+     *
+     * @param array<string, string|null> $attributes
+     *
+     * @return array<string, string|null>
+     */
+    private function validateAttributes(array $attributes): array
+    {
+        $class = static::class;
+
+        if (!isset(self::$resolverCache[$class])) {
+            self::$resolverCache[$class] = AttributeResolver::createResolver(
+                static::getAllowedAttributes(),
+                static::getDefaultAttributes()
+            );
+        }
+
+        try {
+            return self::$resolverCache[$class]->resolve($attributes);
+        } catch (\Symfony\Component\OptionsResolver\Exception\ExceptionInterface) {
+            // On validation failure, return unvalidated for backward compatibility
+            // This can happen with dynamic attributes or edge cases
+            return $attributes;
+        }
     }
 }

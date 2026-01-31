@@ -187,8 +187,10 @@ final class WrapperTest extends TestCase
 
         // 600px - 40px left - 40px right = 520px
         $this->assertSame(520, $childContext['containerWidth']);
-        // Gap should be passed to children
-        $this->assertSame('20px', $childContext['gap']);
+        // Gap should be passed to children via componentData
+        $this->assertArrayHasKey('componentData', $childContext);
+        $this->assertArrayHasKey('gap', $childContext['componentData']);
+        $this->assertSame('20px', $childContext['componentData']['gap']['value']);
     }
 
     public function testRenderWithBorderRadius(): void
@@ -224,8 +226,8 @@ final class WrapperTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: $containerWidth,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => $containerWidth],
         );
     }
 }

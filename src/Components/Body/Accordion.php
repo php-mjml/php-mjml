@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Component\Context\AccordionContextResolver;
 
 final class Accordion extends BodyComponent
 {
@@ -103,7 +104,8 @@ final class Accordion extends BodyComponent
     public function getChildContext(): array
     {
         $context = parent::getChildContext();
-        $context['accordionSettings'] = [
+
+        $accordionData = AccordionContextResolver::resolve([
             'fontFamily' => $this->getAttribute('font-family'),
             'border' => $this->getAttribute('border'),
             'iconAlign' => $this->getAttribute('icon-align'),
@@ -114,7 +116,9 @@ final class Accordion extends BodyComponent
             'iconWrappedAlt' => $this->getAttribute('icon-wrapped-alt'),
             'iconUnwrappedUrl' => $this->getAttribute('icon-unwrapped-url'),
             'iconUnwrappedAlt' => $this->getAttribute('icon-unwrapped-alt'),
-        ];
+        ]);
+
+        $context['componentData'][AccordionContextResolver::KEY] = $accordionData;
 
         return $context;
     }

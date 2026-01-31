@@ -40,7 +40,9 @@ final class Font extends HeadComponent
         $href = $this->getAttribute('href');
 
         if (null !== $name && null !== $href) {
-            $context->fonts[$name] = $href;
+            $fonts = $context->getFonts();
+            $fonts[$name] = $href;
+            $context->setFonts($fonts);
         }
     }
 }

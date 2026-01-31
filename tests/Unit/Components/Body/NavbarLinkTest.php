@@ -206,8 +206,8 @@ final class NavbarLinkTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 
@@ -215,9 +215,13 @@ final class NavbarLinkTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            navbarBaseUrl: $baseUrl,
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'componentData' => [
+                    'navbar' => ['baseUrl' => $baseUrl],
+                ],
+            ],
         );
     }
 }

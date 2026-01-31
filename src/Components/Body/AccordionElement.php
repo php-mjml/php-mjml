@@ -15,6 +15,7 @@ namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
+use PhpMjml\Component\Context\AccordionContextResolver;
 use PhpMjml\Helper\ConditionalTag;
 
 final class AccordionElement extends BodyComponent
@@ -82,8 +83,8 @@ final class AccordionElement extends BodyComponent
         $context = parent::getChildContext();
 
         // Merge with parent accordion settings, adding element-specific settings
-        $parentSettings = $this->context->accordionSettings ?? [];
-        $context['accordionSettings'] = array_merge($parentSettings, [
+        $parentSettings = $this->getAccordionSettings();
+        $accordionData = AccordionContextResolver::mergeSettings($parentSettings, [
             'elementFontFamily' => $this->getAttribute('font-family'),
             'border' => $this->getIconAttribute('border'),
             'iconAlign' => $this->getIconAttribute('icon-align'),
@@ -95,6 +96,8 @@ final class AccordionElement extends BodyComponent
             'iconUnwrappedUrl' => $this->getIconAttribute('icon-unwrapped-url'),
             'iconUnwrappedAlt' => $this->getIconAttribute('icon-unwrapped-alt'),
         ]);
+
+        $context['componentData'][AccordionContextResolver::KEY] = $accordionData;
 
         return $context;
     }
@@ -126,6 +129,16 @@ final class AccordionElement extends BodyComponent
             $inputHtml,
             $this->handleMissingChildren(),
         );
+    }
+
+    /**
+     * Get accordion settings from parent context.
+     *
+     * @return array<string, string|null>|null
+     */
+    private function getAccordionSettings(): ?array
+    {
+        return $this->context?->getComponentData(AccordionContextResolver::KEY);
     }
 
     private function handleMissingChildren(): string
@@ -207,7 +220,7 @@ final class AccordionElement extends BodyComponent
         }
 
         // Fall back to parent accordion context
-        $settings = $this->context?->accordionSettings;
+        $settings = $this->getAccordionSettings();
         if (null === $settings) {
             return null;
         }

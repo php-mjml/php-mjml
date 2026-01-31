@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Component\Context\NavbarContextResolver;
 use PhpMjml\Helper\ConditionalTag;
 
 final class Navbar extends BodyComponent
@@ -140,7 +141,12 @@ final class Navbar extends BodyComponent
     public function getChildContext(): array
     {
         $context = parent::getChildContext();
-        $context['navbarBaseUrl'] = $this->getAttribute('base-url');
+
+        $navbarData = NavbarContextResolver::resolve([
+            'baseUrl' => $this->getAttribute('base-url'),
+        ]);
+
+        $context['componentData'][NavbarContextResolver::KEY] = $navbarData;
 
         return $context;
     }

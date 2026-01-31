@@ -240,8 +240,8 @@ final class GroupTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: $containerWidth,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => $containerWidth],
         );
     }
 }

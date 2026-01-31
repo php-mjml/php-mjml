@@ -60,6 +60,8 @@ final class Attributes extends HeadComponent
 
     public function handle(RenderContext $context): void
     {
+        $headAttributes = $context->getHeadAttributes();
+
         foreach ($this->rawChildren as $child) {
             $tagName = $child->tagName;
             $attributes = $child->attributes;
@@ -77,23 +79,25 @@ final class Attributes extends HeadComponent
                     static fn (string $key) => 'name' !== $key,
                     \ARRAY_FILTER_USE_KEY
                 );
-                $context->headAttributes[self::TAG_NAME_CLASS][$className] = $classAttributes;
+                $headAttributes[self::TAG_NAME_CLASS][$className] = $classAttributes;
 
                 // Process nested children for component-specific class defaults
                 foreach ($child->children as $nestedChild) {
                     $nestedTagName = $nestedChild->tagName;
-                    $context->headAttributes[self::TAG_NAME_CLASS][$className]['__defaults'][$nestedTagName] = $nestedChild->attributes;
+                    $headAttributes[self::TAG_NAME_CLASS][$className]['__defaults'][$nestedTagName] = $nestedChild->attributes;
                 }
             } else {
                 // For mj-all and other component tags, store attributes directly
-                if (!isset($context->headAttributes[$tagName])) {
-                    $context->headAttributes[$tagName] = [];
+                if (!isset($headAttributes[$tagName])) {
+                    $headAttributes[$tagName] = [];
                 }
-                $context->headAttributes[$tagName] = array_merge(
-                    $context->headAttributes[$tagName],
+                $headAttributes[$tagName] = array_merge(
+                    $headAttributes[$tagName],
                     $attributes
                 );
             }
         }
+
+        $context->setHeadAttributes($headAttributes);
     }
 }

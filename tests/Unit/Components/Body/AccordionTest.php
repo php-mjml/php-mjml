@@ -108,10 +108,11 @@ final class AccordionTest extends TestCase
 
         $childContext = $accordion->getChildContext();
 
-        $this->assertArrayHasKey('accordionSettings', $childContext);
-        $this->assertSame('Arial, sans-serif', $childContext['accordionSettings']['fontFamily']);
-        $this->assertSame('1px solid red', $childContext['accordionSettings']['border']);
-        $this->assertSame('left', $childContext['accordionSettings']['iconPosition']);
+        $this->assertArrayHasKey('componentData', $childContext);
+        $this->assertArrayHasKey('accordion', $childContext['componentData']);
+        $this->assertSame('Arial, sans-serif', $childContext['componentData']['accordion']['fontFamily']);
+        $this->assertSame('1px solid red', $childContext['componentData']['accordion']['border']);
+        $this->assertSame('left', $childContext['componentData']['accordion']['iconPosition']);
     }
 
     public function testGetStyles(): void
@@ -161,8 +162,8 @@ final class AccordionTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 }

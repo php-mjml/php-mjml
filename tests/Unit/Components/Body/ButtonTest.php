@@ -169,8 +169,8 @@ final class ButtonTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 }

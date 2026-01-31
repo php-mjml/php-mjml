@@ -160,9 +160,13 @@ final class AccordionTitleTest extends TestCase
         // Create context with accordion font family
         $context = new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            accordionSettings: ['fontFamily' => 'Arial, sans-serif'],
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'componentData' => [
+                    'accordion' => ['fontFamily' => 'Arial, sans-serif'],
+                ],
+            ],
         );
 
         $title = new AccordionTitle(
@@ -182,11 +186,15 @@ final class AccordionTitleTest extends TestCase
         // Create context with both accordion and element font families
         $context = new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            accordionSettings: [
-                'fontFamily' => 'Arial, sans-serif',
-                'elementFontFamily' => 'Georgia, serif',
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'componentData' => [
+                    'accordion' => [
+                        'fontFamily' => 'Arial, sans-serif',
+                        'elementFontFamily' => 'Georgia, serif',
+                    ],
+                ],
             ],
         );
 
@@ -207,8 +215,8 @@ final class AccordionTitleTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 
@@ -216,9 +224,13 @@ final class AccordionTitleTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            accordionSettings: ['iconPosition' => $position],
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'componentData' => [
+                    'accordion' => ['iconPosition' => $position],
+                ],
+            ],
         );
     }
 }

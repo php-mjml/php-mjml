@@ -105,9 +105,8 @@ final class BodyTest extends TestCase
     {
         $context = new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            title: 'Email Title',
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600, 'title' => 'Email Title'],
         );
 
         $body = new Body(
@@ -126,8 +125,8 @@ final class BodyTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 }

@@ -475,7 +475,7 @@ CSS;
         }
 
         $firstChild = $this->children[0];
-        if (!($firstChild instanceof CarouselImage)) {
+        if (!$firstChild instanceof CarouselImage) {
             return '';
         }
 

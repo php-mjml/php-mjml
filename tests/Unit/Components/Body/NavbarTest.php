@@ -141,8 +141,9 @@ final class NavbarTest extends TestCase
 
         $childContext = $navbar->getChildContext();
 
-        $this->assertArrayHasKey('navbarBaseUrl', $childContext);
-        $this->assertSame('https://example.com', $childContext['navbarBaseUrl']);
+        $this->assertArrayHasKey('componentData', $childContext);
+        $this->assertArrayHasKey('navbar', $childContext['componentData']);
+        $this->assertSame('https://example.com', $childContext['componentData']['navbar']['baseUrl']);
     }
 
     public function testGetStyles(): void
@@ -210,8 +211,8 @@ final class NavbarTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 }

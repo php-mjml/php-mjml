@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Component\Context\AccordionContextResolver;
 
 final class AccordionText extends BodyComponent
 {
@@ -125,7 +126,7 @@ final class AccordionText extends BodyComponent
             return $fontFamily;
         }
 
-        $settings = $this->context?->accordionSettings;
+        $settings = $this->getAccordionSettings();
         if (null === $settings) {
             return null;
         }
@@ -154,7 +155,7 @@ final class AccordionText extends BodyComponent
         }
 
         // Fall back to parent context
-        $settings = $this->context?->accordionSettings;
+        $settings = $this->getAccordionSettings();
         if (null === $settings) {
             return null;
         }
@@ -171,5 +172,15 @@ final class AccordionText extends BodyComponent
             'icon-unwrapped-alt' => $settings['iconUnwrappedAlt'] ?? null,
             default => null,
         };
+    }
+
+    /**
+     * Get accordion settings from parent context.
+     *
+     * @return array<string, string|null>|null
+     */
+    private function getAccordionSettings(): ?array
+    {
+        return $this->context?->getComponentData(AccordionContextResolver::KEY);
     }
 }

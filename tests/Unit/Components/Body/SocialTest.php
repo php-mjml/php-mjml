@@ -180,8 +180,8 @@ final class SocialTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
+            renderOptions: new RenderOptions(),
+            options: ['containerWidth' => 600],
         );
     }
 
@@ -189,16 +189,18 @@ final class SocialTest extends TestCase
     {
         return new RenderContext(
             registry: new Registry(),
-            options: new RenderOptions(),
-            containerWidth: 600,
-            inheritedAttributes: [
-                'border-radius' => '3px',
-                'color' => '#333333',
-                'font-family' => 'Ubuntu, Helvetica, Arial, sans-serif',
-                'font-size' => '13px',
-                'icon-size' => '20px',
-                'line-height' => '22px',
-                'text-decoration' => 'none',
+            renderOptions: new RenderOptions(),
+            options: [
+                'containerWidth' => 600,
+                'inheritedAttributes' => [
+                    'border-radius' => '3px',
+                    'color' => '#333333',
+                    'font-family' => 'Ubuntu, Helvetica, Arial, sans-serif',
+                    'font-size' => '13px',
+                    'icon-size' => '20px',
+                    'line-height' => '22px',
+                    'text-decoration' => 'none',
+                ],
             ],
         );
     }

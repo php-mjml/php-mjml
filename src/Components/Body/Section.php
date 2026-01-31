@@ -15,6 +15,7 @@ namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
+use PhpMjml\Component\Context\GapContextResolver;
 use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\CssHelper;
 
@@ -81,7 +82,12 @@ final class Section extends BodyComponent
         $boxWidths = $this->getBoxWidths();
 
         $context['containerWidth'] = $boxWidths['box'];
-        $context['gap'] = $this->getAttribute('gap');
+
+        // Propagate gap to children via componentData
+        $gap = $this->getAttribute('gap');
+        if (null !== $gap) {
+            $context['componentData'][GapContextResolver::KEY] = GapContextResolver::resolve(['value' => $gap]);
+        }
 
         return $context;
     }
@@ -162,7 +168,7 @@ final class Section extends BodyComponent
      */
     private function hasGap(): bool
     {
-        $gap = $this->context->gap ?? null;
+        $gap = $this->getGap();
 
         return null !== $gap && '' !== $gap;
     }
@@ -172,7 +178,9 @@ final class Section extends BodyComponent
      */
     private function getGap(): ?string
     {
-        return $this->context->gap ?? null;
+        $gapData = $this->context?->getComponentData(GapContextResolver::KEY);
+
+        return $gapData['value'] ?? null;
     }
 
     /**
