@@ -35,7 +35,7 @@ final class UrlValidator
      *
      * @var list<string>
      */
-    private const array DANGEROUS_SCHEMES = [
+    private const DANGEROUS_SCHEMES = [
         'javascript',
         'vbscript',
         'data',
@@ -49,7 +49,7 @@ final class UrlValidator
      *
      * @var list<string>
      */
-    private const array DEFAULT_ALLOWED_SCHEMES = [
+    private const DEFAULT_ALLOWED_SCHEMES = [
         'https',
         'http',
         'mailto',

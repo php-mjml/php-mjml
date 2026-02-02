@@ -6,12 +6,12 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.4",
+        "php": ">=8.2",
         "ext-dom": "*",
         "ext-libxml": "*",
         "symfony/css-selector": "^7.0 || ^8.0",
         "symfony/dom-crawler": "^7.0 || ^8.0",
-        "symfony/html-sanitizer": "^8.0",
+        "symfony/html-sanitizer": "^7.0 || ^8.0",
         "symfony/options-resolver": "^7.0 || ^8.0"
     },
     "require-dev": {
@@ -36,7 +36,7 @@
         "test:unit": "phpunit --testsuite=unit",
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix",
-        "phpstan": "phpstan",
+        "phpstan": "phpstan --memory-limit=512M",
         "ca": ["@cs", "@phpstan", "@test"]
     },
     "suggest": {
