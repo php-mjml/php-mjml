@@ -60,7 +60,14 @@ final class MjmlParser
 
         try {
             // Use XML parser which correctly handles self-closing tags
-            $dom = \Dom\XMLDocument::createFromString($mjml, \LIBXML_NOERROR);
+            if (self::useNewDomApi()) {
+                // PHP 8.4+: Use the new Dom\XMLDocument API
+                $dom = \Dom\XMLDocument::createFromString($mjml, \LIBXML_NOERROR);
+            } else {
+                // PHP 8.2/8.3: Use legacy DOMDocument API
+                $dom = new \DOMDocument();
+                $dom->loadXML($mjml, \LIBXML_NOERROR);
+            }
         } catch (\DOMException $e) {
             libxml_clear_errors();
             throw new ParserException('Failed to parse MJML: '.$e->getMessage(), 0, $e);
@@ -75,6 +82,16 @@ final class MjmlParser
         }
 
         return $this->parseNode($root);
+    }
+
+    /**
+     * Check if the new PHP 8.4+ DOM API is available.
+     */
+    private static function useNewDomApi(): bool
+    {
+        static $useNew;
+
+        return $useNew ??= class_exists(\Dom\XMLDocument::class);
     }
 
     /**
@@ -151,16 +168,22 @@ final class MjmlParser
         );
     }
 
-    private function parseNode(\Dom\Node $domNode): Node
+    /**
+     * @param \Dom\Node|\DOMNode $domNode
+     */
+    private function parseNode(object $domNode): Node
     {
-        $tagName = $domNode instanceof \Dom\Element ? $domNode->localName : $domNode->nodeName;
+        $isElement = $domNode instanceof \Dom\Element || $domNode instanceof \DOMElement;
+        $tagName = ($isElement ? $domNode->localName : $domNode->nodeName) ?? '';
         /** @var array<string, string> $attributes */
         $attributes = [];
         /** @var array<Node> $children */
         $children = [];
         $content = '';
 
-        if ($domNode instanceof \Dom\Element) {
+        if ($isElement) {
+            \assert($domNode instanceof \Dom\Element || $domNode instanceof \DOMElement);
+
             // Parse attributes
             foreach ($domNode->attributes as $attr) {
                 $attributes[$attr->nodeName] = $attr->nodeValue ?? '';
@@ -177,9 +200,12 @@ final class MjmlParser
             } else {
                 // Parse children
                 foreach ($domNode->childNodes as $child) {
-                    if ($child instanceof \Dom\Element) {
+                    $isChildElement = $child instanceof \Dom\Element || $child instanceof \DOMElement;
+                    $isChildText = $child instanceof \Dom\Text || $child instanceof \DOMText;
+
+                    if ($isChildElement) {
                         $children[] = $this->parseNode($child);
-                    } elseif ($child instanceof \Dom\Text) {
+                    } elseif ($isChildText) {
                         $text = trim($child->textContent ?? '');
                         if ('' !== $text) {
                             $content .= $text;
@@ -215,9 +241,25 @@ final class MjmlParser
         return $content;
     }
 
-    private function getInnerHtml(\Dom\Element $element): string
+    /**
+     * @param \Dom\Element|\DOMElement $element
+     */
+    private function getInnerHtml(object $element): string
     {
-        // Use the innerHTML property available on Dom\Element
-        return trim($element->innerHTML);
+        // PHP 8.4+: Use the innerHTML property available on Dom\Element
+        if ($element instanceof \Dom\Element) {
+            return trim($element->innerHTML);
+        }
+
+        // PHP 8.2/8.3: Polyfill innerHTML for legacy DOMElement
+        $innerHTML = '';
+        $ownerDocument = $element->ownerDocument;
+        if (null !== $ownerDocument) {
+            foreach ($element->childNodes as $child) {
+                $innerHTML .= $ownerDocument->saveXML($child);
+            }
+        }
+
+        return trim($innerHTML);
     }
 }
