@@ -57,7 +57,7 @@ final class Mjml2Html
 
         return new RenderResult(
             html: $html,
-            errors: [],
+            errors: $context->getErrors(),
         );
     }
 
@@ -158,8 +158,12 @@ final class Mjml2Html
                         }
                     }
                 });
-            } catch (\InvalidArgumentException) {
-                // Invalid CSS selector, skip silently
+            } catch (\InvalidArgumentException|\Symfony\Component\CssSelector\Exception\SyntaxErrorException $e) {
+                $context->globalData->addError(\sprintf(
+                    'mj-html-attributes: Invalid CSS selector "%s" - %s',
+                    $selector,
+                    $e->getMessage()
+                ));
                 continue;
             }
         }

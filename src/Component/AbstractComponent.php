@@ -205,7 +205,16 @@ abstract class AbstractComponent implements ComponentInterface
 
         try {
             return self::$resolverCache[$class]->resolve($attributes);
-        } catch (\Symfony\Component\OptionsResolver\Exception\ExceptionInterface) {
+        } catch (\Symfony\Component\OptionsResolver\Exception\ExceptionInterface $e) {
+            // Log validation error if context is available
+            if (null !== $this->context) {
+                $this->context->globalData->addError(\sprintf(
+                    '%s: %s',
+                    static::getComponentName(),
+                    $e->getMessage()
+                ));
+            }
+
             // On validation failure, return unvalidated for backward compatibility
             // This can happen with dynamic attributes or edge cases
             return $attributes;
