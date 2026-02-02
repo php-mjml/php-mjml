@@ -18,10 +18,18 @@ This document compares php-mjml with other PHP libraries for working with MJML e
 This library is a **complete PHP port** of the MJML rendering engine. It parses MJML markup and generates responsive HTML entirely in PHP, without calling any external processes or services.
 
 ```php
-use Mjml\Mjml;
+use PhpMjml\Renderer\Mjml2Html;
+use PhpMjml\Parser\MjmlParser;
+use PhpMjml\Component\Registry;
+use PhpMjml\Preset\CorePreset;
 
-$mjml = new Mjml();
-$html = $mjml->render('<mjml><mj-body>...</mj-body></mjml>');
+$registry = new Registry();
+$registry->registerMany(CorePreset::getComponents());
+
+$renderer = new Mjml2Html($registry, new MjmlParser());
+$result = $renderer->render('<mjml><mj-body>...</mj-body></mjml>');
+
+echo $result->html;
 ```
 
 ### CLI Wrapper (notfloran/mjml-bundle, spatie/mjml-php)
