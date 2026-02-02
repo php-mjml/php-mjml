@@ -36,7 +36,7 @@
         "test:unit": "phpunit --testsuite=unit",
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix",
-        "phpstan": "phpstan",
+        "phpstan": "phpstan --memory-limit=512M",
         "ca": ["@cs", "@phpstan", "@test"]
     },
     "suggest": {

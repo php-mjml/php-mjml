@@ -29,7 +29,7 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
  */
 final class EmailContentSanitizer
 {
-    private const int DEFAULT_MAX_INPUT_LENGTH = 50000;
+    private const DEFAULT_MAX_INPUT_LENGTH = 50000;
 
     private HtmlSanitizer $sanitizer;
 
@@ -54,6 +54,12 @@ final class EmailContentSanitizer
      */
     public function sanitizeForContext(string $html, string $context = 'body'): string
     {
+        // Symfony 7.4 polyfill: extract content from the specified context first
+        // In Symfony 8+, sanitizeFor() handles this automatically
+        if (\PHP_VERSION_ID < 80400) {
+            $html = $this->extractContextContent($html, $context);
+        }
+
         return $this->sanitizer->sanitizeFor($context, $html);
     }
 
@@ -187,5 +193,23 @@ final class EmailContentSanitizer
         return self::createDefaultConfig()
             ->allowElement('style')
             ->withMaxInputLength(100000);
+    }
+
+    /**
+     * Extract content from a specific HTML context (e.g., body).
+     *
+     * This is a polyfill for Symfony 7.4 where sanitizeFor() doesn't
+     * automatically extract content from the specified context.
+     */
+    private function extractContextContent(string $html, string $context): string
+    {
+        // Use regex to extract content from the specified tag
+        $pattern = \sprintf('/<\s*%s[^>]*>(.*?)<\s*\/\s*%s\s*>/is', preg_quote($context, '/'), preg_quote($context, '/'));
+
+        if (preg_match($pattern, $html, $matches)) {
+            return $matches[1];
+        }
+
+        return $html;
     }
 }
