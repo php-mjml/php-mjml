@@ -555,8 +555,8 @@ final class EndingTagsTest extends TestCase
         $textNode = $node->children[0]->children[0]->children[0]->children[0];
 
         $this->assertSame('mj-text', $textNode->tagName);
-        // Content is trimmed
-        $this->assertSame('', $textNode->content);
+        // Whitespace is preserved in ending tag content
+        $this->assertSame('   ', $textNode->content);
     }
 
     public function testEndingTagWithSpecialXmlCharactersEscaped(): void
@@ -614,10 +614,9 @@ final class EndingTagsTest extends TestCase
         $this->assertSame('Second text block', $column->children[2]->content);
     }
 
-    public function testMjRawDifferentFromOtherEndingTags(): void
+    public function testAllEndingTagsAllowInvalidXhtml(): void
     {
-        // mj-raw has lenient HTML parsing (void tags, unclosed tags allowed)
-        // Other ending tags require valid XML
+        // All ending tags now have lenient HTML parsing (void tags allowed)
         $mjmlRaw = '<mjml><mj-body><mj-section><mj-column>
             <mj-raw><br><hr></mj-raw>
         </mj-column></mj-section></mj-body></mjml>';
@@ -628,5 +627,52 @@ final class EndingTagsTest extends TestCase
         $this->assertSame('mj-raw', $rawNode->tagName);
         // mj-raw preserves void tags without self-closing
         $this->assertSame('<br><hr>', $rawNode->content);
+    }
+
+    // =========================================================================
+    // Void tags in ending tags (lenient HTML parsing)
+    // =========================================================================
+
+    public function testMjTextWithHtmlVoidTags(): void
+    {
+        $mjml = '<mjml><mj-body><mj-section><mj-column>
+            <mj-text>Line 1<br>Line 2<hr>Section break</mj-text>
+        </mj-column></mj-section></mj-body></mjml>';
+
+        $node = $this->parser->parse($mjml);
+        $textNode = $node->children[0]->children[0]->children[0]->children[0];
+
+        $this->assertSame('mj-text', $textNode->tagName);
+        $this->assertStringContainsString('<br>', $textNode->content);
+        $this->assertStringContainsString('<hr>', $textNode->content);
+    }
+
+    public function testMjButtonWithVoidTagImg(): void
+    {
+        $mjml = '<mjml><mj-body><mj-section><mj-column>
+            <mj-button href="#"><img src="icon.png"> Download</mj-button>
+        </mj-column></mj-section></mj-body></mjml>';
+
+        $node = $this->parser->parse($mjml);
+        $buttonNode = $node->children[0]->children[0]->children[0]->children[0];
+
+        $this->assertSame('mj-button', $buttonNode->tagName);
+        $this->assertStringContainsString('<img src="icon.png">', $buttonNode->content);
+        $this->assertStringContainsString('Download', $buttonNode->content);
+    }
+
+    public function testMjTableWithVoidTags(): void
+    {
+        $mjml = '<mjml><mj-body><mj-section><mj-column>
+            <mj-table>
+                <tr><td>Cell with<br>line break</td></tr>
+            </mj-table>
+        </mj-column></mj-section></mj-body></mjml>';
+
+        $node = $this->parser->parse($mjml);
+        $tableNode = $node->children[0]->children[0]->children[0]->children[0];
+
+        $this->assertSame('mj-table', $tableNode->tagName);
+        $this->assertStringContainsString('<br>', $tableNode->content);
     }
 }

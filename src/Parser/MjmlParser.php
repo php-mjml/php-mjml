@@ -37,9 +37,9 @@ final class MjmlParser
     private XmlPreprocessorInterface $xmlPreprocessor;
 
     /**
-     * @var array<string, string> Placeholder-to-original-content map for mj-raw tags
+     * @var array<string, string> Placeholder-to-original-content map for ending tags
      */
-    private array $rawContents = [];
+    private array $endingTagContents = [];
 
     public function __construct(?XmlPreprocessorInterface $xmlPreprocessor = null)
     {
@@ -48,10 +48,10 @@ final class MjmlParser
 
     public function parse(string $mjml): Node
     {
-        // Step 1: Extract mj-raw content and replace with safe placeholders
-        // This allows invalid HTML inside mj-raw to pass through XML parsing
-        $this->rawContents = [];
-        $mjml = $this->extractRawContent($mjml);
+        // Step 1: Extract ending tag content and replace with safe placeholders
+        // This allows invalid HTML inside ending tags to pass through XML parsing
+        $this->endingTagContents = [];
+        $mjml = $this->extractEndingTagContents($mjml);
 
         // Step 2: Preprocess XML for compatibility (convert HTML entities, escape ampersands, etc.)
         $mjml = $this->xmlPreprocessor->preprocess($mjml);
@@ -95,27 +95,33 @@ final class MjmlParser
     }
 
     /**
-     * Extract mj-raw content and replace with safe placeholders.
+     * Extract ending tag content and replace with safe placeholders.
      *
      * This preserves the original content (which may contain invalid XML like
      * HTML void tags, unclosed tags, or unescaped characters) and replaces it
      * with a safe placeholder that the XML parser can handle.
      */
-    private function extractRawContent(string $mjml): string
+    private function extractEndingTagContents(string $mjml): string
     {
         $counter = 0;
-        $rawContents = &$this->rawContents;
+        $endingTagContents = &$this->endingTagContents;
+
+        // Build regex for all ending tags
+        // Use negative lookbehind (?<!\/) to exclude self-closing tags like <mj-text />
+        $tagPattern = implode('|', array_map('preg_quote', self::ENDING_TAGS));
+        $pattern = '/<('.$tagPattern.')([^>]*)(?<!\/)>(.*?)<\/\1>/s';
 
         return preg_replace_callback(
-            '/<mj-raw([^>]*)>(.*?)<\/mj-raw>/s',
-            static function (array $matches) use (&$rawContents, &$counter): string {
-                $attrs = $matches[1];
-                $content = $matches[2];
-                $placeholder = "__MJML_RAW_{$counter}__";
-                $rawContents[$placeholder] = $content;
+            $pattern,
+            static function (array $matches) use (&$endingTagContents, &$counter): string {
+                $tagName = $matches[1];
+                $attrs = $matches[2];
+                $content = $matches[3];
+                $placeholder = "__MJML_ENDING_{$counter}__";
+                $endingTagContents[$placeholder] = $content;
                 ++$counter;
 
-                return "<mj-raw{$attrs}>{$placeholder}</mj-raw>";
+                return "<{$tagName}{$attrs}>{$placeholder}</{$tagName}>";
             },
             $mjml
         ) ?? $mjml;
@@ -193,10 +199,8 @@ final class MjmlParser
             if (\in_array($tagName, self::ENDING_TAGS, true)) {
                 $content = $this->getInnerHtml($domNode);
 
-                // For mj-raw, restore the original content from placeholder
-                if ('mj-raw' === $tagName) {
-                    $content = $this->restoreRawContent($content);
-                }
+                // Restore the original content from placeholder
+                $content = $this->restoreEndingTagContent($content);
             } else {
                 // Parse children
                 foreach ($domNode->childNodes as $child) {
@@ -224,18 +228,18 @@ final class MjmlParser
     }
 
     /**
-     * Restore original raw content from placeholder.
+     * Restore original ending tag content from placeholder.
      *
      * Note: Only trims for placeholder matching, but preserves original content exactly.
      */
-    private function restoreRawContent(string $content): string
+    private function restoreEndingTagContent(string $content): string
     {
         $trimmedContent = trim($content);
 
         // Check if content is a placeholder
-        if (isset($this->rawContents[$trimmedContent])) {
+        if (isset($this->endingTagContents[$trimmedContent])) {
             // Return the original content without trimming to preserve whitespace
-            return $this->rawContents[$trimmedContent];
+            return $this->endingTagContents[$trimmedContent];
         }
 
         return $content;
