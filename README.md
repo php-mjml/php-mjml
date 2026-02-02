@@ -1,5 +1,8 @@
 # PHP-MJML
 
+> [!WARNING]
+> **Work in Progress** — This library is currently under active development with [Claude Code](https://claude.ai/code) and is not yet ready for production use. APIs may change without notice. Use with care.
+
 Native PHP port of the [MJML](https://mjml.io) email templating library. Convert MJML markup into responsive HTML emails without Node.js.
 
 **Key Features:**
