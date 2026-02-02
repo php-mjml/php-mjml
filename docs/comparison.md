@@ -6,7 +6,7 @@ This document compares php-mjml with other PHP libraries for working with MJML e
 
 | Library | Approach | Node.js Required | PHP Version |
 |---------|----------|------------------|-------------|
-| **php-mjml** (this library) | Native PHP implementation | No | 8.4+ |
+| **php-mjml** (this library) | Native PHP implementation | No | 8.2+ |
 | [notfloran/mjml-bundle](https://github.com/notfloran/mjml-bundle) | Symfony bundle, calls MJML CLI | Yes | 7.4+ |
 | [spatie/mjml-php](https://github.com/spatie/mjml-php) | Wraps Node.js MJML compiler | Yes (16+) | 8.1+ |
 | [qferr/mjml-php](https://github.com/qferr/mjml-php) | Binary or remote API | Yes (binary) or API | 7.4+ |
