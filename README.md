@@ -5,7 +5,7 @@ Native PHP port of the [MJML](https://mjml.io) email templating library. Convert
 **Key Features:**
 - Zero JavaScript dependencies — pure PHP implementation
 - Parity tested against the official MJML library
-- PHP 8.4+ with strict typing (PHPStan level 8)
+- PHP 8.2+ with strict typing (PHPStan level 8)
 
 ## Installation
 
@@ -178,7 +178,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security guidance.
 
 ## Requirements
 
-- PHP 8.4+
+- PHP 8.2+
 - Extensions: `dom`, `libxml`
 
 ## Development
