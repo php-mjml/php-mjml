@@ -271,6 +271,16 @@ final class RenderContext
         $this->globalData->addMediaQuery($className, $data);
     }
 
+    /**
+     * Get the errors array from global data.
+     *
+     * @return array<int, string>
+     */
+    public function getErrors(): array
+    {
+        return $this->globalData->errors;
+    }
+
     // ===== Context Transformation Methods =====
 
     /**

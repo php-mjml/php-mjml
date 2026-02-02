@@ -28,6 +28,7 @@ final class GlobalData
      * @param array<string, string>                     $headStyle          Keyed head styles (deduplicated by component name)
      * @param array<int, string>                        $inlineStyles       Inline CSS styles for inlining into elements
      * @param array<string, array<string, string|null>> $htmlAttributes     Custom HTML attributes indexed by CSS selector
+     * @param array<int, string>                        $errors             Validation errors collected during rendering
      */
     public function __construct(
         public array $mediaQueries = [],
@@ -36,7 +37,16 @@ final class GlobalData
         public array $headStyle = [],
         public array $inlineStyles = [],
         public array $htmlAttributes = [],
+        public array $errors = [],
     ) {
+    }
+
+    /**
+     * Add a validation error message.
+     */
+    public function addError(string $error): void
+    {
+        $this->errors[] = $error;
     }
 
     /**
