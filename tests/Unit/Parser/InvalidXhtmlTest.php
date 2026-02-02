@@ -562,4 +562,24 @@ final class InvalidXhtmlTest extends TestCase
         $this->assertSame('mj-text', $textNode->tagName);
         $this->assertStringContainsString('<br>', $textNode->content);
     }
+
+    public function testVoidTagWithClassAttribute(): void
+    {
+        // Void tags with class attributes for styling should work
+        $mjml = '<mjml><mj-body><mj-section><mj-column>
+            <mj-text>
+                <p>Content before</p>
+                <hr class="divider">
+                <p>Content after</p>
+            </mj-text>
+        </mj-column></mj-section></mj-body></mjml>';
+
+        $node = $this->parser->parse($mjml);
+        $textNode = $node->children[0]->children[0]->children[0]->children[0];
+
+        $this->assertSame('mj-text', $textNode->tagName);
+        $this->assertStringContainsString('<hr class="divider">', $textNode->content);
+        $this->assertStringContainsString('<p>Content before</p>', $textNode->content);
+        $this->assertStringContainsString('<p>Content after</p>', $textNode->content);
+    }
 }
