@@ -415,7 +415,7 @@
             "dist": {
                 "type": "path",
                 "url": "..",
-                "reference": "e4bbcd009b96f9105c97592ef227e8234dbfbe53"
+                "reference": "a0dde8cc88a8a418d09c21ca443970907c2dacb7"
             },
             "require": {
                 "ext-dom": "*",
