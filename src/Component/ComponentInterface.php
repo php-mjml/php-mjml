@@ -36,4 +36,12 @@ interface ComponentInterface
     public function getContent(): string;
 
     public function render(): string;
+
+    /**
+     * Whether this component is an ending tag (contains raw text/HTML content).
+     *
+     * Ending tags have their content preserved exactly as provided without
+     * being parsed as MJML children.
+     */
+    public static function isEndingTag(): bool;
 }

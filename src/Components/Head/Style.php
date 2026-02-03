@@ -23,6 +23,11 @@ final class Style extends HeadComponent
         return 'mj-style';
     }
 
+    public static function isEndingTag(): bool
+    {
+        return true;
+    }
+
     /**
      * @return array<string, string>
      */

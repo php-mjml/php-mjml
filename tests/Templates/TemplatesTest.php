@@ -40,17 +40,27 @@ final class TemplatesTest extends TestCase
 
     public static function templateProvider(): iterable
     {
-        $templatesDir = __DIR__;
+        $directories = [
+            'templates' => __DIR__,
+            'fixtures' => __DIR__.'/../Parity/fixtures/templates',
+        ];
 
-        $files = glob($templatesDir.'/*.mjml');
+        foreach ($directories as $prefix => $templatesDir) {
+            if (!is_dir($templatesDir)) {
+                continue;
+            }
 
-        if (false === $files) {
-            throw new \RuntimeException(\sprintf('Failed to glob templates directory: %s', $templatesDir));
-        }
+            $files = glob($templatesDir.'/*.mjml');
 
-        foreach ($files as $file) {
-            $name = basename($file, '.mjml');
-            yield $name => [$file, $name];
+            if (false === $files) {
+                throw new \RuntimeException(\sprintf('Failed to glob templates directory: %s', $templatesDir));
+            }
+
+            foreach ($files as $file) {
+                $name = basename($file, '.mjml');
+                $key = $prefix.'/'.$name;
+                yield $key => [$file, $name];
+            }
         }
     }
 

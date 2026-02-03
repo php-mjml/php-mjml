@@ -27,6 +27,7 @@ final class Registry
         'mj-navbar-link',
         'mj-raw',
         'mj-social-element',
+        'mj-style',
         'mj-table',
         'mj-text',
     ];
@@ -89,8 +90,7 @@ final class Registry
         $endingTags = [];
 
         foreach ($this->components as $name => $componentClass) {
-            if (is_subclass_of($componentClass, BodyComponent::class)
-                && $componentClass::isEndingTag()) {
+            if ($componentClass::isEndingTag()) {
                 $endingTags[] = $name;
             }
         }

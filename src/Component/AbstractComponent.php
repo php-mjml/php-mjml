@@ -63,6 +63,11 @@ abstract class AbstractComponent implements ComponentInterface
         return [];
     }
 
+    public static function isEndingTag(): bool
+    {
+        return false;
+    }
+
     /**
      * @return array<string, string|null>
      */

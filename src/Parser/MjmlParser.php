@@ -120,8 +120,9 @@ final class MjmlParser
 
         // Build regex for all ending tags
         // Use negative lookbehind (?<!\/) to exclude self-closing tags like <mj-text />
+        // Use \s* before closing > to handle tags split across lines like </mj-text\n      >
         $tagPattern = implode('|', array_map('preg_quote', $this->getEndingTags()));
-        $pattern = '/<('.$tagPattern.')([^>]*)(?<!\/)>(.*?)<\/\1>/s';
+        $pattern = '/<('.$tagPattern.')([^>]*)(?<!\/)>(.*?)<\/\1\s*>/s';
 
         return preg_replace_callback(
             $pattern,
