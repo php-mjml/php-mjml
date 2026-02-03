@@ -10,7 +10,11 @@
     ],
     "require": {
         "php-mjml/php-mjml": "@dev",
+        "symfony/css-selector": "^8.0",
+        "symfony/dom-crawler": "^8.0",
         "symfony/framework-bundle": "^8.0",
+        "symfony/html-sanitizer": "^8.0",
+        "symfony/options-resolver": "^8.0",
         "symfony/runtime": "^8.0",
         "symfony/twig-bundle": "^8.0",
         "twig/twig": "^3.0"
