@@ -1,0 +1,4 @@
+/vendor/
+/var/
+/.claude/
+.DS_Store
