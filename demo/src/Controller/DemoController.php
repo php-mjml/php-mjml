@@ -13,13 +13,18 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\EmailVerificationService;
+use App\Service\TestEmailService;
 use PhpMjml\Component\Registry;
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Preset\CorePreset;
 use PhpMjml\Renderer\Mjml2Html;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DemoController extends AbstractController
@@ -95,6 +100,107 @@ class DemoController extends AbstractController
   </mj-body>
 </mjml>
 MJML;
+    }
+
+    #[Route('/email/status', name: 'email_status', methods: ['GET'])]
+    public function emailStatus(EmailVerificationService $verificationService): JsonResponse
+    {
+        $verifiedEmails = $verificationService->getVerifiedEmails();
+
+        return new JsonResponse([
+            'verified_emails' => array_keys($verifiedEmails),
+        ]);
+    }
+
+    #[Route('/email/request-verification', name: 'email_request_verification', methods: ['POST'])]
+    public function requestVerification(
+        Request $request,
+        EmailVerificationService $verificationService,
+        TestEmailService $emailService,
+        #[Autowire(service: 'limiter.verification_request')]
+        RateLimiterFactory $verificationRequestLimiter,
+    ): JsonResponse {
+        $email = $request->request->getString('email');
+
+        if ('' === $email || !filter_var($email, \FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['error' => 'Invalid email address'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($verificationService->isVerified($email)) {
+            return new JsonResponse(['message' => 'Email already verified']);
+        }
+
+        $limiter = $verificationRequestLimiter->create($request->getClientIp().'-'.hash('sha256', $email));
+        if (!$limiter->consume()->isAccepted()) {
+            return new JsonResponse(
+                ['error' => 'Too many verification requests. Please try again later.'],
+                Response::HTTP_TOO_MANY_REQUESTS
+            );
+        }
+
+        $token = $verificationService->createVerification($email);
+        $emailService->sendVerificationEmail($email, $token);
+
+        return new JsonResponse(['message' => 'Verification email sent']);
+    }
+
+    #[Route('/email/verify/{token}', name: 'email_verify', methods: ['GET'])]
+    public function verifyEmail(
+        string $token,
+        EmailVerificationService $verificationService,
+    ): Response {
+        $email = $verificationService->validateToken($token);
+
+        if (null === $email) {
+            return $this->render('demo/verify_error.html.twig', [
+                'message' => 'Invalid or expired verification link.',
+            ]);
+        }
+
+        $verificationService->markVerified($email);
+
+        return $this->render('demo/verify_success.html.twig', [
+            'email' => $email,
+        ]);
+    }
+
+    #[Route('/email/send', name: 'email_send', methods: ['POST'])]
+    public function sendTestEmail(
+        Request $request,
+        EmailVerificationService $verificationService,
+        TestEmailService $emailService,
+        #[Autowire(service: 'limiter.test_email_send')]
+        RateLimiterFactory $testEmailSendLimiter,
+    ): JsonResponse {
+        $email = $request->request->getString('email');
+        $htmlContent = $request->request->getString('html');
+
+        if ('' === $email || !filter_var($email, \FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['error' => 'Invalid email address'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (!$verificationService->isVerified($email)) {
+            return new JsonResponse(
+                ['error' => 'Email address not verified'],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        if ('' === $htmlContent) {
+            return new JsonResponse(['error' => 'No HTML content provided'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $limiter = $testEmailSendLimiter->create($request->getSession()->getId());
+        if (!$limiter->consume()->isAccepted()) {
+            return new JsonResponse(
+                ['error' => 'Too many test emails sent. Please try again later.'],
+                Response::HTTP_TOO_MANY_REQUESTS
+            );
+        }
+
+        $emailService->sendTestEmail($email, $htmlContent);
+
+        return new JsonResponse(['message' => 'Test email sent successfully']);
     }
 
     private function createRenderer(): Mjml2Html

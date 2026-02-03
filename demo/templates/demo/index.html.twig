@@ -4,104 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHP-MJML Demo</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background-color: #f3f4f6;
-            min-height: 100vh;
-        }
-        header {
-            background: linear-gradient(135deg, #4e46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        header p {
-            font-size: 0.875rem;
-            opacity: 0.9;
-            margin-top: 0.25rem;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            padding: 1rem;
-            height: calc(100vh - 100px);
-        }
-        .panel {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .panel-header {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .panel-header h2 {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #374151;
-        }
-        .panel-content {
-            flex: 1;
-            overflow: hidden;
-        }
-        textarea {
-            width: 100%;
-            height: 100%;
-            border: none;
-            padding: 1rem;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 13px;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .btn {
-            background-color: #4e46e5;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.15s;
-        }
-        .btn:hover {
-            background-color: #4338ca;
-        }
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr 1fr;
-            }
-        }
-    </style>
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
 </head>
 <body>
     <header>
@@ -109,14 +13,14 @@
         <p>Native PHP port of the MJML email framework</p>
     </header>
 
-    <div class="container">
+    <div class="container" data-controller="mjml-editor" data-mjml-editor-render-url-value="{{ path('demo_render') }}">
         <div class="panel">
             <div class="panel-header">
                 <h2>MJML Source</h2>
-                <button class="btn" id="render-btn">Render</button>
+                <button class="btn" data-mjml-editor-target="renderButton" data-action="click->mjml-editor#render">Render</button>
             </div>
             <div class="panel-content">
-                <textarea id="mjml-input"><mjml>
+                <textarea data-mjml-editor-target="input"><mjml>
   <mj-head>
     <mj-title>PHP-MJML Demo</mj-title>
     <mj-preview>Welcome to PHP-MJML</mj-preview>
@@ -158,49 +62,65 @@
             </div>
         </div>
 
-        <div class="panel">
+        <div class="panel"
+             data-controller="email-sender"
+             data-email-sender-status-url-value="{{ path('email_status') }}"
+             data-email-sender-verify-url-value="{{ path('email_request_verification') }}"
+             data-email-sender-send-url-value="{{ path('email_send') }}">
             <div class="panel-header">
                 <h2>HTML Preview</h2>
+                <button class="btn btn-icon" data-email-sender-target="toggleButton" data-action="click->email-sender#toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+                        <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+                    </svg>
+                    Send Test Email
+                </button>
+            </div>
+            <div class="email-dropdown hidden" data-email-sender-target="panel">
+                <div class="email-dropdown-content">
+                    <div class="email-form-group">
+                        <label for="verified-emails">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="icon">
+                                <path fill-rule="evenodd" d="M16.403 12.652a3 3 0 000-5.304 3 3 0 00-3.75-3.751 3 3 0 00-5.305 0 3 3 0 00-3.751 3.75 3 3 0 000 5.305 3 3 0 003.75 3.751 3 3 0 005.305 0 3 3 0 003.751-3.75zm-2.546-4.46a.75.75 0 00-1.214-.883l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                            </svg>
+                            Verified Emails
+                        </label>
+                        <p class="hint">Only verified email addresses can receive test emails.</p>
+                        <select id="verified-emails" data-email-sender-target="verifiedList" data-action="change->email-sender#selectEmail">
+                            <option value="">No verified emails yet</option>
+                        </select>
+                    </div>
+                    <div class="email-form-group">
+                        <label for="email-input">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="icon">
+                                <path fill-rule="evenodd" d="M5.404 14.596A6.5 6.5 0 1116.5 10a1.25 1.25 0 01-2.5 0 4 4 0 10-.571 2.06A2.75 2.75 0 0018 10a8 8 0 10-2.343 5.657.75.75 0 00-1.06-1.06 6.5 6.5 0 01-9.193 0zM10 7.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z" clip-rule="evenodd" />
+                            </svg>
+                            Email Address
+                        </label>
+                        <input type="email" id="email-input" placeholder="you@example.com" data-email-sender-target="emailInput">
+                    </div>
+                    <div class="email-actions">
+                        <button class="btn btn-secondary btn-icon" data-email-sender-target="verifyButton" data-action="click->email-sender#requestVerification">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                            </svg>
+                            Verify Email
+                        </button>
+                        <button class="btn btn-icon" data-email-sender-target="sendButton" data-action="click->email-sender#sendEmail" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
+                            </svg>
+                            Send Test Email
+                        </button>
+                    </div>
+                    <div class="status-message hidden" data-email-sender-target="statusMessage"></div>
+                </div>
             </div>
             <div class="panel-content">
-                <iframe id="preview-frame"></iframe>
+                <iframe data-mjml-editor-target="preview"></iframe>
             </div>
         </div>
     </div>
-
-    <script>
-        const textarea = document.getElementById('mjml-input');
-        const renderBtn = document.getElementById('render-btn');
-        const previewFrame = document.getElementById('preview-frame');
-
-        async function renderMjml() {
-            renderBtn.disabled = true;
-            renderBtn.textContent = 'Rendering...';
-
-            try {
-                const formData = new FormData();
-                formData.append('mjml', textarea.value);
-
-                const response = await fetch('{{ path('demo_render') }}', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const html = await response.text();
-                previewFrame.srcdoc = html;
-            } catch (error) {
-                console.error('Error rendering MJML:', error);
-                previewFrame.srcdoc = '<html><body><p style="color: red;">Error rendering MJML</p></body></html>';
-            } finally {
-                renderBtn.disabled = false;
-                renderBtn.textContent = 'Render';
-            }
-        }
-
-        renderBtn.addEventListener('click', renderMjml);
-
-        // Initial render
-        renderMjml();
-    </script>
 </body>
 </html>

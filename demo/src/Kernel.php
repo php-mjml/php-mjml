@@ -19,6 +19,7 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\UX\StimulusBundle\StimulusBundle;
 
 class Kernel extends BaseKernel
 {
@@ -28,6 +29,7 @@ class Kernel extends BaseKernel
     {
         yield new FrameworkBundle();
         yield new TwigBundle();
+        yield new StimulusBundle();
     }
 
     protected function configureContainer(ContainerConfigurator $container): void
@@ -38,6 +40,32 @@ class Kernel extends BaseKernel
             'handle_all_throwables' => true,
             'php_errors' => [
                 'log' => true,
+            ],
+            'session' => [
+                'handler_id' => null,
+                'cookie_secure' => 'auto',
+                'cookie_samesite' => 'lax',
+                'storage_factory_id' => 'session.storage.factory.native',
+            ],
+            'mailer' => [
+                'dsn' => '%env(MAILER_DSN)%',
+            ],
+            'rate_limiter' => [
+                'verification_request' => [
+                    'policy' => 'sliding_window',
+                    'limit' => 3,
+                    'interval' => '1 hour',
+                ],
+                'test_email_send' => [
+                    'policy' => 'sliding_window',
+                    'limit' => 5,
+                    'interval' => '1 hour',
+                ],
+            ],
+            'asset_mapper' => [
+                'paths' => [
+                    'assets/',
+                ],
             ],
         ]);
 
