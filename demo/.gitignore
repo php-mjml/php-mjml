@@ -2,3 +2,6 @@
 /var/
 /.claude/
 .DS_Store
+
+# Override root .gitignore to include demo's lock file
+!composer.lock
