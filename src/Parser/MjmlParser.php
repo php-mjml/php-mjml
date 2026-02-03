@@ -13,37 +13,32 @@ declare(strict_types=1);
 
 namespace PhpMjml\Parser;
 
+use PhpMjml\Component\Registry;
+
 final class MjmlParser
 {
-    /**
-     * MJML "Ending Tags" - components that contain text/HTML content instead of other MJML tags.
-     *
-     * These components capture inner HTML as raw content without parsing children.
-     * The content remains unprocessed by the MJML engine.
-     *
-     * @see https://documentation.mjml.io/#ending-tags
-     */
-    private const ENDING_TAGS = [
-        'mj-accordion-text',
-        'mj-accordion-title',
-        'mj-button',
-        'mj-navbar-link',
-        'mj-raw',
-        'mj-social-element',
-        'mj-table',
-        'mj-text',
-    ];
-
     private XmlPreprocessorInterface $xmlPreprocessor;
+
+    private ?Registry $registry;
 
     /**
      * @var array<string, string> Placeholder-to-original-content map for ending tags
      */
     private array $endingTagContents = [];
 
-    public function __construct(?XmlPreprocessorInterface $xmlPreprocessor = null)
-    {
+    /**
+     * Cached ending tags from the registry.
+     *
+     * @var list<string>|null
+     */
+    private ?array $endingTags = null;
+
+    public function __construct(
+        ?XmlPreprocessorInterface $xmlPreprocessor = null,
+        ?Registry $registry = null,
+    ) {
         $this->xmlPreprocessor = $xmlPreprocessor ?? new XmlEntityPreprocessor();
+        $this->registry = $registry;
     }
 
     public function parse(string $mjml): Node
@@ -85,6 +80,23 @@ final class MjmlParser
     }
 
     /**
+     * Get ending tag names from Registry or fall back to defaults.
+     *
+     * @return list<string>
+     */
+    private function getEndingTags(): array
+    {
+        if (null !== $this->endingTags) {
+            return $this->endingTags;
+        }
+
+        $this->endingTags = $this->registry?->getEndingTagNames()
+            ?? Registry::DEFAULT_ENDING_TAGS;
+
+        return $this->endingTags;
+    }
+
+    /**
      * Check if the new PHP 8.4+ DOM API is available.
      */
     private static function useNewDomApi(): bool
@@ -108,7 +120,7 @@ final class MjmlParser
 
         // Build regex for all ending tags
         // Use negative lookbehind (?<!\/) to exclude self-closing tags like <mj-text />
-        $tagPattern = implode('|', array_map('preg_quote', self::ENDING_TAGS));
+        $tagPattern = implode('|', array_map('preg_quote', $this->getEndingTags()));
         $pattern = '/<('.$tagPattern.')([^>]*)(?<!\/)>(.*?)<\/\1>/s';
 
         return preg_replace_callback(
@@ -196,7 +208,7 @@ final class MjmlParser
             }
 
             // For raw content tags, get inner HTML directly without parsing children
-            if (\in_array($tagName, self::ENDING_TAGS, true)) {
+            if (\in_array($tagName, $this->getEndingTags(), true)) {
                 $content = $this->getInnerHtml($domNode);
 
                 // Restore the original content from placeholder

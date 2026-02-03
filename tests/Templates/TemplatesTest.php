@@ -35,7 +35,7 @@ final class TemplatesTest extends TestCase
         $registry = new Registry();
         $registry->registerMany(CorePreset::getComponents());
 
-        $this->renderer = new Mjml2Html($registry, new MjmlParser());
+        $this->renderer = new Mjml2Html($registry, new MjmlParser(registry: $registry));
     }
 
     public static function templateProvider(): iterable

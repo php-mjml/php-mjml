@@ -28,7 +28,7 @@ abstract class ParityTestCase extends TestCase
         $registry = new Registry();
         $registry->registerMany(CorePreset::getComponents());
 
-        $this->renderer = new Mjml2Html($registry, new MjmlParser());
+        $this->renderer = new Mjml2Html($registry, new MjmlParser(registry: $registry));
     }
 
     protected function renderWithPhp(string $mjml): string

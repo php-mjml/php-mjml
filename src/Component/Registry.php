@@ -15,6 +15,22 @@ namespace PhpMjml\Component;
 
 final class Registry
 {
+    /**
+     * Default ending tags used when Registry is not available.
+     *
+     * @see https://documentation.mjml.io/#ending-tags
+     */
+    public const DEFAULT_ENDING_TAGS = [
+        'mj-accordion-text',
+        'mj-accordion-title',
+        'mj-button',
+        'mj-navbar-link',
+        'mj-raw',
+        'mj-social-element',
+        'mj-table',
+        'mj-text',
+    ];
+
     /** @var array<string, class-string<ComponentInterface>> */
     private array $components = [];
 
@@ -56,5 +72,29 @@ final class Registry
     public function all(): array
     {
         return $this->components;
+    }
+
+    /**
+     * Get tag names of all registered ending tag components.
+     *
+     * Ending tags are components that contain text/HTML content instead of
+     * other MJML tags. The content remains unprocessed by the MJML engine.
+     *
+     * @return list<string>
+     *
+     * @see https://documentation.mjml.io/#ending-tags
+     */
+    public function getEndingTagNames(): array
+    {
+        $endingTags = [];
+
+        foreach ($this->components as $name => $componentClass) {
+            if (is_subclass_of($componentClass, BodyComponent::class)
+                && $componentClass::isEndingTag()) {
+                $endingTags[] = $name;
+            }
+        }
+
+        return $endingTags;
     }
 }
