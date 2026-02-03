@@ -64,7 +64,7 @@ export default class extends Controller {
     toggle() {
         this.panelTarget.classList.toggle('hidden');
         const isHidden = this.panelTarget.classList.contains('hidden');
-        this.toggleButtonTarget.textContent = isHidden ? 'Send Test Email' : 'Close';
+        this.setButtonText(this.toggleButtonTarget, isHidden ? 'Send Test Email' : 'Close');
     }
 
     selectEmail(event) {
@@ -82,7 +82,7 @@ export default class extends Controller {
         }
 
         this.verifyButtonTarget.disabled = true;
-        this.verifyButtonTarget.textContent = 'Sending...';
+        this.setButtonText(this.verifyButtonTarget, 'Sending...');
 
         try {
             const formData = new FormData();
@@ -105,7 +105,7 @@ export default class extends Controller {
             this.showStatus('Network error. Please try again.', 'error');
         } finally {
             this.verifyButtonTarget.disabled = false;
-            this.verifyButtonTarget.textContent = 'Send Verification';
+            this.setButtonText(this.verifyButtonTarget, 'Verify Email');
         }
     }
 
@@ -130,7 +130,7 @@ export default class extends Controller {
         }
 
         this.sendButtonTarget.disabled = true;
-        this.sendButtonTarget.textContent = 'Sending...';
+        this.setButtonText(this.sendButtonTarget, 'Sending...');
 
         try {
             const formData = new FormData();
@@ -154,8 +154,15 @@ export default class extends Controller {
             this.showStatus('Network error. Please try again.', 'error');
         } finally {
             this.sendButtonTarget.disabled = false;
-            this.sendButtonTarget.textContent = 'Send Test Email';
+            this.setButtonText(this.sendButtonTarget, 'Send Test Email');
         }
+    }
+
+    setButtonText(button, text) {
+        const svg = button.querySelector('svg');
+        button.innerHTML = '';
+        if (svg) button.appendChild(svg);
+        button.appendChild(document.createTextNode(' ' + text));
     }
 
     showStatus(message, type) {
