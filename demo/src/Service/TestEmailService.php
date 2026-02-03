@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class TestEmailService
 {
-    private const string FROM_ADDRESS = 'noreply@php-mjml.dev';
+    private const string FROM_ADDRESS = 'phpmjml@dekkoder.de';
     private const string FROM_NAME = 'PHP-MJML Demo';
 
     public function __construct(

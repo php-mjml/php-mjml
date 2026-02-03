@@ -13,9 +13,11 @@ declare(strict_types=1);
 
 namespace App;
 
+use Symfony\Bundle\DebugBundle\DebugBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
+use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -30,6 +32,11 @@ class Kernel extends BaseKernel
         yield new FrameworkBundle();
         yield new TwigBundle();
         yield new StimulusBundle();
+
+        if ('dev' === $this->environment) {
+            yield new DebugBundle();
+            yield new WebProfilerBundle();
+        }
     }
 
     protected function configureContainer(ContainerConfigurator $container): void
@@ -78,10 +85,27 @@ class Kernel extends BaseKernel
             ->autowire()
             ->autoconfigure()
         ;
+
+        if ('dev' === $this->environment) {
+            $container->extension('web_profiler', [
+                'toolbar' => true,
+                'intercept_redirects' => false,
+            ]);
+            $container->extension('framework', [
+                'profiler' => [
+                    'only_exceptions' => false,
+                ],
+            ]);
+        }
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->import(__DIR__.'/Controller/', 'attribute');
+
+        if ('dev' === $this->environment) {
+            $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.php')->prefix('/_wdt');
+            $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.php')->prefix('/_profiler');
+        }
     }
 }
