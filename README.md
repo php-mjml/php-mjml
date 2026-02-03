@@ -1,5 +1,11 @@
 # PHP-MJML
 
+<p align="center">
+  <a href="https://php-mjml.on-forge.com">
+    <img src="https://img.shields.io/badge/%F0%9F%9A%80_Try_it_Live-Demo-blue?style=for-the-badge&labelColor=4a154b&color=007bff&scale=2" alt="Try it Live" height="50">
+  </a>
+</p>
+
 > [!WARNING]
 > **Work in Progress** — This library is currently under active development with [Claude Code](https://claude.ai/code) and is not yet ready for production use. APIs may change without notice. Use with care.
 
