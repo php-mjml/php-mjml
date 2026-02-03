@@ -411,11 +411,11 @@
         },
         {
             "name": "php-mjml/php-mjml",
-            "version": "dev-chore/send-email",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "..",
-                "reference": "9ee448f9bec7910dbfa48f0190d3897f9a1fe32a"
+                "reference": "639f82f3f1199f389412476b652e66f9d54eabfa"
             },
             "require": {
                 "ext-dom": "*",
