@@ -9,20 +9,26 @@
   </tr>
 </table>
 
-<p>
-  <a href="https://php-mjml.on-forge.com">
-    <img src="https://img.shields.io/badge/%F0%9F%9A%80_Try_it_Live-Demo-blue?style=for-the-badge&labelColor=4a154b&color=007bff&scale=2" alt="Try it Live" height="40">
-  </a>
-</p>
-
 > [!WARNING]
 > **Work in Progress** — This library is currently under active development with [Claude Code](https://claude.ai/code) and is not yet ready for production use. APIs may change without notice. Use with care.
 
-<details>
-<summary>Live Demo Screenshot</summary>
-<br>
-<img src="docs/live-demo.png" alt="PHP-MJML Live Demo" width="700">
-</details>
+<table>
+  <tr>
+    <td>
+      <a href="https://php-mjml.on-forge.com">
+        <img src="docs/live-demo.png" alt="PHP-MJML Live Demo" width="420">
+      </a>
+    </td>
+    <td>
+      <h3>Try it in your browser</h3>
+      <p>Edit MJML markup and see the rendered HTML email output in real time — no installation required.</p>
+      <br>
+      <a href="https://php-mjml.on-forge.com">
+        <img src="https://img.shields.io/badge/%F0%9F%9A%80_Try_it_Live-Demo-blue?style=for-the-badge&labelColor=4a154b&color=007bff&scale=2" alt="Try it Live" height="40">
+      </a>
+    </td>
+  </tr>
+</table>
 
 **Key Features:**
 - Zero JavaScript dependencies — pure PHP implementation
