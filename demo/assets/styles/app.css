@@ -28,6 +28,36 @@ header p {
     margin-top: 0.25rem;
 }
 
+.header-links {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
+}
+
+.header-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.375rem 0.625rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.header-links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.header-links a svg {
+    width: 1rem;
+    height: 1rem;
+}
+
 .container {
     display: grid;
     grid-template-columns: 1fr 1fr;
