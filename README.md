@@ -16,7 +16,7 @@
   <tr>
     <td>
       <a href="https://php-mjml.on-forge.com">
-        <img src="docs/live-demo.png" alt="PHP-MJML Live Demo" width="420">
+        <img src="docs/live-demo.png" alt="PHP-MJML Live Demo" width="80">
       </a>
     </td>
     <td>
