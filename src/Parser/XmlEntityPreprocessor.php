@@ -18,8 +18,9 @@ namespace PhpMjml\Parser;
  *
  * XML only recognizes &amp; &lt; &gt; &quot; &apos; as named entities.
  * This preprocessor:
- * 1. Converts HTML named entities to numeric equivalents
- * 2. Escapes bare ampersands that are not part of valid entity references
+ * 1. Removes duplicate attributes from opening tags (XML forbids them, HTML silently keeps the first)
+ * 2. Converts HTML named entities to numeric equivalents
+ * 3. Escapes bare ampersands that are not part of valid entity references
  */
 final class XmlEntityPreprocessor implements XmlPreprocessorInterface
 {
@@ -57,7 +58,10 @@ final class XmlEntityPreprocessor implements XmlPreprocessorInterface
 
     public function preprocess(string $xml): string
     {
-        // First, convert known HTML entities to numeric
+        // Remove duplicate attributes (XML forbids them; HTML keeps the first)
+        $xml = $this->deduplicateAttributes($xml);
+
+        // Convert known HTML entities to numeric
         $xml = str_replace(
             array_keys(self::HTML_ENTITY_MAP),
             array_values(self::HTML_ENTITY_MAP),
@@ -74,5 +78,41 @@ final class XmlEntityPreprocessor implements XmlPreprocessorInterface
         ) ?? $xml;
 
         return $xml;
+    }
+
+    /**
+     * Remove duplicate attributes from opening tags.
+     *
+     * XML rejects duplicate attributes as a fatal error. HTML silently keeps
+     * the first occurrence. This matches HTML behavior for MJML compatibility.
+     */
+    private function deduplicateAttributes(string $xml): string
+    {
+        return preg_replace_callback(
+            '/<([a-zA-Z][a-zA-Z0-9-]*)(\s[^>]*?)(\s*\/?)>/s',
+            static function (array $match): string {
+                $tagName = $match[1];
+                $attrString = $match[2];
+                $selfClose = $match[3];
+
+                $seen = [];
+                $deduplicated = preg_replace_callback(
+                    '/(\s+)([a-zA-Z][a-zA-Z0-9-]*)(\s*=\s*"[^"]*"|\s*=\s*\'[^\']*\')?/',
+                    static function (array $attrMatch) use (&$seen): string {
+                        $name = strtolower($attrMatch[2]);
+                        if (isset($seen[$name])) {
+                            return '';
+                        }
+                        $seen[$name] = true;
+
+                        return $attrMatch[0];
+                    },
+                    $attrString
+                );
+
+                return '<'.$tagName.($deduplicated ?? $attrString).$selfClose.'>';
+            },
+            $xml
+        ) ?? $xml;
     }
 }

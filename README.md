@@ -233,6 +233,18 @@ composer run test:parity
 
 Requires Node.js with MJML available via `npx mjml`.
 
+## Architecture: Why XML Parsing?
+
+PHP-MJML parses MJML as **XML** rather than HTML. The main reason: HTML5 parsers do not honor self-closing syntax on custom elements. `<mj-spacer />` would be parsed as an unclosed `<mj-spacer>` tag, breaking the tree structure. XML handles this correctly.
+
+The tradeoff is that XML is stricter than HTML — it rejects things like duplicate attributes, bare `&` characters, and HTML-named entities (`&nbsp;`). The parser includes a preprocessing pipeline to bridge these gaps:
+
+1. **Ending-tag extraction** — Content inside tags like `<mj-text>` (which may contain raw HTML) is replaced with safe placeholders before XML parsing, then restored afterward.
+2. **Attribute deduplication** — Duplicate attributes (e.g., `font-size` declared twice) are reduced to the first occurrence, matching HTML behavior.
+3. **Entity conversion** — HTML entities like `&nbsp;` are converted to XML-compatible numeric equivalents (`&#160;`), and bare `&` characters are escaped.
+
+An alternative would be switching to the HTML5 parser (`Dom\HTMLDocument`, available since PHP 8.4), which handles all of the above natively. However, that would require its own preprocessing step to expand self-closing custom tags into explicit open/close pairs. For now, the XML approach with targeted fixups is the simpler path.
+
 ## Contributing
 
 This library was developed with AI assistance. Contributions are welcome — especially new component implementations!
