@@ -16,6 +16,7 @@ namespace PhpMjml\Renderer;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Registry;
+use PhpMjml\Helper\CssInliner;
 use PhpMjml\Helper\OutlookConditionalHelper;
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\Node;
@@ -48,6 +49,9 @@ final class Mjml2Html
 
         // Apply custom HTML attributes from mj-html-attributes
         $bodyHtml = $this->applyHtmlAttributes($bodyHtml, $context);
+
+        // Inline CSS from mj-style inline="inline"
+        $bodyHtml = $this->applyInlineStyles($bodyHtml, $context);
 
         // Merge adjacent MSO conditionals
         $bodyHtml = OutlookConditionalHelper::mergeConditionals($bodyHtml);
@@ -172,6 +176,27 @@ final class Mjml2Html
         $result = $crawler->filter('mjml-root')->html();
 
         return $result;
+    }
+
+    /**
+     * Inline CSS rules from mj-style inline="inline" into matching elements.
+     */
+    private function applyInlineStyles(string $html, RenderContext $context): string
+    {
+        $inlineStyles = $context->globalData->inlineStyles;
+
+        if ([] === $inlineStyles) {
+            return $html;
+        }
+
+        $errors = [];
+        $html = CssInliner::inline($html, $inlineStyles, $errors);
+
+        foreach ($errors as $error) {
+            $context->globalData->addError($error);
+        }
+
+        return $html;
     }
 
     /**

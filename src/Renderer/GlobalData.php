@@ -26,7 +26,7 @@ final class GlobalData
      * @param array<int, string>                        $styles             CSS style strings
      * @param array<int, string>                        $componentHeadStyle Component head styles (output after media queries)
      * @param array<string, string>                     $headStyle          Keyed head styles (deduplicated by component name)
-     * @param array<int, string>                        $inlineStyles       Inline CSS styles for inlining into elements
+     * @param list<string>                              $inlineStyles       Inline CSS styles for inlining into elements
      * @param array<string, array<string, string|null>> $htmlAttributes     Custom HTML attributes indexed by CSS selector
      * @param array<int, string>                        $errors             Validation errors collected during rendering
      */
