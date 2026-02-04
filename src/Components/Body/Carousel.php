@@ -84,7 +84,7 @@ final class Carousel extends BodyComponent
             'tb-border' => '2px solid transparent',
             'tb-border-radius' => '6px',
             'tb-hover-border-color' => '#fead0d',
-            'tb-selected-border-color' => '#ccc',
+            'tb-selected-border-color' => '#cccccc',
         ];
     }
 
@@ -221,7 +221,7 @@ CSS;
                 .str_repeat('+ * ', $i)
                 .'+ .mj-carousel-content .mj-carousel-image';
         }
-        $carouselCss .= '    '.implode(",\n    ", $hideSelectors)." {\n      display: none !important;\n    }\n\n";
+        $carouselCss .= '    '.implode(',', $hideSelectors)." {\n      display: none !important;\n    }\n\n";
 
         // Show the selected image
         $showSelectors = [];
@@ -230,22 +230,25 @@ CSS;
                 .str_repeat('+ * ', $length - $i - 1)
                 .'+ .mj-carousel-content .mj-carousel-image-'.($i + 1);
         }
-        $carouselCss .= '    '.implode(",\n    ", $showSelectors)." {\n      display: block !important;\n    }\n\n";
+        $carouselCss .= '    '.implode(',', $showSelectors)." {\n      display: block !important;\n    }\n\n";
 
-        // Navigation arrows
-        $prevNextSelectors = ['.mj-carousel-previous-icons', '.mj-carousel-next-icons'];
+        // Navigation arrows — group all next selectors, then all previous (matches JS output)
+        $nextSelectors = [];
+        $prevSelectors = [];
         for ($i = 0; $i < $length; ++$i) {
             $nextIndex = (($i + 1) % $length) + 1;
             $prevIndex = ((($i - 1) % $length) + $length) % $length + 1;
 
-            $prevNextSelectors[] = ".mj-carousel-{$this->carouselId}-radio-".($i + 1).':checked '
+            $nextSelectors[] = ".mj-carousel-{$this->carouselId}-radio-".($i + 1).':checked '
                 .str_repeat('+ * ', $length - $i - 1)
                 ."+ .mj-carousel-content .mj-carousel-next-{$nextIndex}";
-            $prevNextSelectors[] = ".mj-carousel-{$this->carouselId}-radio-".($i + 1).':checked '
+            $prevSelectors[] = ".mj-carousel-{$this->carouselId}-radio-".($i + 1).':checked '
                 .str_repeat('+ * ', $length - $i - 1)
                 ."+ .mj-carousel-content .mj-carousel-previous-{$prevIndex}";
         }
-        $carouselCss .= '    '.implode(",\n    ", $prevNextSelectors)." {\n      display: block !important;\n    }\n\n";
+        $carouselCss .= "    .mj-carousel-previous-icons,\n    .mj-carousel-next-icons,\n    "
+            .implode(',', $nextSelectors).",\n    "
+            .implode(',', $prevSelectors)." {\n      display: block !important;\n    }\n\n";
 
         // Thumbnail selected border
         $tbSelectedSelectors = [];
@@ -254,7 +257,7 @@ CSS;
                 .str_repeat('+ * ', $length - $i - 1)
                 ."+ .mj-carousel-content .mj-carousel-{$this->carouselId}-thumbnail-".($i + 1);
         }
-        $carouselCss .= '    '.implode(",\n    ", $tbSelectedSelectors)." {\n      border-color: {$tbSelectedBorderColor} !important;\n    }\n\n";
+        $carouselCss .= '    '.implode(',', $tbSelectedSelectors)." {\n      border-color: {$tbSelectedBorderColor} !important;\n    }\n\n";
 
         // Thumbnail display when selected
         $tbDisplaySelectors = [];
@@ -263,7 +266,7 @@ CSS;
                 .str_repeat('+ * ', $length - $i - 1)
                 ."+ .mj-carousel-content .mj-carousel-{$this->carouselId}-thumbnail\n          ";
         }
-        $carouselCss .= '    '.implode(",\n    ", $tbDisplaySelectors)." {\n      display: inline-block !important;\n    }\n\n";
+        $carouselCss .= '    '.implode(',', $tbDisplaySelectors)." {\n      display: inline-block !important;\n    }\n\n";
 
         // Hide img + div fallbacks
         $carouselCss .= <<<CSS
@@ -281,7 +284,7 @@ CSS;
                 .str_repeat('+ * ', $length - $i - 1)
                 .'+ .mj-carousel-main .mj-carousel-image';
         }
-        $carouselCss .= '    '.implode(",\n    ", $tbHoverHideSelectors)." {\n      display: none !important;\n    }\n\n";
+        $carouselCss .= '    '.implode(',', $tbHoverHideSelectors)." {\n      display: none !important;\n    }\n\n";
 
         // Thumbnail hover border
         $carouselCss .= <<<CSS
@@ -298,7 +301,7 @@ CSS;
                 .str_repeat('+ * ', $length - $i - 1)
                 .'+ .mj-carousel-main .mj-carousel-image-'.($i + 1);
         }
-        $carouselCss .= '    '.implode(",\n    ", $tbHoverShowSelectors)." {\n      display: block !important;\n    }\n    ";
+        $carouselCss .= '    '.implode(',', $tbHoverShowSelectors)." {\n      display: block !important;\n    }\n    ";
 
         // Fallback styles
         $fallbackCss = <<<CSS

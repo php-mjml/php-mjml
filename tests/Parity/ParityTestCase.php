@@ -77,6 +77,9 @@ abstract class ParityTestCase extends TestCase
     {
         $original = $html;
 
+        // Normalize carousel random hex IDs to deterministic placeholders
+        $html = $this->normalizeCarouselIds($html);
+
         // Remove FILE comments added by MJML CLI
         $html = preg_replace('/<!-- FILE: [^>]+ -->/', '', $html) ?? $html;
 
@@ -139,6 +142,35 @@ abstract class ParityTestCase extends TestCase
         }
 
         return $content;
+    }
+
+    /**
+     * Replace random carousel hex IDs with deterministic placeholders so that
+     * JS and PHP outputs can be compared regardless of the generated IDs.
+     */
+    private function normalizeCarouselIds(string $html): string
+    {
+        $counter = 0;
+        $idMap = [];
+
+        // Collect unique 16-char hex strings that appear in a carousel context
+        if (preg_match_all('/[0-9a-f]{16}/', $html, $matches)) {
+            foreach ($matches[0] as $id) {
+                if (isset($idMap[$id])) {
+                    continue;
+                }
+
+                if (str_contains($html, 'mj-carousel-'.$id)) {
+                    $idMap[$id] = \sprintf('%016d', ++$counter);
+                }
+            }
+        }
+
+        foreach ($idMap as $originalId => $replacementId) {
+            $html = str_replace($originalId, $replacementId, $html);
+        }
+
+        return $html;
     }
 
     /**

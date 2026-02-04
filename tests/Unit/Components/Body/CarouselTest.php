@@ -45,7 +45,7 @@ final class CarouselTest extends TestCase
         $this->assertSame('2px solid transparent', $defaults['tb-border']);
         $this->assertSame('6px', $defaults['tb-border-radius']);
         $this->assertSame('#fead0d', $defaults['tb-hover-border-color']);
-        $this->assertSame('#ccc', $defaults['tb-selected-border-color']);
+        $this->assertSame('#cccccc', $defaults['tb-selected-border-color']);
     }
 
     public function testRenderEmptyCarouselReturnsEmpty(): void
