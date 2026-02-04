@@ -1,15 +1,28 @@
-# PHP-MJML
+<table>
+  <tr>
+    <td><img src="demo/assets/images/php-mjml-logo.png" alt="PHP-MJML" width="80"></td>
+    <td>
+      <h1>PHP-MJML</h1>
+      Native PHP port of the <a href="https://mjml.io">MJML</a> email templating library.<br>
+      Convert MJML markup into responsive HTML emails without Node.js.
+    </td>
+  </tr>
+</table>
 
-<p align="center">
+<p>
   <a href="https://php-mjml.on-forge.com">
-    <img src="https://img.shields.io/badge/%F0%9F%9A%80_Try_it_Live-Demo-blue?style=for-the-badge&labelColor=4a154b&color=007bff&scale=2" alt="Try it Live" height="50">
+    <img src="https://img.shields.io/badge/%F0%9F%9A%80_Try_it_Live-Demo-blue?style=for-the-badge&labelColor=4a154b&color=007bff&scale=2" alt="Try it Live" height="40">
   </a>
 </p>
 
 > [!WARNING]
 > **Work in Progress** — This library is currently under active development with [Claude Code](https://claude.ai/code) and is not yet ready for production use. APIs may change without notice. Use with care.
 
-Native PHP port of the [MJML](https://mjml.io) email templating library. Convert MJML markup into responsive HTML emails without Node.js.
+<details>
+<summary>Live Demo Screenshot</summary>
+<br>
+<img src="docs/live-demo.png" alt="PHP-MJML Live Demo" width="700">
+</details>
 
 **Key Features:**
 - Zero JavaScript dependencies — pure PHP implementation
