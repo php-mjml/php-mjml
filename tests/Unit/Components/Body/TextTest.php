@@ -114,6 +114,21 @@ final class TextTest extends TestCase
         $this->assertSame('center', $styles['text']['text-align']);
     }
 
+    public function testFontFamilySingleQuotesNotEscaped(): void
+    {
+        $text = new Text(
+            attributes: ['font-family' => "'IBM Plex Sans', Helvetica, Arial, sans-serif"],
+            children: [],
+            content: 'Hello',
+            context: $this->createContext(),
+        );
+
+        $html = $text->render();
+
+        $this->assertStringNotContainsString('&#039;', $html);
+        $this->assertStringContainsString("font-family:'IBM Plex Sans', Helvetica, Arial, sans-serif", $html);
+    }
+
     private function createContext(): RenderContext
     {
         return new RenderContext(

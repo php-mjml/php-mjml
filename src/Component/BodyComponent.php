@@ -145,7 +145,8 @@ abstract class BodyComponent extends AbstractComponent
                 continue;
             }
 
-            $result[] = \sprintf('%s="%s"', $key, htmlspecialchars((string) $value, \ENT_QUOTES, 'UTF-8'));
+            $flags = 'style' === $key ? \ENT_NOQUOTES : \ENT_QUOTES;
+            $result[] = \sprintf('%s="%s"', $key, htmlspecialchars((string) $value, $flags, 'UTF-8'));
         }
 
         return implode(' ', $result);
