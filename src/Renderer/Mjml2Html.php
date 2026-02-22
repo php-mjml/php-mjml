@@ -361,10 +361,13 @@ HTML;
 
         $toImport = [];
 
+        // Decode HTML entities so &#039; (single quotes) don't break font-family matching
+        $decodedContent = html_entity_decode($content, \ENT_QUOTES, 'UTF-8');
+
         foreach ($fonts as $fontName => $fontUrl) {
             // Check if font is used in font-family declarations
             $pattern = '/font-family:[^;}]*'.preg_quote($fontName, '/').'/i';
-            if (preg_match($pattern, $content)) {
+            if (preg_match($pattern, $decodedContent)) {
                 $toImport[] = $fontUrl;
             }
         }
