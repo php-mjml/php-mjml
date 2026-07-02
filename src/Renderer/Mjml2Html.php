@@ -16,10 +16,13 @@ namespace PhpMjml\Renderer;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Registry;
+use PhpMjml\Components\Body\Body;
+use PhpMjml\Components\Head\Head;
 use PhpMjml\Helper\CssInliner;
 use PhpMjml\Helper\OutlookConditionalHelper;
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\Node;
+use PhpMjml\Preset\CorePreset;
 use Symfony\Component\DomCrawler\Crawler;
 
 final class Mjml2Html
@@ -28,6 +31,21 @@ final class Mjml2Html
         private readonly Registry $registry,
         private readonly MjmlParser $parser,
     ) {
+    }
+
+    /**
+     * Create a renderer wired with all core MJML components.
+     *
+     * This is the recommended way to obtain a renderer. Use the constructor
+     * directly only when you need a custom registry or parser - and make sure
+     * to pass the same registry to both.
+     */
+    public static function create(): self
+    {
+        $registry = new Registry();
+        $registry->registerMany(CorePreset::getComponents());
+
+        return new self($registry, new MjmlParser(registry: $registry));
     }
 
     public function render(string $mjml, ?RenderOptions $options = null): RenderResult
@@ -67,7 +85,7 @@ final class Mjml2Html
 
     private function processHead(Node $ast, RenderContext $context): void
     {
-        $head = $ast->findChild('mj-head');
+        $head = $ast->findChild(Head::getComponentName());
         if (null === $head) {
             return;
         }
@@ -98,7 +116,7 @@ final class Mjml2Html
 
     private function processBody(Node $ast, RenderContext $context): string
     {
-        $body = $ast->findChild('mj-body');
+        $body = $ast->findChild(Body::getComponentName());
         if (null === $body) {
             return '';
         }
@@ -293,10 +311,11 @@ final class Mjml2Html
     {
         $title = htmlspecialchars($context->getTitle(), \ENT_QUOTES, 'UTF-8');
         $preview = '' !== $context->getPreview() ? $this->buildPreview($context->getPreview()) : '';
-        $styles = $this->buildStyles($context);
+        $styles = $this->buildStyles();
         $fonts = $this->buildFonts($bodyHtml, $context);
-        $mediaQueries = $this->buildMediaQueriesStyles($context);
+        $mediaQueries = $this->buildMediaQueries($context);
         $componentHeadStyles = $this->buildComponentHeadStyles($context);
+        $styleTags = $this->buildStyleTags($context);
         $bodyStyle = $this->buildBodyStyle($context);
 
         // Build html tag attributes - lang and dir always included with defaults
@@ -318,7 +337,7 @@ final class Mjml2Html
 <!--<![endif]-->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{$styles}{$fonts}{$mediaQueries}{$componentHeadStyles}</head>
+{$styles}{$fonts}{$mediaQueries}{$componentHeadStyles}{$styleTags}</head>
 <body{$bodyStyle}>
 {$preview}{$bodyHtml}
 </body>
@@ -394,9 +413,9 @@ HTML;
 HTML;
     }
 
-    private function buildStyles(RenderContext $context): string
+    private function buildStyles(): string
     {
-        $css = <<<CSS
+        return <<<CSS
 <style type="text/css">
 #outlook a { padding:0; }
 body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }
@@ -420,27 +439,31 @@ p { display:block;margin:13px 0; }
 </style>
 <![endif]-->
 CSS;
-
-        $styles = $context->getStyles();
-        if ([] !== $styles) {
-            $customStyles = implode("\n", $styles);
-            $css .= "\n<style type=\"text/css\">\n{$customStyles}\n</style>";
-        }
-
-        return $css;
-    }
-
-    private function buildMediaQueriesStyles(RenderContext $context): string
-    {
-        return $this->buildMediaQueries($context);
     }
 
     private function buildComponentHeadStyles(RenderContext $context): string
     {
-        // Merge keyed head styles (deduplicated) with component head styles (array)
-        $keyedStyles = array_values($context->globalData->headStyle);
+        // Component head styles (per instance) first, then keyed head styles
+        // (deduplicated per component) - matches the JS skeleton order
         $componentStyles = $context->getComponentHeadStyles();
-        $styles = array_merge($keyedStyles, $componentStyles);
+        $keyedStyles = array_values($context->globalData->headStyle);
+        $styles = array_merge($componentStyles, $keyedStyles);
+
+        if ([] === $styles) {
+            return '';
+        }
+
+        $content = implode("\n", $styles);
+
+        return "<style type=\"text/css\">\n{$content}\n</style>";
+    }
+
+    /**
+     * Build the style tag holding CSS collected from mj-style tags.
+     */
+    private function buildStyleTags(RenderContext $context): string
+    {
+        $styles = $context->getStyles();
 
         if ([] === $styles) {
             return '';

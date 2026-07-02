@@ -26,7 +26,7 @@ final class StyleTest extends TestCase
         $this->assertSame('mj-style', Style::getComponentName());
     }
 
-    public function testHandleAddsStyleToComponentHeadStyle(): void
+    public function testHandleAddsStyleToGlobalStyles(): void
     {
         $context = $this->createContext();
         $cssContent = '.test { color: red; }';
@@ -40,7 +40,7 @@ final class StyleTest extends TestCase
 
         $style->handle($context);
 
-        $this->assertContains($cssContent, $context->globalData->componentHeadStyle);
+        $this->assertContains($cssContent, $context->globalData->styles);
     }
 
     public function testHandleWithInlineAttributeAddsToInlineStyles(): void

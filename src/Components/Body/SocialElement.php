@@ -200,6 +200,7 @@ final class SocialElement extends BodyComponent
                 'width' => $iconSize,
             ],
             'img' => [
+                'border' => '0',
                 'border-radius' => $this->getAttribute('border-radius'),
                 'display' => 'block',
             ],

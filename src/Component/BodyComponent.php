@@ -18,6 +18,11 @@ use PhpMjml\Helper\ShorthandParser;
 
 abstract class BodyComponent extends AbstractComponent
 {
+    /**
+     * Default container width in pixels, matching the default mj-body width.
+     */
+    public const DEFAULT_CONTAINER_WIDTH = 600;
+
     protected static bool $endingTag = false;
     protected static bool $rawElement = false;
 
@@ -88,13 +93,22 @@ abstract class BodyComponent extends AbstractComponent
     }
 
     /**
+     * Get the effective container width, falling back to the default when
+     * no context is available.
+     */
+    protected function getContainerWidth(): int
+    {
+        return $this->context?->getContainerWidth() ?? self::DEFAULT_CONTAINER_WIDTH;
+    }
+
+    /**
      * Calculate box model widths (total, borders, paddings, box content).
      *
      * @return array{totalWidth: int, borders: int, paddings: int, box: int}
      */
     protected function getBoxWidths(): array
     {
-        $containerWidth = (null !== $this->context) ? $this->context->containerWidth : 600;
+        $containerWidth = $this->getContainerWidth();
         $parsedWidth = (int) $containerWidth;
 
         $paddings = $this->getShorthandAttrValue('padding', 'right')

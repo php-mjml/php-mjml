@@ -15,6 +15,7 @@ namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Helper\ConditionalTag;
+use PhpMjml\Helper\RandomHexString;
 
 final class Carousel extends BodyComponent
 {
@@ -35,7 +36,7 @@ final class Carousel extends BodyComponent
         array $props = [],
     ) {
         parent::__construct($attributes, $children, $content, $context, $props);
-        $this->carouselId = $this->generateRandomHexString(16);
+        $this->carouselId = RandomHexString::generate(16);
     }
 
     public static function getComponentName(): string
@@ -147,13 +148,6 @@ final class Carousel extends BodyComponent
         return $carouselContent.$this->renderFallback();
     }
 
-    private function generateRandomHexString(int $length): string
-    {
-        $byteLength = max(1, (int) ($length / 2));
-
-        return bin2hex(random_bytes($byteLength));
-    }
-
     private function getThumbnailsWidth(): string
     {
         $length = \count($this->children);
@@ -166,7 +160,7 @@ final class Carousel extends BodyComponent
             return $tbWidth;
         }
 
-        $containerWidth = (null !== $this->context) ? $this->context->containerWidth : 600;
+        $containerWidth = $this->getContainerWidth();
         $width = min($containerWidth / $length, 110);
 
         return $width.'px';

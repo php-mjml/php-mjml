@@ -15,23 +15,6 @@ namespace PhpMjml\Component;
 
 final class Registry
 {
-    /**
-     * Default ending tags used when Registry is not available.
-     *
-     * @see https://documentation.mjml.io/#ending-tags
-     */
-    public const DEFAULT_ENDING_TAGS = [
-        'mj-accordion-text',
-        'mj-accordion-title',
-        'mj-button',
-        'mj-navbar-link',
-        'mj-raw',
-        'mj-social-element',
-        'mj-style',
-        'mj-table',
-        'mj-text',
-    ];
-
     /** @var array<string, class-string<ComponentInterface>> */
     private array $components = [];
 

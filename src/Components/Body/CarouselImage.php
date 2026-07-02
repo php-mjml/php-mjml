@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Helper\CssHelper;
 
 final class CarouselImage extends BodyComponent
 {
@@ -109,7 +110,7 @@ final class CarouselImage extends BodyComponent
         $thumbnailsSrc = $this->getAttribute('thumbnails-src');
         $imgIndex = $index + 1;
 
-        $cssClass = $this->suffixCssClasses($this->getAttribute('css-class'), 'thumbnail');
+        $cssClass = CssHelper::suffixCssClasses($this->getAttribute('css-class'), 'thumbnail');
         $hasThumbnailsSupported = 'supported' === $thumbnails;
 
         return \sprintf(
@@ -152,7 +153,7 @@ final class CarouselImage extends BodyComponent
         $href = $this->getAttribute('href');
         $rel = $this->getAttribute('rel');
         $title = $this->getAttribute('title');
-        $containerWidth = (null !== $this->context) ? $this->context->containerWidth : 600;
+        $containerWidth = $this->getContainerWidth();
 
         $image = \sprintf(
             '<img %s />',
@@ -199,22 +200,5 @@ final class CarouselImage extends BodyComponent
             ]),
             $image,
         );
-    }
-
-    private function suffixCssClasses(?string $classes, string $suffix): string
-    {
-        if (null === $classes || '' === $classes) {
-            return '';
-        }
-
-        $classArray = preg_split('/\s+/', $classes, -1, \PREG_SPLIT_NO_EMPTY);
-        if (false === $classArray || [] === $classArray) {
-            return '';
-        }
-
-        return implode(' ', array_map(
-            static fn (string $class) => "{$class}-{$suffix}",
-            $classArray
-        ));
     }
 }

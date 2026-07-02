@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace PhpMjml\Renderer;
 
+use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\Registry;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -199,14 +200,6 @@ final class RenderContext
         $this->options['dir'] = $dir;
     }
 
-    /**
-     * @return array<string, string|null>
-     */
-    public function getInheritedAttributes(): array
-    {
-        return $this->options['inheritedAttributes'];
-    }
-
     // ===== Component Data Accessors =====
 
     /**
@@ -215,17 +208,6 @@ final class RenderContext
     public function getComponentData(string $key, mixed $default = null): mixed
     {
         return $this->options['componentData'][$key] ?? $default;
-    }
-
-    /**
-     * Create a new context with additional component data.
-     */
-    public function withComponentData(string $key, mixed $value): self
-    {
-        $new = clone $this;
-        $new->options['componentData'][$key] = $value;
-
-        return $new;
     }
 
     // ===== Global Data Methods =====
@@ -279,19 +261,6 @@ final class RenderContext
     public function getErrors(): array
     {
         return $this->globalData->errors;
-    }
-
-    // ===== Context Transformation Methods =====
-
-    /**
-     * Create a new context with updated container width.
-     */
-    public function withContainerWidth(int $width): self
-    {
-        $new = clone $this;
-        $new->options['containerWidth'] = $width;
-
-        return $new;
     }
 
     /**
@@ -353,7 +322,7 @@ final class RenderContext
             'preview' => '',
             'fonts' => [],
             'headAttributes' => [],
-            'containerWidth' => 600,
+            'containerWidth' => BodyComponent::DEFAULT_CONTAINER_WIDTH,
             'breakpoint' => '480px',
             'backgroundColor' => null,
             'lang' => 'und',

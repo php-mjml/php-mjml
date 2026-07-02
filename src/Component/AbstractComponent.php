@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace PhpMjml\Component;
 
+use PhpMjml\Components\Head\Attributes;
 use PhpMjml\Renderer\RenderContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -94,19 +95,6 @@ abstract class AbstractComponent implements ComponentInterface
         return $this->children;
     }
 
-    public function getContext(): ?RenderContext
-    {
-        return $this->context;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getProps(): array
-    {
-        return $this->props;
-    }
-
     /**
      * Whether content should be preserved exactly as provided (no trimming).
      *
@@ -138,7 +126,7 @@ abstract class AbstractComponent implements ComponentInterface
 
         if (null !== $this->context) {
             // Apply mj-all defaults
-            $mjAllDefaults = $this->context->headAttributes['mj-all'] ?? [];
+            $mjAllDefaults = $this->context->headAttributes[Attributes::TAG_NAME_ALL] ?? [];
             if ([] !== $mjAllDefaults) {
                 $merged = array_merge($merged, $mjAllDefaults);
             }
@@ -151,13 +139,13 @@ abstract class AbstractComponent implements ComponentInterface
             }
 
             // Apply mj-class attributes
-            $mjClassAttr = $instanceAttributes['mj-class'] ?? null;
+            $mjClassAttr = $instanceAttributes[Attributes::TAG_NAME_CLASS] ?? null;
             if (null !== $mjClassAttr && '' !== $mjClassAttr) {
                 $classNames = preg_split('/\s+/', $mjClassAttr, -1, \PREG_SPLIT_NO_EMPTY);
                 if (false !== $classNames) {
                     $existingCssClass = $merged['css-class'] ?? '';
                     foreach ($classNames as $className) {
-                        $classAttributes = $this->context->headAttributes['mj-class'][$className] ?? [];
+                        $classAttributes = $this->context->headAttributes[Attributes::TAG_NAME_CLASS][$className] ?? [];
                         if ([] !== $classAttributes) {
                             // Handle css-class merging (multiple classes get concatenated)
                             if (isset($classAttributes['css-class']) && '' !== $existingCssClass) {
@@ -180,14 +168,38 @@ abstract class AbstractComponent implements ComponentInterface
         // Instance attributes have highest priority (excluding mj-class which was already processed)
         $instanceAttributesWithoutMjClass = array_filter(
             $instanceAttributes,
-            static fn (string $key) => 'mj-class' !== $key,
+            static fn (string $key) => Attributes::TAG_NAME_CLASS !== $key,
             \ARRAY_FILTER_USE_KEY
         );
 
         $merged = array_merge($merged, $instanceAttributesWithoutMjClass);
 
         // Validate through cached OptionsResolver
-        return $this->validateAttributes($merged);
+        return $this->normalizeColorAttributes($this->validateAttributes($merged));
+    }
+
+    /**
+     * Expand shorthand hex colors (#abc -> #aabbcc) for color-typed attributes,
+     * matching the JS implementation in mjml-core/lib/types/color.js.
+     *
+     * @param array<string, string|null> $attributes
+     *
+     * @return array<string, string|null>
+     */
+    private function normalizeColorAttributes(array $attributes): array
+    {
+        foreach (static::getAllowedAttributes() as $name => $type) {
+            if ('color' !== $type) {
+                continue;
+            }
+
+            $value = $attributes[$name] ?? null;
+            if (\is_string($value) && 1 === preg_match('/^#\w{3}$/', $value)) {
+                $attributes[$name] = preg_replace('/^#(\w)(\w)(\w)$/', '#$1$1$2$2$3$3', $value);
+            }
+        }
+
+        return $attributes;
     }
 
     /**

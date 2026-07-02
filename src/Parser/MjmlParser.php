@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace PhpMjml\Parser;
 
 use PhpMjml\Component\Registry;
+use PhpMjml\Components\Body\Raw;
+use PhpMjml\Preset\CorePreset;
 
 final class MjmlParser
 {
@@ -80,20 +82,14 @@ final class MjmlParser
     }
 
     /**
-     * Get ending tag names from Registry or fall back to defaults.
+     * Get ending tag names from Registry or fall back to the core components.
      *
      * @return list<string>
      */
     private function getEndingTags(): array
     {
-        if (null !== $this->endingTags) {
-            return $this->endingTags;
-        }
-
-        $this->endingTags = $this->registry?->getEndingTagNames()
-            ?? Registry::DEFAULT_ENDING_TAGS;
-
-        return $this->endingTags;
+        return $this->endingTags ??= $this->registry?->getEndingTagNames()
+            ?? CorePreset::getEndingTagNames();
     }
 
     /**
@@ -219,6 +215,7 @@ final class MjmlParser
                 foreach ($domNode->childNodes as $child) {
                     $isChildElement = $child instanceof \Dom\Element || $child instanceof \DOMElement;
                     $isChildText = $child instanceof \Dom\Text || $child instanceof \DOMText;
+                    $isChildComment = $child instanceof \Dom\Comment || $child instanceof \DOMComment;
 
                     if ($isChildElement) {
                         $children[] = $this->parseNode($child);
@@ -227,6 +224,14 @@ final class MjmlParser
                         if ('' !== $text) {
                             $content .= $text;
                         }
+                    } elseif ($isChildComment) {
+                        // Comments are kept as mj-raw nodes, matching the JS parser
+                        $children[] = new Node(
+                            tagName: Raw::getComponentName(),
+                            attributes: [],
+                            children: [],
+                            content: '<!--'.($child->textContent ?? '').'-->',
+                        );
                     }
                 }
             }

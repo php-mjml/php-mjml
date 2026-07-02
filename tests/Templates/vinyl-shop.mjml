@@ -1,0 +1,98 @@
+<mjml>
+  <mj-head>
+    <mj-title>New Arrivals at Groove Records</mj-title>
+    <mj-font
+      name="Righteous"
+      href="https://fonts.googleapis.com/css2?family=Righteous&display=swap"
+    ></mj-font>
+    <mj-font
+      name="Lato"
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap"
+    ></mj-font>
+    <mj-attributes>
+      <mj-all font-family="'Lato', Helvetica, Arial, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#fef3c7" line-height="26px" padding="0px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+      <mj-button background-color="#f97316" color="#1c1917" border-radius="8px" font-weight="700" font-size="16px" inner-padding="14px 36px"></mj-button>
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#1c1917">
+    <!-- Header -->
+    <mj-section padding="30px 20px 10px 20px">
+      <mj-column>
+        <mj-text align="center" font-family="'Righteous', cursive" font-size="28px" color="#f97316" letter-spacing="2px">GROOVE RECORDS</mj-text>
+        <mj-text align="center" font-size="13px" color="#92400e" letter-spacing="3px" padding-top="4px">EST. 1974 / VINYL &amp; MORE</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Hero Image -->
+    <mj-section padding="20px 20px 0 20px">
+      <mj-column>
+        <mj-image
+          src="https://picsum.photos/seed/vinyl/600/300"
+          alt="Stack of vinyl records"
+          border-radius="12px"
+          padding="0px"
+        ></mj-image>
+      </mj-column>
+    </mj-section>
+    <!-- Intro -->
+    <mj-section padding="24px 30px">
+      <mj-column>
+        <mj-text align="center" font-family="'Righteous', cursive" font-size="24px" color="#fef3c7" line-height="32px" padding-bottom="12px">This Week's Fresh Wax</mj-text>
+        <mj-text align="center" color="#fef3c7" font-size="15px">Our crate-diggers have been busy. Check out the latest arrivals hand-picked by our staff, from rare pressings to reissued classics.</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Divider -->
+    <mj-section>
+      <mj-column>
+        <mj-image src="https://127.0.0.1:8002/images/dividers/diamond-divider.svg" alt="" padding="0 60px" width="480px"></mj-image>
+      </mj-column>
+    </mj-section>
+    <!-- Staff Picks -->
+    <mj-section padding="20px 30px">
+      <mj-column width="45%">
+        <mj-image
+          src="https://picsum.photos/seed/records/600/400"
+          alt="Featured album"
+          border-radius="10px"
+          padding="0px"
+        ></mj-image>
+      </mj-column>
+      <mj-column width="55%">
+        <mj-text font-size="12px" color="#f97316" font-weight="700" letter-spacing="2px" padding-bottom="4px">STAFF PICK OF THE WEEK</mj-text>
+        <mj-text font-family="'Righteous', cursive" font-size="20px" color="#fef3c7" line-height="28px" padding-bottom="8px">Fleetwood Mac - Rumours</mj-text>
+        <mj-text font-size="14px" color="#fef3c7" padding-bottom="4px"><p>Original 1977 pressing in excellent condition. Gatefold sleeve with inner lyric sheet intact.</p></mj-text>
+        <mj-text font-family="'Righteous', cursive" font-size="22px" color="#f97316" padding-top="8px">$48.00</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- More Arrivals -->
+    <mj-section padding="10px 30px">
+      <mj-column width="33%">
+        <mj-text align="center" font-weight="700" font-size="14px" color="#fef3c7">Stevie Wonder</mj-text>
+        <mj-text align="center" font-size="13px" color="#92400e">Songs in the Key of Life</mj-text>
+      </mj-column>
+      <mj-column width="33%">
+        <mj-text align="center" font-weight="700" font-size="14px" color="#fef3c7">David Bowie</mj-text>
+        <mj-text align="center" font-size="13px" color="#92400e">Ziggy Stardust</mj-text>
+      </mj-column>
+      <mj-column width="33%">
+        <mj-text align="center" font-weight="700" font-size="14px" color="#fef3c7">Pink Floyd</mj-text>
+        <mj-text align="center" font-size="13px" color="#92400e">Dark Side of the Moon</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- CTA -->
+    <mj-section padding="24px 30px">
+      <mj-column>
+        <mj-button href="#">Browse All New Arrivals</mj-button>
+        <mj-text align="center" font-size="13px" color="#92400e" padding-top="10px">Free shipping on orders over $75. Same-day pickup available in-store.</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Footer -->
+    <mj-section padding="20px 20px 30px 20px">
+      <mj-column>
+        <mj-divider border-color="#92400e" border-width="1px" padding="0 40px 16px 40px"></mj-divider>
+        <mj-text align="center" font-size="12px" color="#92400e" line-height="20px">Groove Records / 142 Haight Street, San Francisco CA 94117<br /><a href="#" style="color: #f97316; text-decoration: underline;">Unsubscribe</a> | <a href="#" style="color: #f97316; text-decoration: underline;">Visit Our Store</a></mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

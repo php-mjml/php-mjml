@@ -14,10 +14,11 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
-use PhpMjml\Component\Context\AccordionContextResolver;
 
 final class AccordionText extends BodyComponent
 {
+    use AccordionSettingsTrait;
+
     private const DEFAULT_FONT_SIZE = '13px';
     private const DEFAULT_LINE_HEIGHT = '1';
     private const DEFAULT_PADDING = '16px';
@@ -116,71 +117,5 @@ final class AccordionText extends BodyComponent
             ]),
             $this->getContent(),
         );
-    }
-
-    private function resolveFontFamily(): ?string
-    {
-        // First check if explicitly set on this component
-        $fontFamily = $this->getAttribute('font-family');
-        if (null !== $fontFamily) {
-            return $fontFamily;
-        }
-
-        $settings = $this->getAccordionSettings();
-        if (null === $settings) {
-            return null;
-        }
-
-        // Check element font family (from AccordionElement)
-        $elementFontFamily = $settings['elementFontFamily'] ?? null;
-        if (null !== $elementFontFamily) {
-            return $elementFontFamily;
-        }
-
-        // Check accordion font family (from Accordion)
-        $fontFamily = $settings['fontFamily'] ?? null;
-        if (null !== $fontFamily) {
-            return $fontFamily;
-        }
-
-        return null;
-    }
-
-    private function getIconAttribute(string $name): ?string
-    {
-        // First check own attributes
-        $value = $this->getAttribute($name);
-        if (null !== $value) {
-            return $value;
-        }
-
-        // Fall back to parent context
-        $settings = $this->getAccordionSettings();
-        if (null === $settings) {
-            return null;
-        }
-
-        return match ($name) {
-            'border' => $settings['border'] ?? null,
-            'icon-align' => $settings['iconAlign'] ?? null,
-            'icon-width' => $settings['iconWidth'] ?? null,
-            'icon-height' => $settings['iconHeight'] ?? null,
-            'icon-position' => $settings['iconPosition'] ?? null,
-            'icon-wrapped-url' => $settings['iconWrappedUrl'] ?? null,
-            'icon-wrapped-alt' => $settings['iconWrappedAlt'] ?? null,
-            'icon-unwrapped-url' => $settings['iconUnwrappedUrl'] ?? null,
-            'icon-unwrapped-alt' => $settings['iconUnwrappedAlt'] ?? null,
-            default => null,
-        };
-    }
-
-    /**
-     * Get accordion settings from parent context.
-     *
-     * @return array<string, string|null>|null
-     */
-    private function getAccordionSettings(): ?array
-    {
-        return $this->context?->getComponentData(AccordionContextResolver::KEY);
     }
 }

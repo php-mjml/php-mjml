@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace PhpMjml\Component;
 
+use PhpMjml\Components\Head\Attributes;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -43,9 +44,9 @@ final class AttributeResolver
         }
 
         // Always allow css-class and mj-class
-        $resolver->setDefined(['css-class', 'mj-class']);
+        $resolver->setDefined(['css-class', Attributes::TAG_NAME_CLASS]);
         $resolver->setAllowedTypes('css-class', ['null', 'string']);
-        $resolver->setAllowedTypes('mj-class', ['null', 'string']);
+        $resolver->setAllowedTypes(Attributes::TAG_NAME_CLASS, ['null', 'string']);
 
         return $resolver;
     }

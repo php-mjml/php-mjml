@@ -49,7 +49,7 @@ final class Style extends HeadComponent
         if ('inline' === $this->getAttribute('inline')) {
             $context->globalData->inlineStyles[] = $content;
         } else {
-            $context->globalData->addComponentHeadStyle($content);
+            $context->globalData->addStyle($content);
         }
     }
 }

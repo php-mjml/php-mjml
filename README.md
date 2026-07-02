@@ -45,14 +45,7 @@ composer require php-mjml/php-mjml
 
 ```php
 use PhpMjml\Renderer\Mjml2Html;
-use PhpMjml\Parser\MjmlParser;
-use PhpMjml\Component\Registry;
-use PhpMjml\Preset\CorePreset;
-
-$registry = new Registry();
-$registry->registerMany(CorePreset::getComponents());
-
-$renderer = new Mjml2Html($registry, new MjmlParser());
+$renderer = Mjml2Html::create();
 
 $mjml = <<<MJML
 <mjml>

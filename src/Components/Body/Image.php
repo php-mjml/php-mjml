@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Helper\BreakpointHelper;
 use PhpMjml\Helper\WidthParser;
 
 final class Image extends BodyComponent
@@ -203,22 +204,14 @@ final class Image extends BodyComponent
             return;
         }
 
-        $breakpoint = $this->context->breakpoint;
         // Make the breakpoint 1px lower (e.g., 480px -> 479px)
-        $lowerBreakpoint = ((int) $breakpoint - 1).'px';
+        $lowerBreakpoint = BreakpointHelper::makeLower($this->context->breakpoint);
 
         $css = \sprintf(
             '@media only screen and (max-width:%s) { table.mj-full-width-mobile { width: 100%% !important; } td.mj-full-width-mobile { width: auto !important; } }',
             $lowerBreakpoint
         );
 
-        // Check if this style is already present
-        foreach ($this->context->getComponentHeadStyles() as $style) {
-            if (str_contains($style, 'mj-full-width-mobile')) {
-                return;
-            }
-        }
-
-        $this->context->globalData->addComponentHeadStyle($css);
+        $this->context->globalData->addHeadStyle(self::getComponentName(), $css);
     }
 }

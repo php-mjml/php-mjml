@@ -15,7 +15,9 @@ namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\Context\NavbarContextResolver;
+use PhpMjml\Helper\BreakpointHelper;
 use PhpMjml\Helper\ConditionalTag;
+use PhpMjml\Helper\RandomHexString;
 
 final class Navbar extends BodyComponent
 {
@@ -187,7 +189,7 @@ final class Navbar extends BodyComponent
         }
 
         $breakpoint = $this->context->breakpoint;
-        $lowerBreakpoint = $this->makeLowerBreakpoint($breakpoint);
+        $lowerBreakpoint = BreakpointHelper::makeLower($breakpoint);
 
         $css = <<<CSS
       noinput.mj-menu-checkbox { display:block!important; max-height:none!important; visibility:visible!important; }
@@ -205,20 +207,9 @@ CSS;
         $this->context->globalData->addHeadStyle('mj-navbar', $css);
     }
 
-    private function makeLowerBreakpoint(string $breakpoint): string
-    {
-        if (preg_match('/(\d+)/', $breakpoint, $matches)) {
-            $pixels = (int) $matches[1] - 1;
-
-            return $pixels.'px';
-        }
-
-        return $breakpoint;
-    }
-
     private function renderHamburger(): string
     {
-        $labelKey = $this->generateRandomHexString(16);
+        $labelKey = RandomHexString::generate(16);
 
         $checkboxHtml = ConditionalTag::wrapMso(
             \sprintf(
@@ -252,12 +243,5 @@ CSS;
             ]),
             $this->getAttribute('ico-close'),
         );
-    }
-
-    private function generateRandomHexString(int $length): string
-    {
-        $byteLength = max(1, (int) ($length / 2));
-
-        return bin2hex(random_bytes($byteLength));
     }
 }

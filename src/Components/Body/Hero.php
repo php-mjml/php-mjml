@@ -19,8 +19,6 @@ use PhpMjml\Helper\ConditionalTag;
 
 final class Hero extends BodyComponent
 {
-    protected static bool $endingTag = false;
-
     public static function getComponentName(): string
     {
         return 'mj-hero';
@@ -82,7 +80,7 @@ final class Hero extends BodyComponent
     public function getChildContext(): array
     {
         $context = $this->context?->toArray() ?? [];
-        $containerWidth = $this->context->containerWidth ?? 600;
+        $containerWidth = $this->getContainerWidth();
 
         $paddingLeft = $this->getShorthandAttrValue('padding', 'left');
         $paddingRight = $this->getShorthandAttrValue('padding', 'right');
@@ -100,7 +98,7 @@ final class Hero extends BodyComponent
      */
     public function getStyles(): array
     {
-        $containerWidth = $this->context->containerWidth ?? 600;
+        $containerWidth = $this->getContainerWidth();
 
         $backgroundHeight = $this->getAttribute('background-height');
         $backgroundWidth = $this->getAttribute('background-width');
@@ -176,7 +174,7 @@ final class Hero extends BodyComponent
 
     public function render(): string
     {
-        $containerWidth = $this->context->containerWidth ?? 600;
+        $containerWidth = $this->getContainerWidth();
 
         $outlookTableAttributes = [
             'align' => 'center',
@@ -254,7 +252,7 @@ final class Hero extends BodyComponent
 
     private function renderContent(): string
     {
-        $containerWidth = $this->context->containerWidth ?? 600;
+        $containerWidth = $this->getContainerWidth();
 
         $outlookInnerTableAttributes = [
             'align' => $this->getAttribute('align'),

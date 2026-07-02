@@ -89,4 +89,24 @@ final class CorePreset
             Title::class,
         ];
     }
+
+    /**
+     * Get tag names of all core components that are ending tags.
+     *
+     * @return list<string>
+     *
+     * @see https://documentation.mjml.io/#ending-tags
+     */
+    public static function getEndingTagNames(): array
+    {
+        $endingTags = [];
+
+        foreach (self::getComponents() as $componentClass) {
+            if ($componentClass::isEndingTag()) {
+                $endingTags[] = $componentClass::getComponentName();
+            }
+        }
+
+        return $endingTags;
+    }
 }

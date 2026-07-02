@@ -19,7 +19,7 @@ use PhpMjml\Component\Context\GapContextResolver;
 use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\CssHelper;
 
-final class Section extends BodyComponent
+class Section extends BodyComponent
 {
     public static function getComponentName(): string
     {
@@ -97,7 +97,7 @@ final class Section extends BodyComponent
      */
     public function getStyles(): array
     {
-        $containerWidth = $this->context->containerWidth ?? 600;
+        $containerWidth = $this->getContainerWidth();
         $fullWidth = $this->isFullWidth();
         $hasBorderRadius = $this->hasBorderRadius();
 
@@ -161,6 +161,23 @@ final class Section extends BodyComponent
     public function render(): string
     {
         return $this->isFullWidth() ? $this->renderFullWidth() : $this->renderSimple();
+    }
+
+    protected function renderWrappedChildren(): string
+    {
+        $output = ConditionalTag::START_CONDITIONAL.'<tr>'.ConditionalTag::END_CONDITIONAL;
+
+        foreach ($this->children as $child) {
+            if ($child instanceof BodyComponent && $child::isRawElement()) {
+                $output .= $child->render();
+            } elseif ($child instanceof ComponentInterface) {
+                $output .= $this->renderWrappedChild($child);
+            }
+        }
+
+        $output .= ConditionalTag::START_CONDITIONAL.'</tr>'.ConditionalTag::END_CONDITIONAL;
+
+        return $output;
     }
 
     /**
@@ -281,7 +298,7 @@ final class Section extends BodyComponent
 
     private function renderBefore(): string
     {
-        $containerWidth = $this->context->containerWidth ?? 600;
+        $containerWidth = $this->getContainerWidth();
         $isFirstSection = $this->isFirstSection();
         $hasGap = $this->hasGap();
 
@@ -323,23 +340,6 @@ final class Section extends BodyComponent
         return ConditionalTag::START_CONDITIONAL.'</td></tr></table>'.ConditionalTag::END_CONDITIONAL;
     }
 
-    private function renderWrappedChildren(): string
-    {
-        $output = ConditionalTag::START_CONDITIONAL.'<tr>'.ConditionalTag::END_CONDITIONAL;
-
-        foreach ($this->children as $child) {
-            if ($child instanceof BodyComponent && $child::isRawElement()) {
-                $output .= $child->render();
-            } elseif ($child instanceof ComponentInterface) {
-                $output .= $this->renderWrappedChild($child);
-            }
-        }
-
-        $output .= ConditionalTag::START_CONDITIONAL.'</tr>'.ConditionalTag::END_CONDITIONAL;
-
-        return $output;
-    }
-
     private function renderWrappedChild(ComponentInterface $child): string
     {
         $cssClass = $child->getAttribute('css-class');
@@ -372,7 +372,7 @@ final class Section extends BodyComponent
     private function renderWithBackground(string $content): string
     {
         $fullWidth = $this->isFullWidth();
-        $containerWidth = $this->context->containerWidth ?? 600;
+        $containerWidth = $this->getContainerWidth();
 
         $isPercentage = static fn (string $str): bool => (bool) preg_match('/^\d+(\.\d+)?%$/', $str);
 

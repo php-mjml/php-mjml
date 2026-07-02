@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace PhpMjml\Tests\Templates;
 
-use PhpMjml\Component\Registry;
-use PhpMjml\Parser\MjmlParser;
-use PhpMjml\Preset\CorePreset;
 use PhpMjml\Renderer\Mjml2Html;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -32,10 +29,7 @@ final class TemplatesTest extends TestCase
 
     protected function setUp(): void
     {
-        $registry = new Registry();
-        $registry->registerMany(CorePreset::getComponents());
-
-        $this->renderer = new Mjml2Html($registry, new MjmlParser(registry: $registry));
+        $this->renderer = Mjml2Html::create();
     }
 
     public static function templateProvider(): iterable

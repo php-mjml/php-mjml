@@ -205,9 +205,6 @@ MJML;
 
     private function createRenderer(): Mjml2Html
     {
-        $registry = new Registry();
-        $registry->registerMany(CorePreset::getComponents());
-
-        return new Mjml2Html($registry, new MjmlParser(registry: $registry));
+        return Mjml2Html::create();
     }
 }

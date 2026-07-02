@@ -1,0 +1,231 @@
+<mjml>
+  <mj-head>
+    <mj-title>PHP-MJML Demo Template</mj-title>
+    <mj-preview>A polished MJML template with circles + top list</mj-preview>
+
+    <mj-attributes>
+      <mj-all font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" />
+      <mj-text color="#111827" font-size="16px" line-height="24px" />
+      <mj-button background-color="#4e46e5" color="#ffffff" border-radius="12px" inner-padding="14px 18px" font-size="16px" />
+    </mj-attributes>
+
+    <mj-style inline="inline">
+      .card { border-radius: 18px; overflow: hidden; }
+      .muted { color: #6b7280; }
+      .h1 { font-size: 34px; line-height: 40px; font-weight: 800; letter-spacing: -0.02em; }
+      .h2 { font-size: 18px; line-height: 26px; font-weight: 700; }
+      .pill { background: #eef2ff; color: #3730a3; padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+      .divider { border-top: 1px solid #e5e7eb; }
+      .shadow { box-shadow: 0 8px 30px rgba(17, 24, 39, 0.10); }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#f3f4f6">
+    <!-- Outer padding -->
+    <mj-wrapper padding="24px 0">
+
+      <!-- HERO (with decorative circles) -->
+      <mj-section background-color="#111827" padding="0" css-class="card shadow">
+        <mj-column padding="0">
+          <!-- Decorative circle row -->
+          <mj-section padding="18px 18px 0 18px" background-color="#111827">
+            <mj-column width="100%">
+              <mj-table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td align="left" style="padding:0;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width:14px;height:14px;border-radius:999px;background:#4e46e5;"></td>
+                        <td style="width:10px;"></td>
+                        <td style="width:14px;height:14px;border-radius:999px;background:#22c55e;"></td>
+                        <td style="width:10px;"></td>
+                        <td style="width:14px;height:14px;border-radius:999px;background:#f59e0b;"></td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right" style="padding:0;">
+                    <span class="pill">Rendered via PHP-MJML</span>
+                  </td>
+                </tr>
+              </mj-table>
+            </mj-column>
+          </mj-section>
+
+          <mj-section padding="10px 18px 18px 18px" background-color="#111827">
+            <mj-column width="100%">
+              <mj-text color="#ffffff" font-size="14px" line-height="20px" padding="8px 0 6px 0" css-class="muted">
+                <span style="color:#9ca3af;">Hello</span> <span style="color:#ffffff;font-weight:700;">{{ first_name }}</span><span style="color:#9ca3af;">,</span>
+              </mj-text>
+
+              <mj-text color="#ffffff" padding="0" css-class="h1">
+                A beautiful email template<br/>built with MJML — rendered in PHP
+              </mj-text>
+
+              <mj-text color="#cbd5e1" padding="10px 0 0 0">
+                This layout showcases “circle” visuals, a top list, and a clean card-based design that’s easy to maintain.
+              </mj-text>
+
+              <mj-button href="{{ cta_url }}" padding="16px 0 0 0">
+                Open dashboard
+              </mj-button>
+
+              <mj-text color="#9ca3af" font-size="12px" line-height="18px" padding="10px 0 0 0">
+                Tip: Keep copy short in the hero. Let the list do the heavy lifting.
+              </mj-text>
+            </mj-column>
+          </mj-section>
+        </mj-column>
+      </mj-section>
+
+      <mj-spacer height="16px" />
+
+      <!-- CONTENT CARD -->
+      <mj-section background-color="#ffffff" padding="18px" css-class="card shadow">
+        <mj-column width="100%">
+          <mj-text padding="0 0 10px 0" css-class="h2">Top picks this week</mj-text>
+          <mj-text padding="0 0 14px 0" css-class="muted">
+            A “top list” that stays readable across clients, using table layout for predictable alignment.
+          </mj-text>
+
+          <!-- Top list (numbered circles) -->
+          <mj-table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+              <td style="width:44px;vertical-align:top;padding:10px 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="width:34px;height:34px;border-radius:999px;background:#4e46e5;color:#ffffff;font-weight:800;font-size:14px;line-height:34px;text-align:center;">
+                      1
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td style="padding:10px 0;vertical-align:top;">
+                <div style="font-weight:700;color:#111827;">Fast rendering</div>
+                <div style="color:#6b7280;font-size:14px;line-height:20px;">
+                  Convert MJML to responsive HTML without Node.js in your runtime.
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="width:44px;vertical-align:top;padding:10px 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="width:34px;height:34px;border-radius:999px;background:#4e46e5;color:#ffffff;font-weight:800;font-size:14px;line-height:34px;text-align:center;">
+                      2
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td style="padding:10px 0;vertical-align:top;">
+                <div style="font-weight:700;color:#111827;">Design tokens</div>
+                <div style="color:#6b7280;font-size:14px;line-height:20px;">
+                  Change a couple of colors and the whole template updates.
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="width:44px;vertical-align:top;padding:10px 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="width:34px;height:34px;border-radius:999px;background:#4e46e5;color:#ffffff;font-weight:800;font-size:14px;line-height:34px;text-align:center;">
+                      3
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td style="padding:10px 0;vertical-align:top;">
+                <div style="font-weight:700;color:#111827;">Client-friendly</div>
+                <div style="color:#6b7280;font-size:14px;line-height:20px;">
+                  Tables + inline styles for predictable rendering in email clients.
+                </div>
+              </td>
+            </tr>
+          </mj-table>
+
+          <mj-spacer height="14px" />
+          <mj-divider border-width="1px" border-color="#e5e7eb" />
+          <mj-spacer height="12px" />
+
+          <!-- Circle stats -->
+          <mj-text padding="0 0 12px 0" css-class="h2">Quick stats</mj-text>
+
+          <mj-group>
+            <mj-column width="33.33%">
+              <mj-text
+                align="center"
+                padding="0"
+                background-color="#eef2ff"
+                color="#111827"
+                border-radius="999px"
+                font-size="18px"
+                font-weight="800"
+                line-height="56px"
+                height="56px"
+              >
+                98%
+              </mj-text>
+              <mj-text align="center" padding="8px 0 0 0" font-size="12px" css-class="muted">Inbox-safe</mj-text>
+            </mj-column>
+
+            <mj-column width="33.33%">
+              <mj-text
+                align="center"
+                padding="0"
+                background-color="#eef2ff"
+                color="#111827"
+                border-radius="999px"
+                font-size="18px"
+                font-weight="800"
+                line-height="56px"
+                height="56px"
+              >
+                4
+              </mj-text>
+              <mj-text align="center" padding="8px 0 0 0" font-size="12px" css-class="muted">Sections</mj-text>
+            </mj-column>
+
+            <mj-column width="33.33%">
+              <mj-text
+                align="center"
+                padding="0"
+                background-color="#eef2ff"
+                color="#111827"
+                border-radius="999px"
+                font-size="18px"
+                font-weight="800"
+                line-height="56px"
+                height="56px"
+              >
+                1
+              </mj-text>
+              <mj-text align="center" padding="8px 0 0 0" font-size="12px" css-class="muted">CTA</mj-text>
+            </mj-column>
+          </mj-group>
+
+          <mj-spacer height="14px" />
+
+          <mj-button href="{{ secondary_url }}" background-color="#111827" border-radius="12px">
+            View all updates
+          </mj-button>
+        </mj-column>
+      </mj-section>
+
+      <mj-spacer height="16px" />
+
+      <!-- FOOTER -->
+      <mj-section background-color="#f3f4f6" padding="0 18px">
+        <mj-column width="100%">
+          <mj-text align="center" font-size="12px" css-class="muted" padding="0">
+            You’re receiving this because you opted in. <a href="{{ unsubscribe_url }}" style="color:#4e46e5;">Unsubscribe</a>
+          </mj-text>
+          <mj-text align="center" font-size="12px" css-class="muted" padding="6px 0 0 0">
+            {{ company_name }} · {{ company_address }}
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+  </mj-body>
+</mjml>

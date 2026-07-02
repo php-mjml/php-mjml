@@ -19,14 +19,7 @@ This library is a **complete PHP port** of the MJML rendering engine. It parses 
 
 ```php
 use PhpMjml\Renderer\Mjml2Html;
-use PhpMjml\Parser\MjmlParser;
-use PhpMjml\Component\Registry;
-use PhpMjml\Preset\CorePreset;
-
-$registry = new Registry();
-$registry->registerMany(CorePreset::getComponents());
-
-$renderer = new Mjml2Html($registry, new MjmlParser());
+$renderer = Mjml2Html::create();
 $result = $renderer->render('<mjml><mj-body>...</mj-body></mjml>');
 
 echo $result->html;

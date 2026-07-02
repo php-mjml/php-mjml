@@ -1,0 +1,140 @@
+<mjml>
+  <mj-head>
+    <mj-title>Sprint 24 Weekly Summary</mj-title>
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    ></mj-font>
+    <mj-attributes>
+      <mj-all font-family="'Inter', Helvetica, Arial, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="15px" color="#1e3a8a" line-height="24px" padding="0px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+      <mj-button background-color="#2563eb" color="#ffffff" border-radius="8px" font-weight="600" font-size="15px" inner-padding="12px 28px"></mj-button>
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#eff6ff">
+    <!-- Header -->
+    <mj-section padding="24px 0 12px 0">
+      <mj-column width="50%">
+        <mj-text font-size="14px" font-weight="700" color="#2563eb" letter-spacing="1px" padding-left="30px">FLOWBOARD</mj-text>
+      </mj-column>
+      <mj-column width="50%">
+        <mj-text align="right" font-size="13px" color="#6b7280" padding-right="30px">Week of Feb 16 - 22</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Hero -->
+    <mj-section padding="20px 30px 20px 30px" background-color="#ffffff" border-radius="16px 16px 0 0">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="700" line-height="32px" padding-bottom="8px">Sprint 24 progress report</mj-text>
+        <mj-text color="#6b7280">Team Falcon / Mobile App v3.2. Sprint ends Feb 28.</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Sprint Stats -->
+    <mj-section padding="20px 30px" background-color="#ffffff">
+      <mj-column width="25%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#10b981" letter-spacing="0.5px" padding-bottom="4px">COMPLETED</mj-text>
+        <mj-text align="center" font-size="28px" font-weight="700" line-height="34px" color="#10b981" padding-bottom="4px">18</mj-text>
+        <mj-text align="center" font-size="11px" color="#6b7280">of 32 stories</mj-text>
+      </mj-column>
+      <mj-column width="25%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#2563eb" letter-spacing="0.5px" padding-bottom="4px">IN PROGRESS</mj-text>
+        <mj-text align="center" font-size="28px" font-weight="700" line-height="34px" color="#2563eb" padding-bottom="4px">8</mj-text>
+        <mj-text align="center" font-size="11px" color="#6b7280">5 in review</mj-text>
+      </mj-column>
+      <mj-column width="25%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#9ca3af" letter-spacing="0.5px" padding-bottom="4px">TODO</mj-text>
+        <mj-text align="center" font-size="28px" font-weight="700" line-height="34px" padding-bottom="4px">6</mj-text>
+        <mj-text align="center" font-size="11px" color="#6b7280">24 story pts</mj-text>
+      </mj-column>
+      <mj-column width="25%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#7c3aed" letter-spacing="0.5px" padding-bottom="4px">VELOCITY</mj-text>
+        <mj-text align="center" font-size="28px" font-weight="700" line-height="34px" padding-bottom="4px">42</mj-text>
+        <mj-text align="center" font-size="11px" color="#10b981">+6 vs avg</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Divider Image -->
+    <mj-section background-color="#ffffff" padding="0px">
+      <mj-column>
+        <mj-image src="https://127.0.0.1:8002/images/dividers/wave-dark.svg" alt="" padding="8px 30px" width="540px"></mj-image>
+      </mj-column>
+    </mj-section>
+    <!-- Blockers -->
+    <mj-section padding="16px 30px 0 30px" background-color="#ffffff">
+      <mj-column>
+        <mj-text font-size="17px" font-weight="600" padding-bottom="12px">Blocker alerts</mj-text>
+        <mj-table font-size="13px" color="#1e3a8a" cellpadding="6px">
+          <tr style="border-bottom:1px solid #dbeafe;">
+            <td style="font-weight:600;">Issue</td>
+            <td style="font-weight:600;">Assignee</td>
+            <td style="text-align:right;font-weight:600;">Status</td>
+          </tr>
+          <tr style="border-bottom:1px solid #eff6ff;">
+            <td>AUTH-142: SSO callback failing</td>
+            <td>J. Kim</td>
+            <td style="text-align:right;color:#dc2626;font-weight:600;">Blocked</td>
+          </tr>
+          <tr style="border-bottom:1px solid #eff6ff;">
+            <td>API-89: Rate limiter misconfigured</td>
+            <td>L. Santos</td>
+            <td style="text-align:right;color:#dc2626;font-weight:600;">Blocked</td>
+          </tr>
+          <tr>
+            <td>UI-201: Design assets pending</td>
+            <td>M. Novak</td>
+            <td style="text-align:right;color:#f97316;font-weight:600;">At risk</td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+    <!-- Team Activity -->
+    <mj-section padding="20px 30px 0 30px" background-color="#ffffff">
+      <mj-column>
+        <mj-text font-size="17px" font-weight="600" padding-bottom="12px">Team activity this week</mj-text>
+        <mj-table font-size="13px" color="#1e3a8a" cellpadding="6px">
+          <tr style="border-bottom:1px solid #dbeafe;">
+            <td style="font-weight:600;">Member</td>
+            <td style="text-align:center;font-weight:600;">Closed</td>
+            <td style="text-align:center;font-weight:600;">PRs</td>
+            <td style="text-align:right;font-weight:600;">Points</td>
+          </tr>
+          <tr style="border-bottom:1px solid #eff6ff;">
+            <td>J. Kim</td>
+            <td style="text-align:center;">5</td>
+            <td style="text-align:center;">4</td>
+            <td style="text-align:right;">13</td>
+          </tr>
+          <tr style="border-bottom:1px solid #eff6ff;">
+            <td>L. Santos</td>
+            <td style="text-align:center;">4</td>
+            <td style="text-align:center;">3</td>
+            <td style="text-align:right;">10</td>
+          </tr>
+          <tr>
+            <td>M. Novak</td>
+            <td style="text-align:center;">3</td>
+            <td style="text-align:center;">2</td>
+            <td style="text-align:right;">8</td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+    <!-- Upcoming Deadlines -->
+    <mj-section padding="20px 30px" background-color="#ffffff">
+      <mj-column>
+        <mj-text font-size="14px" color="#6b7280" padding="12px 16px" container-background-color="#eff6ff">Upcoming: <span style="font-weight:600;color:#1e3a8a;">Sprint Review</span> on Feb 28 at 2:00 PM. <span style="font-weight:600;color:#1e3a8a;">Retro</span> on Mar 1 at 10:00 AM.</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- CTA -->
+    <mj-section padding="0 30px 36px 30px" background-color="#ffffff" border-radius="0 0 16px 16px">
+      <mj-column>
+        <mj-button href="#">Open Board</mj-button>
+      </mj-column>
+    </mj-section>
+    <!-- Footer -->
+    <mj-section padding="28px 20px">
+      <mj-column>
+        <mj-text align="center" font-size="12px" color="#9ca3af" line-height="20px">FlowBoard / 300 Agile Way, Austin, TX 73301<br /><a href="#" style="color:#2563eb;text-decoration:underline;">Unsubscribe</a> | <a href="#" style="color:#2563eb;text-decoration:underline;">Notification Settings</a></mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

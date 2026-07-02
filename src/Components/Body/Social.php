@@ -15,6 +15,7 @@ namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
+use PhpMjml\Helper\ConditionalTag;
 
 final class Social extends BodyComponent
 {
@@ -159,7 +160,7 @@ final class Social extends BodyComponent
         }
 
         return \sprintf(
-            '<!--[if mso | IE]><table %s><tr><![endif]-->%s<!--[if mso | IE]></tr></table><![endif]-->',
+            ConditionalTag::START_CONDITIONAL.'<table %s><tr>'.ConditionalTag::END_CONDITIONAL.'%s'.ConditionalTag::START_CONDITIONAL.'</tr></table>'.ConditionalTag::END_CONDITIONAL,
             $this->htmlAttributes([
                 'align' => $align,
                 'border' => '0',
@@ -174,7 +175,7 @@ final class Social extends BodyComponent
     private function renderHorizontalChild(ComponentInterface $child, ?string $align): string
     {
         return \sprintf(
-            '<!--[if mso | IE]><td><![endif]--><table %s><tbody>%s</tbody></table><!--[if mso | IE]></td><![endif]-->',
+            ConditionalTag::START_CONDITIONAL.'<td>'.ConditionalTag::END_CONDITIONAL.'<table %s><tbody>%s</tbody></table>'.ConditionalTag::START_CONDITIONAL.'</td>'.ConditionalTag::END_CONDITIONAL,
             $this->htmlAttributes([
                 'align' => $align,
                 'border' => '0',

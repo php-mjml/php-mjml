@@ -19,6 +19,8 @@ use PhpMjml\Helper\WidthParser;
 
 final class Column extends BodyComponent
 {
+    use ColumnWidthTrait;
+
     public static function getComponentName(): string
     {
         return 'mj-column';
@@ -66,7 +68,7 @@ final class Column extends BodyComponent
     public function getChildContext(): array
     {
         $context = $this->context?->toArray() ?? [];
-        $parentWidth = $this->context->containerWidth ?? 600;
+        $parentWidth = $this->getContainerWidth();
         $nonRawSiblings = $this->props['nonRawSiblings'] ?? 1;
 
         $boxWidths = $this->getBoxWidths();
@@ -194,56 +196,9 @@ final class Column extends BodyComponent
 
         return match ($parsed['unit']) {
             '%' => $width,
-            'px' => \sprintf('%d%%', (int) (($parsed['parsedWidth'] / ($this->context->containerWidth ?? 600)) * 100)),
-            default => \sprintf('%d%%', (int) (($parsed['parsedWidth'] / ($this->context->containerWidth ?? 600)) * 100)),
+            'px' => \sprintf('%d%%', (int) (($parsed['parsedWidth'] / $this->getContainerWidth()) * 100)),
+            default => \sprintf('%d%%', (int) (($parsed['parsedWidth'] / $this->getContainerWidth()) * 100)),
         };
-    }
-
-    private function getWidthAsPixel(): string
-    {
-        $containerWidth = $this->context->containerWidth ?? 600;
-        $parsed = $this->getParsedWidth();
-
-        if ('%' === $parsed['unit']) {
-            return \sprintf('%dpx', (int) (($containerWidth * $parsed['parsedWidth']) / 100));
-        }
-
-        return \sprintf('%dpx', (int) $parsed['parsedWidth']);
-    }
-
-    /**
-     * @return array{parsedWidth: float|int, unit: string}
-     */
-    private function getParsedWidth(): array
-    {
-        $nonRawSiblings = $this->props['nonRawSiblings'] ?? 1;
-
-        $width = $this->getAttribute('width') ?? \sprintf('%d%%', (int) (100 / $nonRawSiblings));
-
-        return WidthParser::parse($width, parseFloatToInt: false);
-    }
-
-    private function getColumnClass(): string
-    {
-        $parsed = $this->getParsedWidth();
-        $parsedWidth = $parsed['parsedWidth'];
-        $unit = $parsed['unit'];
-
-        $formattedClassNb = str_replace('.', '-', (string) $parsedWidth);
-
-        $className = match ($unit) {
-            '%' => "mj-column-per-{$formattedClassNb}",
-            'px' => "mj-column-px-{$formattedClassNb}",
-            default => "mj-column-px-{$formattedClassNb}",
-        };
-
-        // Register media query
-        $this->context?->addMediaQuery($className, [
-            'parsedWidth' => $parsedWidth,
-            'unit' => $unit,
-        ]);
-
-        return $className;
     }
 
     private function hasBorderRadius(): bool

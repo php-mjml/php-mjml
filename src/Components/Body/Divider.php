@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
+use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\WidthParser;
 
 final class Divider extends BodyComponent
@@ -115,7 +116,7 @@ final class Divider extends BodyComponent
 
     private function getOutlookWidth(): string
     {
-        $containerWidth = (null !== $this->context) ? $this->context->containerWidth : 600;
+        $containerWidth = $this->getContainerWidth();
         $paddingSize = $this->getShorthandAttrValue('padding', 'left')
             + $this->getShorthandAttrValue('padding', 'right');
 
@@ -149,7 +150,7 @@ final class Divider extends BodyComponent
 
         return \sprintf(
             '
-      <!--[if mso | IE]>
+      %s
         <table %s>
           <tr>
             <td style="height:0;line-height:0;">
@@ -157,7 +158,8 @@ final class Divider extends BodyComponent
             </td>
           </tr>
         </table>
-      <![endif]-->',
+      %s',
+            ConditionalTag::START_CONDITIONAL,
             $this->htmlAttributes([
                 'align' => $this->getAttribute('align'),
                 'border' => '0',
@@ -166,7 +168,8 @@ final class Divider extends BodyComponent
                 'style' => 'outlook',
                 'role' => 'presentation',
                 'width' => $outlookWidth,
-            ])
+            ]),
+            ConditionalTag::END_CONDITIONAL
         );
     }
 }

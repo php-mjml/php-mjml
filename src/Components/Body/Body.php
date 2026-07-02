@@ -33,7 +33,7 @@ final class Body extends BodyComponent
     public static function getDefaultAttributes(): array
     {
         return [
-            'width' => '600px',
+            'width' => self::DEFAULT_CONTAINER_WIDTH.'px',
         ];
     }
 
@@ -55,6 +55,7 @@ final class Body extends BodyComponent
     {
         return [
             'div' => [
+                'word-spacing' => 'normal',
                 'background-color' => $this->getAttribute('background-color'),
             ],
         ];

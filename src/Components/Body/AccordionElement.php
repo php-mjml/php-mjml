@@ -20,6 +20,8 @@ use PhpMjml\Helper\ConditionalTag;
 
 final class AccordionElement extends BodyComponent
 {
+    use AccordionSettingsTrait;
+
     protected static bool $endingTag = false;
 
     public static function getComponentName(): string
@@ -84,18 +86,12 @@ final class AccordionElement extends BodyComponent
 
         // Merge with parent accordion settings, adding element-specific settings
         $parentSettings = $this->getAccordionSettings();
-        $accordionData = AccordionContextResolver::mergeSettings($parentSettings, [
-            'elementFontFamily' => $this->getAttribute('font-family'),
-            'border' => $this->getIconAttribute('border'),
-            'iconAlign' => $this->getIconAttribute('icon-align'),
-            'iconWidth' => $this->getIconAttribute('icon-width'),
-            'iconHeight' => $this->getIconAttribute('icon-height'),
-            'iconPosition' => $this->getIconAttribute('icon-position'),
-            'iconWrappedUrl' => $this->getIconAttribute('icon-wrapped-url'),
-            'iconWrappedAlt' => $this->getIconAttribute('icon-wrapped-alt'),
-            'iconUnwrappedUrl' => $this->getIconAttribute('icon-unwrapped-url'),
-            'iconUnwrappedAlt' => $this->getIconAttribute('icon-unwrapped-alt'),
-        ]);
+        $elementSettings = ['elementFontFamily' => $this->getAttribute('font-family')];
+        foreach (AccordionContextResolver::ATTRIBUTE_MAP as $attributeName => $settingsKey) {
+            $elementSettings[$settingsKey] = $this->getIconAttribute($attributeName);
+        }
+
+        $accordionData = AccordionContextResolver::mergeSettings($parentSettings, $elementSettings);
 
         $context['componentData'][AccordionContextResolver::KEY] = $accordionData;
 
@@ -131,16 +127,6 @@ final class AccordionElement extends BodyComponent
         );
     }
 
-    /**
-     * Get accordion settings from parent context.
-     *
-     * @return array<string, string|null>|null
-     */
-    private function getAccordionSettings(): ?array
-    {
-        return $this->context?->getComponentData(AccordionContextResolver::KEY);
-    }
-
     private function handleMissingChildren(): string
     {
         $hasTitle = false;
@@ -149,10 +135,10 @@ final class AccordionElement extends BodyComponent
         foreach ($this->children as $child) {
             if ($child instanceof ComponentInterface) {
                 $tagName = $child::getComponentName();
-                if ('mj-accordion-title' === $tagName) {
+                if (AccordionTitle::getComponentName() === $tagName) {
                     $hasTitle = true;
                 }
-                if ('mj-accordion-text' === $tagName) {
+                if (AccordionText::getComponentName() === $tagName) {
                     $hasText = true;
                 }
             }
@@ -209,51 +195,15 @@ final class AccordionElement extends BodyComponent
     }
 
     /**
-     * Get icon attribute from own attributes or parent accordion context.
-     */
-    private function getIconAttribute(string $name): ?string
-    {
-        // First check own attributes
-        $value = $this->getAttribute($name);
-        if (null !== $value) {
-            return $value;
-        }
-
-        // Fall back to parent accordion context
-        $settings = $this->getAccordionSettings();
-        if (null === $settings) {
-            return null;
-        }
-
-        return match ($name) {
-            'border' => $settings['border'] ?? null,
-            'icon-align' => $settings['iconAlign'] ?? null,
-            'icon-width' => $settings['iconWidth'] ?? null,
-            'icon-height' => $settings['iconHeight'] ?? null,
-            'icon-position' => $settings['iconPosition'] ?? null,
-            'icon-wrapped-url' => $settings['iconWrappedUrl'] ?? null,
-            'icon-wrapped-alt' => $settings['iconWrappedAlt'] ?? null,
-            'icon-unwrapped-url' => $settings['iconUnwrappedUrl'] ?? null,
-            'icon-unwrapped-alt' => $settings['iconUnwrappedAlt'] ?? null,
-            default => null,
-        };
-    }
-
-    /**
      * @return array<string, string|null>
      */
     private function getIconAttributes(): array
     {
-        return [
-            'border' => $this->getIconAttribute('border'),
-            'icon-align' => $this->getIconAttribute('icon-align'),
-            'icon-width' => $this->getIconAttribute('icon-width'),
-            'icon-height' => $this->getIconAttribute('icon-height'),
-            'icon-position' => $this->getIconAttribute('icon-position'),
-            'icon-wrapped-url' => $this->getIconAttribute('icon-wrapped-url'),
-            'icon-wrapped-alt' => $this->getIconAttribute('icon-wrapped-alt'),
-            'icon-unwrapped-url' => $this->getIconAttribute('icon-unwrapped-url'),
-            'icon-unwrapped-alt' => $this->getIconAttribute('icon-unwrapped-alt'),
-        ];
+        $attributes = [];
+        foreach (array_keys(AccordionContextResolver::ATTRIBUTE_MAP) as $attributeName) {
+            $attributes[$attributeName] = $this->getIconAttribute($attributeName);
+        }
+
+        return $attributes;
     }
 }

@@ -1,0 +1,124 @@
+<mjml>
+  <mj-head>
+    <mj-title>Weekly Payout Summary</mj-title>
+    <mj-font
+      name="Space Grotesk"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    ></mj-font>
+    <mj-attributes>
+      <mj-all font-family="'Space Grotesk', Helvetica, Arial, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="15px" color="#1a1640" line-height="24px" padding="0px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+      <mj-button background-color="#635bff" color="#ffffff" border-radius="8px" font-weight="600" font-size="15px" inner-padding="12px 28px"></mj-button>
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f6f5ff">
+    <!-- Header -->
+    <mj-section padding="24px 0 12px 0">
+      <mj-column width="50%">
+        <mj-text font-size="14px" font-weight="700" color="#635bff" letter-spacing="1px" padding-left="30px">PAYSTREAM</mj-text>
+      </mj-column>
+      <mj-column width="50%">
+        <mj-text align="right" font-size="13px" color="#6b7280" padding-right="30px">Feb 16 - 22, 2026</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Hero -->
+    <mj-section padding="20px 30px 20px 30px" background-color="#ffffff" border-radius="16px 16px 0 0">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="700" line-height="32px" padding-bottom="8px">Weekly transaction summary</mj-text>
+        <mj-text color="#6b7280">Account: Acme Corp (acme_live_***4f2k). Here is your payment activity.</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Period Summary Stats -->
+    <mj-section padding="20px 30px" background-color="#ffffff">
+      <mj-column width="33%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#635bff" letter-spacing="0.5px" padding-bottom="4px">TOTAL PROCESSED</mj-text>
+        <mj-text align="center" font-size="26px" font-weight="700" line-height="32px" padding-bottom="4px">$147,832</mj-text>
+        <mj-text align="center" font-size="11px" color="#10b981">+8.3% vs last week</mj-text>
+      </mj-column>
+      <mj-column width="33%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#ef4444" letter-spacing="0.5px" padding-bottom="4px">FEES</mj-text>
+        <mj-text align="center" font-size="26px" font-weight="700" line-height="32px" color="#ef4444" padding-bottom="4px">$4,291</mj-text>
+        <mj-text align="center" font-size="11px" color="#6b7280">2.9% avg rate</mj-text>
+      </mj-column>
+      <mj-column width="33%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#10b981" letter-spacing="0.5px" padding-bottom="4px">NET</mj-text>
+        <mj-text align="center" font-size="26px" font-weight="700" line-height="32px" color="#10b981" padding-bottom="4px">$143,541</mj-text>
+        <mj-text align="center" font-size="11px" color="#10b981">+$11.2K vs last week</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Transaction Volume -->
+    <mj-section padding="0 30px 16px 30px" background-color="#ffffff">
+      <mj-column width="50%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#6b7280" letter-spacing="0.5px" padding-bottom="4px">SUCCESSFUL</mj-text>
+        <mj-text align="center" font-size="22px" font-weight="700" line-height="28px" color="#10b981" padding-bottom="2px">1,284</mj-text>
+        <mj-text align="center" font-size="11px" color="#10b981">98.2% success rate</mj-text>
+      </mj-column>
+      <mj-column width="50%">
+        <mj-text align="center" font-size="11px" font-weight="600" color="#6b7280" letter-spacing="0.5px" padding-bottom="4px">FAILED</mj-text>
+        <mj-text align="center" font-size="22px" font-weight="700" line-height="28px" color="#ef4444" padding-bottom="2px">24</mj-text>
+        <mj-text align="center" font-size="11px" color="#ef4444">1.8% failure rate</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- Divider Image -->
+    <mj-section background-color="#ffffff" padding="0px">
+      <mj-column>
+        <mj-image src="https://127.0.0.1:8002/images/dividers/wave-light.svg" alt="" padding="8px 30px" width="540px"></mj-image>
+      </mj-column>
+    </mj-section>
+    <!-- Payout Schedule -->
+    <mj-section padding="16px 30px 0 30px" background-color="#ffffff">
+      <mj-column>
+        <mj-text font-size="17px" font-weight="600" padding-bottom="12px">Payout schedule</mj-text>
+        <mj-table font-size="13px" color="#1a1640" cellpadding="6px">
+          <tr style="border-bottom:1px solid #e9e8ff;">
+            <td style="font-weight:600;">Date</td>
+            <td style="text-align:center;font-weight:600;">Amount</td>
+            <td style="text-align:right;font-weight:600;">Status</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f3f2ff;">
+            <td>Feb 18</td>
+            <td style="text-align:center;">$48,210.00</td>
+            <td style="text-align:right;color:#10b981;font-weight:600;">Paid</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f3f2ff;">
+            <td>Feb 20</td>
+            <td style="text-align:center;">$52,340.00</td>
+            <td style="text-align:right;color:#10b981;font-weight:600;">Paid</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f3f2ff;">
+            <td>Feb 24</td>
+            <td style="text-align:center;">$42,991.00</td>
+            <td style="text-align:right;color:#635bff;font-weight:600;">Pending</td>
+          </tr>
+          <tr>
+            <td>Feb 26</td>
+            <td style="text-align:center;">Est. $38,500</td>
+            <td style="text-align:right;color:#6b7280;">Estimated</td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+    <!-- Failed Payments & Disputes -->
+    <mj-section padding="20px 30px" background-color="#ffffff">
+      <mj-column width="50%">
+        <mj-text font-size="14px" color="#ef4444" padding="12px 16px" container-background-color="#fef2f2"><span style="font-weight:600;">24 failed payments</span> this week. Top reason: insufficient funds (16). Review and retry eligible transactions.</mj-text>
+      </mj-column>
+      <mj-column width="50%">
+        <mj-text font-size="14px" color="#f97316" padding="12px 16px" container-background-color="#fff7ed"><span style="font-weight:600;">3 open disputes</span> totaling $892.00. Respond within 7 days to avoid automatic resolution against you.</mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- CTA -->
+    <mj-section padding="0 30px 36px 30px" background-color="#ffffff" border-radius="0 0 16px 16px">
+      <mj-column>
+        <mj-button href="#">View Payouts</mj-button>
+      </mj-column>
+    </mj-section>
+    <!-- Footer -->
+    <mj-section padding="28px 20px">
+      <mj-column>
+        <mj-text align="center" font-size="12px" color="#9ca3af" line-height="20px">PayStream / 450 Finance St, San Francisco, CA 94104<br /><a href="#" style="color:#635bff;text-decoration:underline;">Unsubscribe</a> | <a href="#" style="color:#635bff;text-decoration:underline;">Payout Settings</a></mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

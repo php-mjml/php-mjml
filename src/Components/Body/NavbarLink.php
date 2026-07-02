@@ -16,6 +16,7 @@ namespace PhpMjml\Components\Body;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\Context\NavbarContextResolver;
 use PhpMjml\Helper\ConditionalTag;
+use PhpMjml\Helper\CssHelper;
 
 final class NavbarLink extends BodyComponent
 {
@@ -120,7 +121,7 @@ final class NavbarLink extends BodyComponent
             '<td %s>',
             $this->htmlAttributes([
                 'style' => 'td',
-                'class' => $this->suffixCssClasses($this->getAttribute('css-class'), 'outlook'),
+                'class' => CssHelper::suffixCssClasses($this->getAttribute('css-class'), 'outlook'),
             ])
         ));
 
@@ -161,22 +162,5 @@ final class NavbarLink extends BodyComponent
         $navbarSettings = $this->context?->getComponentData(NavbarContextResolver::KEY);
 
         return $navbarSettings['baseUrl'] ?? null;
-    }
-
-    private function suffixCssClasses(?string $classes, string $suffix): string
-    {
-        if (null === $classes || '' === $classes) {
-            return '';
-        }
-
-        $classArray = preg_split('/\s+/', $classes, -1, \PREG_SPLIT_NO_EMPTY);
-        if (false === $classArray || [] === $classArray) {
-            return '';
-        }
-
-        return implode(' ', array_map(
-            static fn (string $class) => "{$class}-{$suffix}",
-            $classArray
-        ));
     }
 }

@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace PhpMjml\Tests\Unit\Security;
 
-use PhpMjml\Component\Registry;
-use PhpMjml\Parser\MjmlParser;
-use PhpMjml\Preset\CorePreset;
 use PhpMjml\Renderer\Mjml2Html;
 use PhpMjml\Security\EmailContentSanitizer;
 use PHPUnit\Framework\TestCase;
@@ -32,9 +29,7 @@ final class ContentSecurityTest extends TestCase
 
     protected function setUp(): void
     {
-        $registry = new Registry();
-        $registry->registerMany(CorePreset::getComponents());
-        $this->renderer = new Mjml2Html($registry, new MjmlParser(registry: $registry));
+        $this->renderer = Mjml2Html::create();
     }
 
     /**

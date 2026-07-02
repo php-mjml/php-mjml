@@ -25,6 +25,29 @@ final class AccordionContextResolver
     public const KEY = 'accordion';
 
     /**
+     * Maps MJML attribute names (kebab-case) to accordion settings keys (camelCase).
+     *
+     * Single source of truth for the icon attributes shared between
+     * mj-accordion, mj-accordion-element and mj-accordion-title/text.
+     */
+    public const ATTRIBUTE_MAP = [
+        'border' => 'border',
+        'icon-align' => 'iconAlign',
+        'icon-width' => 'iconWidth',
+        'icon-height' => 'iconHeight',
+        'icon-position' => 'iconPosition',
+        'icon-wrapped-url' => 'iconWrappedUrl',
+        'icon-wrapped-alt' => 'iconWrappedAlt',
+        'icon-unwrapped-url' => 'iconUnwrappedUrl',
+        'icon-unwrapped-alt' => 'iconUnwrappedAlt',
+    ];
+
+    /**
+     * Settings keys that hold font-family values in addition to the mapped icon attributes.
+     */
+    private const FONT_KEYS = ['fontFamily', 'elementFontFamily'];
+
+    /**
      * Resolve accordion settings with validation.
      *
      * @param array<string, mixed> $data Raw settings data
@@ -41,31 +64,13 @@ final class AccordionContextResolver
 
     public static function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([
-            'fontFamily' => null,
-            'elementFontFamily' => null,
-            'border' => null,
-            'iconAlign' => null,
-            'iconWidth' => null,
-            'iconHeight' => null,
-            'iconPosition' => null,
-            'iconWrappedUrl' => null,
-            'iconWrappedAlt' => null,
-            'iconUnwrappedUrl' => null,
-            'iconUnwrappedAlt' => null,
-        ]);
+        $settingsKeys = array_merge(self::FONT_KEYS, array_values(self::ATTRIBUTE_MAP));
 
-        $resolver->setAllowedTypes('fontFamily', ['null', 'string']);
-        $resolver->setAllowedTypes('elementFontFamily', ['null', 'string']);
-        $resolver->setAllowedTypes('border', ['null', 'string']);
-        $resolver->setAllowedTypes('iconAlign', ['null', 'string']);
-        $resolver->setAllowedTypes('iconWidth', ['null', 'string']);
-        $resolver->setAllowedTypes('iconHeight', ['null', 'string']);
-        $resolver->setAllowedTypes('iconPosition', ['null', 'string']);
-        $resolver->setAllowedTypes('iconWrappedUrl', ['null', 'string']);
-        $resolver->setAllowedTypes('iconWrappedAlt', ['null', 'string']);
-        $resolver->setAllowedTypes('iconUnwrappedUrl', ['null', 'string']);
-        $resolver->setAllowedTypes('iconUnwrappedAlt', ['null', 'string']);
+        $resolver->setDefaults(array_fill_keys($settingsKeys, null));
+
+        foreach ($settingsKeys as $key) {
+            $resolver->setAllowedTypes($key, ['null', 'string']);
+        }
 
         $resolver->setAllowedValues('iconAlign', [null, 'top', 'middle', 'bottom']);
         $resolver->setAllowedValues('iconPosition', [null, 'left', 'right']);
