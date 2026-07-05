@@ -27,3 +27,7 @@ Thumbs.db
 # Node (for parity tests)
 node_modules/
 package-lock.json
+
+# php-profiler (local profiling, see ~/Sites/php-profiler)
+/php.ini
+/.php-profiler/

@@ -15,7 +15,6 @@ namespace PhpMjml\Component;
 
 use PhpMjml\Components\Head\Attributes;
 use PhpMjml\Renderer\RenderContext;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractComponent implements ComponentInterface
 {
@@ -34,8 +33,12 @@ abstract class AbstractComponent implements ComponentInterface
      * @var array<string, mixed>
      */
     protected array $props = [];
-    /** @var array<string, OptionsResolver> */
-    private static array $resolverCache = [];
+    /**
+     * Compiled attribute validation specs, keyed by component class.
+     *
+     * @var array<string, array{allowed: array<string, true>, enums: array<string, list<string>>, defaults: array<string, string|null>}>
+     */
+    private static array $specCache = [];
 
     /**
      * @param array<string, string|null> $attributes
@@ -174,7 +177,7 @@ abstract class AbstractComponent implements ComponentInterface
 
         $merged = array_merge($merged, $instanceAttributesWithoutMjClass);
 
-        // Validate through cached OptionsResolver
+        // Validate through cached attribute spec
         return $this->normalizeColorAttributes($this->validateAttributes($merged));
     }
 
@@ -203,7 +206,10 @@ abstract class AbstractComponent implements ComponentInterface
     }
 
     /**
-     * Validate attributes using a cached OptionsResolver.
+     * Validate attributes using a cached, compiled attribute spec.
+     *
+     * Invalid attributes are reported as errors but still returned, matching
+     * the previous lenient behavior for dynamic attributes and edge cases.
      *
      * @param array<string, string|null> $attributes
      *
@@ -213,28 +219,20 @@ abstract class AbstractComponent implements ComponentInterface
     {
         $class = static::class;
 
-        if (!isset(self::$resolverCache[$class])) {
-            self::$resolverCache[$class] = AttributeResolver::createResolver(
-                static::getAllowedAttributes(),
-                static::getDefaultAttributes()
-            );
+        self::$specCache[$class] ??= AttributeResolver::createSpec(
+            static::getAllowedAttributes(),
+            static::getDefaultAttributes()
+        );
+
+        $violation = AttributeResolver::findViolation(self::$specCache[$class], $attributes);
+        if (null !== $violation && null !== $this->context) {
+            $this->context->globalData->addError(\sprintf(
+                '%s: %s',
+                static::getComponentName(),
+                $violation
+            ));
         }
 
-        try {
-            return self::$resolverCache[$class]->resolve($attributes);
-        } catch (\Symfony\Component\OptionsResolver\Exception\ExceptionInterface $e) {
-            // Log validation error if context is available
-            if (null !== $this->context) {
-                $this->context->globalData->addError(\sprintf(
-                    '%s: %s',
-                    static::getComponentName(),
-                    $e->getMessage()
-                ));
-            }
-
-            // On validation failure, return unvalidated for backward compatibility
-            // This can happen with dynamic attributes or edge cases
-            return $attributes;
-        }
+        return $attributes;
     }
 }

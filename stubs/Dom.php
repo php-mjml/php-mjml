@@ -32,6 +32,14 @@ class Element extends Node
     public readonly string $innerHTML;
     /** @var NamedNodeMap<Attr> */
     public readonly NamedNodeMap $attributes;
+
+    public function getAttribute(string $qualifiedName): ?string
+    {
+    }
+
+    public function setAttribute(string $qualifiedName, string $value): void
+    {
+    }
 }
 
 class Text extends Node
@@ -48,6 +56,26 @@ class XMLDocument
     public readonly ?Element $documentElement;
 
     public static function createFromString(string $source, int $options = 0): self
+    {
+    }
+}
+
+class HTMLDocument extends Node
+{
+    public readonly ?Element $documentElement;
+
+    public static function createFromString(string $source, int $options = 0, ?string $overrideEncoding = null): self
+    {
+    }
+
+    public function querySelector(string $selectors): ?Element
+    {
+    }
+
+    /**
+     * @return NodeList<Element>
+     */
+    public function querySelectorAll(string $selectors): NodeList
     {
     }
 }

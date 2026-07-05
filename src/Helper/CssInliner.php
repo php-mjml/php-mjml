@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace PhpMjml\Helper;
 
-use Symfony\Component\DomCrawler\Crawler;
-
 /**
  * Inlines CSS rules into matching HTML elements' style attributes.
  *
  * Mimics the behavior of the Juice library used by the JS MJML implementation.
+ * Uses PHP's native HTML5 document (\Dom\HTMLDocument) so selector matching
+ * runs in C and the document is parsed exactly once.
  */
 final class CssInliner
 {
@@ -41,28 +41,12 @@ final class CssInliner
         }
 
         $wrappedHtml = '<mjml-root xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">'.$html.'</mjml-root>';
-        $crawler = new Crawler($wrappedHtml);
 
-        foreach ($rules as $rule) {
-            try {
-                $crawler->filter($rule['selector'])->each(static function (Crawler $node) use ($rule): void {
-                    $domNode = $node->getNode(0);
-                    if ($domNode instanceof \DOMElement) {
-                        $existing = $domNode->getAttribute('style');
-                        $merged = self::mergeStyles($existing, $rule['declarations']);
-                        $domNode->setAttribute('style', $merged);
-                    }
-                });
-            } catch (\InvalidArgumentException|\Symfony\Component\CssSelector\Exception\SyntaxErrorException $e) {
-                $errors[] = \sprintf(
-                    'mj-style inline: Invalid CSS selector "%s" - %s',
-                    $rule['selector'],
-                    $e->getMessage()
-                );
-            }
+        if (class_exists(\Dom\HTMLDocument::class)) {
+            return self::inlineWithNativeDom($wrappedHtml, $rules, $errors);
         }
 
-        return $crawler->filter('mjml-root')->html();
+        return self::inlineWithCrawler($wrappedHtml, $rules, $errors);
     }
 
     /**
@@ -155,5 +139,73 @@ final class CssInliner
         }
 
         return $result;
+    }
+
+    /**
+     * Fast path for PHP 8.4+: native HTML5 document with C-level CSS selector matching.
+     *
+     * @param list<array{selector: string, declarations: string}> $rules
+     * @param list<string>                                        $errors
+     */
+    private static function inlineWithNativeDom(string $wrappedHtml, array $rules, array &$errors): string
+    {
+        $document = \Dom\HTMLDocument::createFromString($wrappedHtml, \LIBXML_COMPACT | \LIBXML_NOERROR, 'UTF-8');
+
+        foreach ($rules as $rule) {
+            try {
+                $nodes = $document->querySelectorAll($rule['selector']);
+            } catch (\DOMException $e) {
+                $errors[] = \sprintf(
+                    'mj-style inline: Invalid CSS selector "%s" - %s',
+                    $rule['selector'],
+                    $e->getMessage()
+                );
+                continue;
+            }
+
+            foreach ($nodes as $node) {
+                if ($node instanceof \Dom\Element) {
+                    $existing = $node->getAttribute('style') ?? '';
+                    $node->setAttribute('style', self::mergeStyles($existing, $rule['declarations']));
+                }
+            }
+        }
+
+        $root = $document->querySelector('mjml-root');
+        \assert($root instanceof \Dom\Element);
+
+        return $root->innerHTML;
+    }
+
+    /**
+     * Fallback for PHP 8.2/8.3: Symfony DomCrawler with XPath-translated selectors.
+     *
+     * @param list<array{selector: string, declarations: string}> $rules
+     * @param list<string>                                        $errors
+     */
+    private static function inlineWithCrawler(string $wrappedHtml, array $rules, array &$errors): string
+    {
+        $crawler = new \Symfony\Component\DomCrawler\Crawler($wrappedHtml);
+
+        foreach ($rules as $rule) {
+            try {
+                $crawler->filter($rule['selector'])->each(static function (\Symfony\Component\DomCrawler\Crawler $node) use ($rule): void {
+                    $domNode = $node->getNode(0);
+                    if ($domNode instanceof \DOMElement) {
+                        $existing = $domNode->getAttribute('style');
+                        $merged = self::mergeStyles($existing, $rule['declarations']);
+                        $domNode->setAttribute('style', $merged);
+                    }
+                });
+            } catch (\InvalidArgumentException|\Symfony\Component\CssSelector\Exception\SyntaxErrorException $e) {
+                $errors[] = \sprintf(
+                    'mj-style inline: Invalid CSS selector "%s" - %s',
+                    $rule['selector'],
+                    $e->getMessage()
+                );
+            }
+        }
+
+        return $crawler->filter('mjml-root')->html();
     }
 }

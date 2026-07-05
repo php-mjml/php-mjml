@@ -15,7 +15,6 @@ namespace PhpMjml\Renderer;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\Registry;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Context object for MJML rendering, holding all state needed during render.
@@ -36,6 +35,24 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 final class RenderContext
 {
+    /**
+     * Single source of truth for the supported context options and their defaults.
+     */
+    private const DEFAULT_OPTIONS = [
+        'title' => '',
+        'preview' => '',
+        'fonts' => [],
+        'headAttributes' => [],
+        'containerWidth' => BodyComponent::DEFAULT_CONTAINER_WIDTH,
+        'breakpoint' => '480px',
+        'backgroundColor' => null,
+        'lang' => 'und',
+        'dir' => 'auto',
+        'inheritedAttributes' => [],
+        'globalData' => null,
+        'componentData' => [],
+    ];
+
     public GlobalData $globalData;
 
     /** @var array<string, mixed> */
@@ -49,9 +66,7 @@ final class RenderContext
         public readonly RenderOptions $renderOptions,
         array $options = [],
     ) {
-        $resolver = new OptionsResolver();
-        $this->configureOptions($resolver);
-        $this->options = $resolver->resolve($options);
+        $this->options = array_intersect_key($options, self::DEFAULT_OPTIONS) + self::DEFAULT_OPTIONS;
         $this->globalData = $this->options['globalData'] ?? new GlobalData();
     }
 
@@ -313,36 +328,5 @@ final class RenderContext
                 'componentData' => $data['componentData'] ?? $base->options['componentData'],
             ],
         );
-    }
-
-    private function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'title' => '',
-            'preview' => '',
-            'fonts' => [],
-            'headAttributes' => [],
-            'containerWidth' => BodyComponent::DEFAULT_CONTAINER_WIDTH,
-            'breakpoint' => '480px',
-            'backgroundColor' => null,
-            'lang' => 'und',
-            'dir' => 'auto',
-            'inheritedAttributes' => [],
-            'globalData' => null,
-            'componentData' => [],
-        ]);
-
-        $resolver->setAllowedTypes('title', 'string');
-        $resolver->setAllowedTypes('preview', 'string');
-        $resolver->setAllowedTypes('fonts', 'array');
-        $resolver->setAllowedTypes('headAttributes', 'array');
-        $resolver->setAllowedTypes('containerWidth', 'int');
-        $resolver->setAllowedTypes('breakpoint', 'string');
-        $resolver->setAllowedTypes('backgroundColor', ['null', 'string']);
-        $resolver->setAllowedTypes('lang', 'string');
-        $resolver->setAllowedTypes('dir', 'string');
-        $resolver->setAllowedTypes('inheritedAttributes', 'array');
-        $resolver->setAllowedTypes('globalData', ['null', GlobalData::class]);
-        $resolver->setAllowedTypes('componentData', 'array');
     }
 }
