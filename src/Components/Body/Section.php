@@ -397,9 +397,8 @@ class Section extends BodyComponent
         $bgRepeat = 'repeat' === $this->getAttribute('background-repeat');
 
         // Calculate VML origin and position
-        $calculateVmlValues = static function (string $pos, bool $isX) use ($isPercentage, $bgRepeat): array {
-            if ($isPercentage($pos)) {
-                preg_match('/^(\d+(\.\d+)?)%$/', $pos, $matches);
+        $calculateVmlValues = static function (string $pos, bool $isX) use ($bgRepeat): array {
+            if (1 === preg_match('/^(\d+(\.\d+)?)%$/', $pos, $matches)) {
                 $decimal = (float) $matches[1] / 100;
 
                 if ($bgRepeat) {

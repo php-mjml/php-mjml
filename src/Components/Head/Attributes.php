@@ -37,6 +37,11 @@ final class Attributes extends HeadComponent
     public const TAG_NAME_CLASS = 'mj-class';
 
     /**
+     * Key under which component-specific defaults of an mj-class are stored.
+     */
+    public const KEY_DEFAULTS = '__defaults';
+
+    /**
      * Raw child nodes from the parser.
      *
      * @var array<Node>
@@ -74,18 +79,24 @@ final class Attributes extends HeadComponent
                 }
 
                 // Store class attributes (excluding the 'name' attribute)
+                /** @var array<string, mixed> $classAttributes */
                 $classAttributes = array_filter(
                     $attributes,
                     static fn (string $key) => 'name' !== $key,
                     \ARRAY_FILTER_USE_KEY
                 );
-                $headAttributes[self::TAG_NAME_CLASS][$className] = $classAttributes;
 
-                // Process nested children for component-specific class defaults
+                // Collect nested children as component-specific class defaults
+                $defaults = [];
                 foreach ($child->children as $nestedChild) {
-                    $nestedTagName = $nestedChild->tagName;
-                    $headAttributes[self::TAG_NAME_CLASS][$className]['__defaults'][$nestedTagName] = $nestedChild->attributes;
+                    $defaults[$nestedChild->tagName] = $nestedChild->attributes;
                 }
+
+                if ([] !== $defaults) {
+                    $classAttributes[self::KEY_DEFAULTS] = $defaults;
+                }
+
+                $headAttributes[self::TAG_NAME_CLASS][$className] = $classAttributes;
             } else {
                 // For mj-all and other component tags, store attributes directly
                 if (!isset($headAttributes[$tagName])) {
