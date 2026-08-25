@@ -46,6 +46,10 @@ class Text extends Node
 {
 }
 
+class Comment extends Node
+{
+}
+
 class Attr extends Node
 {
     public readonly string $nodeValue;

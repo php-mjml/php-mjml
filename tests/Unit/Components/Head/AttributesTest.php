@@ -232,9 +232,9 @@ final class AttributesTest extends TestCase
         $this->assertArrayHasKey(Attributes::TAG_NAME_CLASS, $context->headAttributes);
         $this->assertArrayHasKey('blue', $context->headAttributes[Attributes::TAG_NAME_CLASS]);
         $this->assertSame('blue', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']['color']);
-        $this->assertArrayHasKey('__defaults', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
-        $this->assertArrayHasKey('mj-button', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']['__defaults']);
-        $this->assertSame('navy', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']['__defaults']['mj-button']['background-color']);
+        $this->assertArrayHasKey(Attributes::KEY_DEFAULTS, $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
+        $this->assertArrayHasKey('mj-button', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue'][Attributes::KEY_DEFAULTS]);
+        $this->assertSame('navy', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue'][Attributes::KEY_DEFAULTS]['mj-button']['background-color']);
     }
 
     public function testRenderReturnsEmptyString(): void
