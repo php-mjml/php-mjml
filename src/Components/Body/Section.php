@@ -19,6 +19,9 @@ use PhpMjml\Component\Context\GapContextResolver;
 use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\CssHelper;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 class Section extends BodyComponent
 {
     public static function getComponentName(): string
@@ -74,7 +77,7 @@ class Section extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData&array{containerWidth: int, ...}
      */
     public function getChildContext(): array
     {
@@ -422,7 +425,7 @@ class Section extends BodyComponent
 
         // Handle background-size
         $vSizeAttributes = [];
-        $backgroundSize = $this->getAttribute('background-size');
+        $backgroundSize = $this->getAttribute('background-size') ?? 'auto';
 
         if ('cover' === $backgroundSize || 'contain' === $backgroundSize) {
             $vSizeAttributes = [

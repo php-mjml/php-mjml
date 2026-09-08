@@ -16,7 +16,7 @@
     },
     "require-dev": {
         "php-cs-fixer/shim": "^3.91",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.2",
         "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^11.0"
     },
@@ -31,12 +31,13 @@
         }
     },
     "scripts": {
-        "test": "phpunit",
-        "test:parity": "phpunit --testsuite=parity",
-        "test:unit": "phpunit --testsuite=unit",
+        "test": "phpunit --no-coverage",
+        "test:coverage": "phpunit --coverage-text",
+        "test:parity": "@test --testsuite=parity",
+        "test:unit": "@test --testsuite=unit",
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix",
-        "phpstan": "phpstan --memory-limit=512M",
+        "phpstan": "phpstan analyse --memory-limit=512M",
         "ca": ["@cs", "@phpstan", "@test"]
     },
     "suggest": {

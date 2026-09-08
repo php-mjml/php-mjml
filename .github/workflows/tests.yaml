@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.2', '8.3', '8.4']
+        php-version: ['8.2', '8.3', '8.4', '8.5']
         dependency-version: ['highest']
         include:
           - php-version: '8.2'
@@ -47,4 +47,4 @@ jobs:
           dependency-versions: ${{ matrix.dependency-version }}
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit
+        run: composer run test -- --fail-on-skipped

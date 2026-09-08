@@ -15,6 +15,7 @@ namespace PhpMjml\Tests\Unit\Parser;
 
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\ParserException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -434,9 +435,8 @@ final class InvalidXhtmlTest extends TestCase
 
     /**
      * Tests all HTML void tags in mj-text (representative of all ending tags).
-     *
-     * @dataProvider htmlVoidTagsProvider
      */
+    #[DataProvider('htmlVoidTagsProvider')]
     public function testMjTextAllowsAllHtmlVoidTags(string $voidTag): void
     {
         $mjml = '<mjml><mj-body><mj-section><mj-column>
@@ -452,9 +452,8 @@ final class InvalidXhtmlTest extends TestCase
 
     /**
      * Tests all HTML void tags in mj-raw (should all succeed).
-     *
-     * @dataProvider htmlVoidTagsProvider
      */
+    #[DataProvider('htmlVoidTagsProvider')]
     public function testMjRawAllowsAllHtmlVoidTags(string $voidTag): void
     {
         $mjml = '<mjml><mj-body><mj-section><mj-column>

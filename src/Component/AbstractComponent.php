@@ -30,7 +30,7 @@ abstract class AbstractComponent implements ComponentInterface
     /**
      * Additional props passed from parent component (e.g., sibling count, index).
      *
-     * @var array<string, mixed>
+     * @var array{first?: bool, index?: int, last?: bool, sibling?: int, nonRawSiblings?: int}
      */
     protected array $props = [];
     /**
@@ -41,9 +41,9 @@ abstract class AbstractComponent implements ComponentInterface
     private static array $specCache = [];
 
     /**
-     * @param array<string, string|null> $attributes
-     * @param array<ComponentInterface>  $children
-     * @param array<string, mixed>       $props
+     * @param array<string, string|null>                                                         $attributes
+     * @param array<ComponentInterface>                                                          $children
+     * @param array{first?: bool, index?: int, last?: bool, sibling?: int, nonRawSiblings?: int} $props
      */
     public function __construct(
         array $attributes = [],
@@ -80,7 +80,7 @@ abstract class AbstractComponent implements ComponentInterface
         return [];
     }
 
-    public function getAttribute(string $name): mixed
+    public function getAttribute(string $name): ?string
     {
         return $this->attributes[$name] ?? null;
     }
@@ -129,14 +129,14 @@ abstract class AbstractComponent implements ComponentInterface
 
         if (null !== $this->context) {
             // Apply mj-all defaults
-            $mjAllDefaults = $this->context->headAttributes[Attributes::TAG_NAME_ALL] ?? [];
+            $mjAllDefaults = $this->context->getDefaultAttributes(Attributes::TAG_NAME_ALL);
             if ([] !== $mjAllDefaults) {
                 $merged = array_merge($merged, $mjAllDefaults);
             }
 
             // Apply component-specific defaults (e.g., mj-text defaults)
             $componentName = static::getComponentName();
-            $componentDefaults = $this->context->headAttributes[$componentName] ?? [];
+            $componentDefaults = $this->context->getDefaultAttributes($componentName);
             if ([] !== $componentDefaults) {
                 $merged = array_merge($merged, $componentDefaults);
             }
@@ -149,7 +149,8 @@ abstract class AbstractComponent implements ComponentInterface
                     $existingCssClass = $merged['css-class'] ?? '';
                     foreach ($classNames as $className) {
                         $classAttributes = $this->context->headAttributes[Attributes::TAG_NAME_CLASS][$className] ?? [];
-                        if ([] !== $classAttributes) {
+                        if (\is_array($classAttributes) && [] !== $classAttributes) {
+                            $classAttributes = array_filter($classAttributes, static fn ($value) => null === $value || \is_string($value));
                             // Handle css-class merging (multiple classes get concatenated)
                             if (isset($classAttributes['css-class']) && '' !== $existingCssClass) {
                                 $classAttributes['css-class'] = $existingCssClass.' '.$classAttributes['css-class'];

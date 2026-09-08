@@ -13,7 +13,8 @@ PHP-MJML is a native PHP port of the MJML email templating library. It converts 
 composer run ca
 
 # Run tests
-composer run test              # All tests
+composer run test              # All tests (without coverage)
+composer run test:coverage     # Coverage reports (requires Xdebug or PCOV)
 composer run test:unit         # Unit tests only
 composer run test:parity       # Parity tests only (compares PHP output to JS MJML)
 ./vendor/bin/phpunit --filter=TestClassName  # Single test class
@@ -23,7 +24,7 @@ composer run cs                # Check code style (dry-run)
 composer run cs:fix            # Fix code style
 
 # Static analysis
-composer run phpstan           # PHPStan level 8
+composer run phpstan           # PHPStan v2, maximum level
 ```
 
 ## Architecture
@@ -78,6 +79,6 @@ Located in `tests/Unit/`. Standard PHPUnit tests for individual component logic.
 ## Code Style
 
 - Follows Symfony coding standards (`@Symfony` and `@Symfony:risky` rules)
-- PHPStan level 8 strict type checking
+- PHPStan v2, maximum level strict type checking
 - All files require the standard file header comment
 - Use `$this->` for PHPUnit assertions (not `self::`)

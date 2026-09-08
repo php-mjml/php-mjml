@@ -17,6 +17,9 @@ use PhpMjml\Component\BodyComponent;
 use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\RandomHexString;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Carousel extends BodyComponent
 {
     private const DEFAULT_LEFT_ICON = 'https://i.imgur.com/xTh3hln.png';
@@ -99,7 +102,7 @@ final class Carousel extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData
      */
     public function getChildContext(): array
     {

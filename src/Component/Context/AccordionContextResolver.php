@@ -59,7 +59,16 @@ final class AccordionContextResolver
         $resolver = new OptionsResolver();
         self::configureOptions($resolver);
 
-        return $resolver->resolve($data);
+        $settings = [];
+        foreach ($resolver->resolve($data) as $key => $value) {
+            if (!\is_string($key) || (null !== $value && !\is_string($value))) {
+                throw new \LogicException('Resolved context settings must have string keys and string or null values.');
+            }
+
+            $settings[$key] = $value;
+        }
+
+        return $settings;
     }
 
     public static function configureOptions(OptionsResolver $resolver): void

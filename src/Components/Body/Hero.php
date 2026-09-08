@@ -17,6 +17,9 @@ use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Helper\ConditionalTag;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Hero extends BodyComponent
 {
     public static function getComponentName(): string
@@ -75,7 +78,7 @@ final class Hero extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData&array{containerWidth: int, ...}
      */
     public function getChildContext(): array
     {

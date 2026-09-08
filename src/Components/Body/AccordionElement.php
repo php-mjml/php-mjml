@@ -18,6 +18,9 @@ use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Context\AccordionContextResolver;
 use PhpMjml\Helper\ConditionalTag;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class AccordionElement extends BodyComponent
 {
     use AccordionSettingsTrait;
@@ -78,7 +81,7 @@ final class AccordionElement extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData
      */
     public function getChildContext(): array
     {

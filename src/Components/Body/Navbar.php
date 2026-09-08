@@ -19,6 +19,9 @@ use PhpMjml\Helper\BreakpointHelper;
 use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\RandomHexString;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Navbar extends BodyComponent
 {
     private const HAMBURGER_MODE = 'hamburger';
@@ -138,7 +141,7 @@ final class Navbar extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData
      */
     public function getChildContext(): array
     {

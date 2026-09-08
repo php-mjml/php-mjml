@@ -19,6 +19,9 @@ use PhpMjml\Helper\ConditionalTag;
 use PhpMjml\Helper\CssHelper;
 use PhpMjml\Helper\WidthParser;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Group extends BodyComponent
 {
     use ColumnWidthTrait;
@@ -52,7 +55,7 @@ final class Group extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData&array{containerWidth: int, ...}
      */
     public function getChildContext(): array
     {

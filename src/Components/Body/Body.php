@@ -15,6 +15,9 @@ namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Body extends BodyComponent
 {
     public static function getComponentName(): string
@@ -38,7 +41,7 @@ final class Body extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData&array{containerWidth: int, ...}
      */
     public function getChildContext(): array
     {

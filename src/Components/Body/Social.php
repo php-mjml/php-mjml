@@ -17,6 +17,9 @@ use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Helper\ConditionalTag;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Social extends BodyComponent
 {
     private const INHERITABLE_ATTRIBUTES = [
@@ -105,7 +108,7 @@ final class Social extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData
      */
     public function getChildContext(): array
     {

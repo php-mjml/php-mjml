@@ -16,6 +16,9 @@ namespace PhpMjml\Components\Body;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\Context\AccordionContextResolver;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Accordion extends BodyComponent
 {
     private const DEFAULT_BORDER = '2px solid black';
@@ -99,7 +102,7 @@ final class Accordion extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData
      */
     public function getChildContext(): array
     {

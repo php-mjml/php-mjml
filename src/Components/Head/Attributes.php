@@ -79,7 +79,6 @@ final class Attributes extends HeadComponent
                 }
 
                 // Store class attributes (excluding the 'name' attribute)
-                /** @var array<string, mixed> $classAttributes */
                 $classAttributes = array_filter(
                     $attributes,
                     static fn (string $key) => 'name' !== $key,

@@ -33,7 +33,7 @@
 **Key Features:**
 - Zero JavaScript dependencies — pure PHP implementation
 - Parity tested against the official MJML library
-- PHP 8.2+ with strict typing (PHPStan level 8)
+- PHP 8.2+ with strict typing (PHPStan v2 at maximum level)
 
 ## Installation
 
@@ -204,17 +204,33 @@ See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security guidance.
 
 ## Development
 
+Install development dependencies with `composer install`. Static analysis uses
+PHPStan `^2.2` with `level: max` in `phpstan.dist.neon`, covering both `src/` and
+`tests/`.
+
 ```bash
 # Run all checks (style, static analysis, tests)
 composer run ca
 
 # Individual commands
-composer run test          # All tests
+composer run test          # All tests, without coverage
 composer run test:unit     # Unit tests
 composer run test:parity   # Parity tests (requires npx mjml)
+composer run cs            # Check code style
 composer run cs:fix        # Fix code style
-composer run phpstan       # Static analysis
+composer run phpstan       # PHPStan v2, maximum level
 ```
+
+CI runs these Composer commands, checks code style and maximum-level analysis,
+and tests PHP 8.2–8.5, including the lowest supported dependencies on PHP 8.2.
+
+Coverage is optional and requires Xdebug or PCOV:
+
+```bash
+XDEBUG_MODE=coverage composer run test:coverage
+```
+
+Coverage reports are written to `.phpunit.cache/`.
 
 ### Parity Testing
 
@@ -224,7 +240,16 @@ Tests compare PHP output against the official MJML CLI to ensure identical HTML 
 composer run test:parity
 ```
 
-Requires Node.js with MJML available via `npx mjml`.
+Requires Node.js with MJML available via `npx mjml`. Install the CLI before
+running the parity suite or `composer run ca`:
+
+```bash
+npm install -g mjml
+npx mjml --version
+```
+
+Local parity tests are skipped when the CLI is unavailable. CI installs it and
+fails on skipped tests so parity checks always run.
 
 ## Architecture: Why XML Parsing?
 

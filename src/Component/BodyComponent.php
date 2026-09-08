@@ -16,6 +16,9 @@ namespace PhpMjml\Component;
 use PhpMjml\Helper\BorderParser;
 use PhpMjml\Helper\ShorthandParser;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 abstract class BodyComponent extends AbstractComponent
 {
     /**
@@ -49,7 +52,7 @@ abstract class BodyComponent extends AbstractComponent
     /**
      * Get the context to pass to child components.
      *
-     * @return array<string, mixed>
+     * @return ContextData
      */
     public function getChildContext(): array
     {

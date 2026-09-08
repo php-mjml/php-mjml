@@ -31,7 +31,7 @@ interface ComponentInterface
      */
     public static function getDefaultAttributes(): array;
 
-    public function getAttribute(string $name): mixed;
+    public function getAttribute(string $name): ?string;
 
     public function getContent(): string;
 

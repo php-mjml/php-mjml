@@ -17,6 +17,9 @@ use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Helper\WidthParser;
 
+/**
+ * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
+ */
 final class Column extends BodyComponent
 {
     use ColumnWidthTrait;
@@ -63,7 +66,7 @@ final class Column extends BodyComponent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextData&array{containerWidth: int, ...}
      */
     public function getChildContext(): array
     {

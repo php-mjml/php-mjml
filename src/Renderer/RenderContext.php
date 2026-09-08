@@ -19,75 +19,90 @@ use PhpMjml\Component\Registry;
 /**
  * Context object for MJML rendering, holding all state needed during render.
  *
- * @property string                              $title
- * @property string                              $preview
- * @property array<string, string>               $fonts
- * @property array<string, array<string, mixed>> $headAttributes
- * @property int                                 $containerWidth
- * @property string                              $breakpoint
- * @property string|null                         $backgroundColor
- * @property string                              $lang
- * @property string                              $dir
- * @property array<string, string|null>          $inheritedAttributes
- * @property string|null                         $gap                 @deprecated Use getComponentData('gap')
- * @property string|null                         $navbarBaseUrl       @deprecated Use getComponentData('navbarBaseUrl')
- * @property array<string, string|null>|null     $accordionSettings   @deprecated Use getComponentData('accordion')
+ * @phpstan-type ClassAttributes array<string, string|null|array<string, array<string, string|null>>>
+ * @phpstan-type HeadAttributes array<string, array<string, string|null|ClassAttributes>>
+ * @phpstan-type ContextData array{
+ *     registry?: Registry,
+ *     renderOptions?: RenderOptions,
+ *     nonRawSiblings?: int,
+ *     title?: string,
+ *     preview?: string,
+ *     fonts?: array<string, string>,
+ *     headAttributes?: HeadAttributes,
+ *     containerWidth?: int,
+ *     breakpoint?: string,
+ *     backgroundColor?: string|null,
+ *     lang?: string,
+ *     dir?: string,
+ *     inheritedAttributes?: array<string, string|null>,
+ *     globalData?: GlobalData|null,
+ *     componentData?: array<string, array<string, string|null>>,
+ * }
+ *
+ * @property array<string, string|null>|null $gap @deprecated Use getComponentData('gap')
+ * @property-read array<string, string|null>|null $navbarBaseUrl     @deprecated Use getComponentData('navbarBaseUrl')
+ * @property-read array<string, string|null>|null $accordionSettings @deprecated Use getComponentData('accordion')
  */
 final class RenderContext
 {
-    /**
-     * Single source of truth for the supported context options and their defaults.
-     */
-    private const DEFAULT_OPTIONS = [
-        'title' => '',
-        'preview' => '',
-        'fonts' => [],
-        'headAttributes' => [],
-        'containerWidth' => BodyComponent::DEFAULT_CONTAINER_WIDTH,
-        'breakpoint' => '480px',
-        'backgroundColor' => null,
-        'lang' => 'und',
-        'dir' => 'auto',
-        'inheritedAttributes' => [],
-        'globalData' => null,
-        'componentData' => [],
-    ];
+    public string $title;
+
+    public string $preview;
+
+    /** @var array<string, string> */
+    public array $fonts;
+
+    /** @var HeadAttributes */
+    public array $headAttributes;
+
+    public int $containerWidth;
+
+    public string $breakpoint;
+
+    public ?string $backgroundColor;
+
+    public string $lang;
+
+    public string $dir;
+
+    /** @var array<string, string|null> */
+    public array $inheritedAttributes;
 
     public GlobalData $globalData;
 
-    /** @var array<string, mixed> */
-    private array $options;
+    /** @var array<string, array<string, string|null>> */
+    private array $componentData;
 
     /**
-     * @param array<string, mixed> $options Context options
+     * @param ContextData $options Context options
      */
     public function __construct(
         public readonly Registry $registry,
         public readonly RenderOptions $renderOptions,
         array $options = [],
     ) {
-        $this->options = array_intersect_key($options, self::DEFAULT_OPTIONS) + self::DEFAULT_OPTIONS;
-        $this->globalData = $this->options['globalData'] ?? new GlobalData();
+        $this->title = $options['title'] ?? '';
+        $this->preview = $options['preview'] ?? '';
+        $this->fonts = $options['fonts'] ?? [];
+        $this->headAttributes = $options['headAttributes'] ?? [];
+        $this->containerWidth = $options['containerWidth'] ?? BodyComponent::DEFAULT_CONTAINER_WIDTH;
+        $this->breakpoint = $options['breakpoint'] ?? '480px';
+        $this->backgroundColor = $options['backgroundColor'] ?? null;
+        $this->lang = $options['lang'] ?? 'und';
+        $this->dir = $options['dir'] ?? 'auto';
+        $this->inheritedAttributes = $options['inheritedAttributes'] ?? [];
+        $this->globalData = $options['globalData'] ?? new GlobalData();
+        $this->componentData = $options['componentData'] ?? [];
     }
 
     // ===== Backward Compatibility Properties =====
 
     /**
-     * @deprecated Use getTitle() instead
+     * @deprecated Use getComponentData() instead
      */
     public function __get(string $name): mixed
     {
         return match ($name) {
-            'title' => $this->options['title'],
-            'preview' => $this->options['preview'],
-            'fonts' => $this->options['fonts'],
-            'headAttributes' => $this->options['headAttributes'],
-            'containerWidth' => $this->options['containerWidth'],
-            'breakpoint' => $this->options['breakpoint'],
-            'backgroundColor' => $this->options['backgroundColor'],
-            'lang' => $this->options['lang'],
-            'dir' => $this->options['dir'],
-            'inheritedAttributes' => $this->options['inheritedAttributes'],
             // Legacy component-specific properties (now in componentData)
             'gap' => $this->getComponentData('gap'),
             'navbarBaseUrl' => $this->getComponentData('navbarBaseUrl'),
@@ -96,46 +111,31 @@ final class RenderContext
         };
     }
 
-    /**
-     * @deprecated Use setters instead
-     */
     public function __set(string $name, mixed $value): void
     {
-        match ($name) {
-            'title' => $this->options['title'] = $value,
-            'preview' => $this->options['preview'] = $value,
-            'fonts' => $this->options['fonts'] = $value,
-            'headAttributes' => $this->options['headAttributes'] = $value,
-            'containerWidth' => $this->options['containerWidth'] = $value,
-            'breakpoint' => $this->options['breakpoint'] = $value,
-            'backgroundColor' => $this->options['backgroundColor'] = $value,
-            'lang' => $this->options['lang'] = $value,
-            'dir' => $this->options['dir'] = $value,
-            'inheritedAttributes' => $this->options['inheritedAttributes'] = $value,
-            default => throw new \InvalidArgumentException(\sprintf('Unknown property "%s"', $name)),
-        };
+        throw new \InvalidArgumentException(\sprintf('Unknown property "%s"', $name));
     }
 
     // ===== Property Accessors =====
 
     public function getTitle(): string
     {
-        return $this->options['title'];
+        return $this->title;
     }
 
     public function setTitle(string $title): void
     {
-        $this->options['title'] = $title;
+        $this->title = $title;
     }
 
     public function getPreview(): string
     {
-        return $this->options['preview'];
+        return $this->preview;
     }
 
     public function setPreview(string $preview): void
     {
-        $this->options['preview'] = $preview;
+        $this->preview = $preview;
     }
 
     /**
@@ -143,7 +143,7 @@ final class RenderContext
      */
     public function getFonts(): array
     {
-        return $this->options['fonts'];
+        return $this->fonts;
     }
 
     /**
@@ -151,78 +151,99 @@ final class RenderContext
      */
     public function setFonts(array $fonts): void
     {
-        $this->options['fonts'] = $fonts;
+        $this->fonts = $fonts;
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return HeadAttributes
      */
     public function getHeadAttributes(): array
     {
-        return $this->options['headAttributes'];
+        return $this->headAttributes;
     }
 
     /**
-     * @param array<string, array<string, mixed>> $headAttributes
+     * @param HeadAttributes $headAttributes
      */
     public function setHeadAttributes(array $headAttributes): void
     {
-        $this->options['headAttributes'] = $headAttributes;
+        $this->headAttributes = $headAttributes;
+    }
+
+    /**
+     * Get renderable default attributes for a component, excluding named class metadata.
+     *
+     * @return array<string, string|null>
+     */
+    public function getDefaultAttributes(string $componentName): array
+    {
+        if ('mj-class' === $componentName) {
+            return [];
+        }
+
+        return array_filter(
+            $this->headAttributes[$componentName] ?? [],
+            static fn ($value) => null === $value || \is_string($value)
+        );
     }
 
     public function getContainerWidth(): int
     {
-        return $this->options['containerWidth'];
+        return $this->containerWidth;
     }
 
     public function getBreakpoint(): string
     {
-        return $this->options['breakpoint'];
+        return $this->breakpoint;
     }
 
     public function setBreakpoint(string $breakpoint): void
     {
-        $this->options['breakpoint'] = $breakpoint;
+        $this->breakpoint = $breakpoint;
     }
 
     public function getBackgroundColor(): ?string
     {
-        return $this->options['backgroundColor'];
+        return $this->backgroundColor;
     }
 
     public function setBackgroundColor(?string $color): void
     {
-        $this->options['backgroundColor'] = $color;
+        $this->backgroundColor = $color;
     }
 
     public function getLang(): string
     {
-        return $this->options['lang'];
+        return $this->lang;
     }
 
     public function setLang(string $lang): void
     {
-        $this->options['lang'] = $lang;
+        $this->lang = $lang;
     }
 
     public function getDir(): string
     {
-        return $this->options['dir'];
+        return $this->dir;
     }
 
     public function setDir(string $dir): void
     {
-        $this->options['dir'] = $dir;
+        $this->dir = $dir;
     }
 
     // ===== Component Data Accessors =====
 
     /**
      * Get component-specific data from the context.
+     *
+     * @param array<string, string|null>|null $default
+     *
+     * @return array<string, string|null>|null
      */
-    public function getComponentData(string $key, mixed $default = null): mixed
+    public function getComponentData(string $key, ?array $default = null): ?array
     {
-        return $this->options['componentData'][$key] ?? $default;
+        return $this->componentData[$key] ?? $default;
     }
 
     // ===== Global Data Methods =====
@@ -281,32 +302,32 @@ final class RenderContext
     /**
      * Convert context to array for child context propagation.
      *
-     * @return array<string, mixed>
+     * @return ContextData
      */
     public function toArray(): array
     {
         return [
             'registry' => $this->registry,
             'renderOptions' => $this->renderOptions,
-            'title' => $this->options['title'],
-            'preview' => $this->options['preview'],
-            'fonts' => $this->options['fonts'],
-            'headAttributes' => $this->options['headAttributes'],
-            'containerWidth' => $this->options['containerWidth'],
-            'breakpoint' => $this->options['breakpoint'],
-            'backgroundColor' => $this->options['backgroundColor'],
-            'lang' => $this->options['lang'],
-            'dir' => $this->options['dir'],
-            'inheritedAttributes' => $this->options['inheritedAttributes'],
+            'title' => $this->title,
+            'preview' => $this->preview,
+            'fonts' => $this->fonts,
+            'headAttributes' => $this->headAttributes,
+            'containerWidth' => $this->containerWidth,
+            'breakpoint' => $this->breakpoint,
+            'backgroundColor' => $this->backgroundColor,
+            'lang' => $this->lang,
+            'dir' => $this->dir,
+            'inheritedAttributes' => $this->inheritedAttributes,
             'globalData' => $this->globalData,
-            'componentData' => $this->options['componentData'],
+            'componentData' => $this->componentData,
         ];
     }
 
     /**
      * Create a new context from array data.
      *
-     * @param array<string, mixed> $data Array of context data
+     * @param ContextData $data Array of context data
      */
     public static function fromArray(array $data, self $base): self
     {
@@ -314,18 +335,18 @@ final class RenderContext
             registry: $data['registry'] ?? $base->registry,
             renderOptions: $data['renderOptions'] ?? $base->renderOptions,
             options: [
-                'title' => $data['title'] ?? $base->options['title'],
-                'preview' => $data['preview'] ?? $base->options['preview'],
-                'fonts' => $data['fonts'] ?? $base->options['fonts'],
-                'headAttributes' => $data['headAttributes'] ?? $base->options['headAttributes'],
-                'containerWidth' => $data['containerWidth'] ?? $base->options['containerWidth'],
-                'breakpoint' => $data['breakpoint'] ?? $base->options['breakpoint'],
-                'backgroundColor' => $data['backgroundColor'] ?? $base->options['backgroundColor'],
-                'lang' => $data['lang'] ?? $base->options['lang'],
-                'dir' => $data['dir'] ?? $base->options['dir'],
+                'title' => $data['title'] ?? $base->title,
+                'preview' => $data['preview'] ?? $base->preview,
+                'fonts' => $data['fonts'] ?? $base->fonts,
+                'headAttributes' => $data['headAttributes'] ?? $base->headAttributes,
+                'containerWidth' => $data['containerWidth'] ?? $base->containerWidth,
+                'breakpoint' => $data['breakpoint'] ?? $base->breakpoint,
+                'backgroundColor' => $data['backgroundColor'] ?? $base->backgroundColor,
+                'lang' => $data['lang'] ?? $base->lang,
+                'dir' => $data['dir'] ?? $base->dir,
                 'inheritedAttributes' => $data['inheritedAttributes'] ?? [],
                 'globalData' => $data['globalData'] ?? $base->globalData,
-                'componentData' => $data['componentData'] ?? $base->options['componentData'],
+                'componentData' => $data['componentData'] ?? $base->componentData,
             ],
         );
     }

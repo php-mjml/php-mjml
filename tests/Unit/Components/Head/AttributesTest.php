@@ -101,6 +101,8 @@ final class AttributesTest extends TestCase
 
         $this->assertArrayHasKey(Attributes::TAG_NAME_CLASS, $context->headAttributes);
         $this->assertArrayHasKey('blue', $context->headAttributes[Attributes::TAG_NAME_CLASS]);
+        $this->assertIsArray($context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
+        $this->assertArrayHasKey('color', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
         $this->assertSame('blue', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']['color']);
         // The 'name' attribute should not be included in the class attributes
         $this->assertArrayNotHasKey('name', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
@@ -231,8 +233,11 @@ final class AttributesTest extends TestCase
 
         $this->assertArrayHasKey(Attributes::TAG_NAME_CLASS, $context->headAttributes);
         $this->assertArrayHasKey('blue', $context->headAttributes[Attributes::TAG_NAME_CLASS]);
+        $this->assertIsArray($context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
+        $this->assertArrayHasKey('color', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
         $this->assertSame('blue', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']['color']);
         $this->assertArrayHasKey(Attributes::KEY_DEFAULTS, $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue']);
+        $this->assertIsArray($context->headAttributes[Attributes::TAG_NAME_CLASS]['blue'][Attributes::KEY_DEFAULTS]);
         $this->assertArrayHasKey('mj-button', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue'][Attributes::KEY_DEFAULTS]);
         $this->assertSame('navy', $context->headAttributes[Attributes::TAG_NAME_CLASS]['blue'][Attributes::KEY_DEFAULTS]['mj-button']['background-color']);
     }

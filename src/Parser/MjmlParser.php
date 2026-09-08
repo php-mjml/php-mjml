@@ -23,6 +23,8 @@ final class MjmlParser
 
     private ?Registry $registry;
 
+    private static ?bool $useNewDomApi = null;
+
     /**
      * @var array<string, string> Placeholder-to-original-content map for ending tags
      */
@@ -97,9 +99,7 @@ final class MjmlParser
      */
     private static function useNewDomApi(): bool
     {
-        static $useNew;
-
-        return $useNew ??= class_exists(\Dom\XMLDocument::class);
+        return self::$useNewDomApi ??= class_exists(\Dom\XMLDocument::class);
     }
 
     /**

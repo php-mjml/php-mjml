@@ -32,10 +32,10 @@ jobs:
         uses: ramsey/composer-install@v3
 
       - name: Run PHP CS Fixer
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff --format=checkstyle | cs2pr
+        run: composer run cs -- --format=checkstyle | cs2pr
 
   phpstan:
-    name: PHPStan
+    name: PHPStan v2 / max level
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -50,5 +50,8 @@ jobs:
       - name: Install dependencies
         uses: ramsey/composer-install@v3
 
-      - name: Run PHPStan
-        run: vendor/bin/phpstan
+      - name: Validate Composer configuration
+        run: composer validate --strict
+
+      - name: Run PHPStan at maximum level
+        run: composer run phpstan -- --no-progress --error-format=github
