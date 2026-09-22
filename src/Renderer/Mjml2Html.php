@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace PhpMjml\Renderer;
 
+use PhpMjml\Component\AbstractComponent;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Registry;
@@ -96,6 +97,8 @@ final class Mjml2Html
                 continue;
             }
 
+            $this->validateNode($componentClass, $child, $context);
+
             $component = new $componentClass(
                 attributes: $child->attributes,
                 children: [],
@@ -125,6 +128,8 @@ final class Mjml2Html
         if (null === $componentClass) {
             return '';
         }
+
+        $this->validateNode($componentClass, $body, $context);
 
         // Create the body component
         $bodyComponent = new $componentClass(
@@ -254,6 +259,8 @@ final class Mjml2Html
                 'nonRawSiblings' => $nonRawSiblings,
             ];
 
+            $this->validateNode($componentClass, $node, $rootContext);
+
             // Create temporary component to get its child context
             $tempComponent = new $componentClass(
                 attributes: $node->attributes,
@@ -283,6 +290,23 @@ final class Mjml2Html
         }
 
         return $children;
+    }
+
+    /**
+     * Report invalid attributes on an MJML element, once per element.
+     *
+     * @param class-string<ComponentInterface> $componentClass
+     */
+    private function validateNode(string $componentClass, Node $node, RenderContext $context): void
+    {
+        if (!is_subclass_of($componentClass, AbstractComponent::class)) {
+            return;
+        }
+
+        $error = $componentClass::validateAttributes($node->attributes);
+        if (null !== $error) {
+            $context->globalData->addError($error);
+        }
     }
 
     /**

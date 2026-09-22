@@ -9,9 +9,6 @@
   </tr>
 </table>
 
-> [!WARNING]
-> **Work in Progress** — This library is currently under active development with [Claude Code](https://claude.ai/code) and is not yet ready for production use. APIs may change without notice. Use with care.
-
 <table>
   <tr>
     <td>
@@ -30,10 +27,27 @@
   </tr>
 </table>
 
-**Key Features:**
-- Zero JavaScript dependencies — pure PHP implementation
-- Parity tested against the official MJML library
-- PHP 8.2+ with strict typing (PHPStan v2 at maximum level)
+## Why PHP-MJML?
+
+- **No Node.js, no subprocess, no API calls** — `composer require` and render. Works on
+  shared hosting, in slim containers and in serverless functions.
+- **Identical output to official MJML** — every component is parity tested against the
+  MJML CLI, so templates render the same as they do in the MJML ecosystem.
+- **Every MJML component** — all body and head components are implemented, including
+  `mj-hero`, `mj-carousel`, `mj-accordion`, `mj-navbar` and `mj-social`.
+- **Full styling toolkit** — global defaults with `mj-attributes` and `mj-class`, CSS
+  inlining with `mj-style inline="inline"`, custom web fonts, responsive breakpoints and
+  arbitrary HTML attributes via `mj-html-attributes`.
+- **Outlook-ready HTML** — generates the MSO conditional comments and VML fallbacks that
+  Outlook needs, and merges adjacent conditionals to keep the output lean.
+- **Forgiving parser** — accepts HTML inside `mj-text`, `mj-button` and friends, HTML
+  entities such as `&nbsp;`, bare `&` characters and duplicate attributes.
+- **Attribute validation** — unknown attributes and unsupported values (e.g.
+  `align="middle"`) are reported instead of silently producing broken markup.
+- **Security built in** — an email-focused HTML sanitizer and URL validator for
+  user-supplied content.
+- **Extensible** — register your own components alongside the core set.
+- **Strictly typed** — PHP 8.2+, PHPStan at maximum level, tested on PHP 8.2–8.5.
 
 ## Installation
 
@@ -41,13 +55,14 @@
 composer require php-mjml/php-mjml
 ```
 
-## Usage
+## Quick Start
 
 ```php
 use PhpMjml\Renderer\Mjml2Html;
+
 $renderer = Mjml2Html::create();
 
-$mjml = <<<MJML
+$result = $renderer->render(<<<MJML
 <mjml>
   <mj-body>
     <mj-section>
@@ -57,47 +72,362 @@ $mjml = <<<MJML
     </mj-section>
   </mj-body>
 </mjml>
-MJML;
+MJML);
 
-$result = $renderer->render($mjml);
 echo $result->html;
 ```
 
-### Multi-Column Layout
+`Mjml2Html::create()` returns a renderer wired with every core component. The renderer is
+stateless between calls, so create it once and reuse it for all your emails.
 
-```php
-$mjml = <<<MJML
+## Features
+
+### Responsive Layouts
+
+Sections, columns, groups and wrappers build layouts that stack on mobile and sit side by
+side on desktop. Column widths are distributed automatically unless you set them.
+
+```xml
 <mjml>
   <mj-body background-color="#f4f4f4">
     <mj-section background-color="#ffffff" padding="20px">
       <mj-column width="50%">
-        <mj-text font-size="18px" color="#333">Left column</mj-text>
+        <mj-image src="https://example.com/product.png" alt="Product" />
       </mj-column>
       <mj-column width="50%">
-        <mj-text font-size="18px" color="#333">Right column</mj-text>
+        <mj-text font-size="18px" color="#333">New arrivals</mj-text>
+        <mj-button href="https://example.com/shop">Shop now</mj-button>
       </mj-column>
     </mj-section>
   </mj-body>
 </mjml>
-MJML;
-
-$result = $renderer->render($mjml);
 ```
 
-### Render Options
+Use `mj-group` to keep columns side by side on mobile, and `mj-wrapper` to share a
+background or border across several sections.
+
+### Global Styles with `mj-attributes` and `mj-class`
+
+Set defaults once in the head instead of repeating attributes on every element. Defaults
+can target all components (`mj-all`), a single component type, or a reusable class that
+elements opt into with `mj-class`.
+
+```xml
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text font-size="16px" line-height="24px" color="#333333" />
+      <mj-class name="primary" background-color="#4a154b" color="#ffffff" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Uses the mj-text defaults.</mj-text>
+        <mj-button mj-class="primary" href="https://example.com">Styled by mj-class</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+### Custom CSS and CSS Inlining
+
+`mj-style` adds CSS to the document head. With `inline="inline"`, the rules are inlined
+into matching elements, which is what many email clients need.
+
+```xml
+<mj-head>
+  <mj-style>
+    @media (max-width: 480px) { .hide-mobile { display: none !important; } }
+  </mj-style>
+  <mj-style inline="inline">
+    .highlight { color: #e85034; font-weight: bold; }
+  </mj-style>
+</mj-head>
+```
+
+Combine it with `css-class` on any component to target your own selectors.
+
+### Fonts, Title, Preview Text and Breakpoints
+
+```xml
+<mj-head>
+  <mj-title>Your order has shipped</mj-title>
+  <mj-preview>Track your package and see the delivery estimate</mj-preview>
+  <mj-font name="Raleway" href="https://fonts.googleapis.com/css?family=Raleway" />
+  <mj-breakpoint width="600px" />
+</mj-head>
+```
+
+- `mj-title` sets the document title, `mj-preview` the inbox preview text.
+- `mj-font` imports a web font. Only fonts that are actually used are included.
+- `mj-breakpoint` changes the width at which columns switch to the mobile layout.
+
+Common Google Fonts (Open Sans, Droid Sans, Lato, Roboto, Ubuntu) are known out of the box.
+Register more for every render with `RenderOptions`:
 
 ```php
 use PhpMjml\Renderer\RenderOptions;
 
 $options = new RenderOptions(
     fonts: [
-        'Open Sans' => 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,700',
+        ...RenderOptions::DEFAULT_FONTS,
         'Custom Font' => 'https://example.com/custom-font.css',
     ],
 );
 
 $result = $renderer->render($mjml, $options);
 ```
+
+### Custom HTML Attributes
+
+`mj-html-attributes` adds attributes to rendered elements using CSS selectors — useful for
+tracking attributes, accessibility or test hooks.
+
+```xml
+<mj-head>
+  <mj-html-attributes>
+    <mj-selector path=".cta a">
+      <mj-html-attribute name="data-tracking-id">hero-cta</mj-html-attribute>
+    </mj-selector>
+  </mj-html-attributes>
+</mj-head>
+<mj-body>
+  <mj-section>
+    <mj-column>
+      <mj-button css-class="cta" href="https://example.com">Get started</mj-button>
+    </mj-column>
+  </mj-section>
+</mj-body>
+```
+
+### Interactive Components
+
+`mj-carousel` (image slideshow), `mj-accordion` (expandable sections) and `mj-navbar`
+(navigation with an optional mobile hamburger menu) render as interactive, CSS-only widgets in clients
+that support them and fall back gracefully in the ones that don't.
+
+### Validation and Error Handling
+
+Unknown attributes and unsupported attribute values do not stop rendering; they are
+collected on the result so you can log them or fail your build:
+
+```php
+$result = $renderer->render($mjml);
+
+if ($result->hasErrors()) {
+    foreach ($result->errors as $error) {
+        // e.g. mj-image: The option "align" with value "middle" is invalid. Accepted values are: "left", "center", "right".
+        echo $error, PHP_EOL;
+    }
+}
+```
+
+Markup that cannot be parsed at all throws a `PhpMjml\Parser\ParserException`.
+
+### Custom Components
+
+Add your own tags by registering components next to the core preset. Extend
+`BodyComponent` (or `HeadComponent`), declare the allowed and default attributes, and
+implement `render()`:
+
+```php
+use PhpMjml\Component\BodyComponent;
+use PhpMjml\Component\Registry;
+use PhpMjml\Parser\MjmlParser;
+use PhpMjml\Preset\CorePreset;
+use PhpMjml\Renderer\Mjml2Html;
+
+final class Badge extends BodyComponent
+{
+    protected static bool $endingTag = true;
+
+    public static function getComponentName(): string
+    {
+        return 'mj-badge';
+    }
+
+    public static function getAllowedAttributes(): array
+    {
+        return ['color' => 'color', 'background-color' => 'color'];
+    }
+
+    public static function getDefaultAttributes(): array
+    {
+        return ['color' => '#ffffff', 'background-color' => '#4a154b'];
+    }
+
+    public function render(): string
+    {
+        return \sprintf(
+            '<span style="color:%s;background-color:%s;padding:2px 8px;border-radius:4px">%s</span>',
+            $this->getAttribute('color'),
+            $this->getAttribute('background-color'),
+            $this->getContent(),
+        );
+    }
+}
+
+$registry = new Registry();
+$registry->registerMany(CorePreset::getComponents());
+$registry->register(Badge::class);
+
+// Pass the same registry to the renderer and the parser.
+$renderer = new Mjml2Html($registry, new MjmlParser(registry: $registry));
+```
+
+See `CLAUDE.md` and the classes in `src/Components/` for complete examples.
+
+## Framework Integration
+
+PHP-MJML is framework agnostic. The pattern is the same everywhere: register the renderer as
+a shared service, write your emails as MJML templates in your usual template engine, render
+the template, and pass the resulting HTML to your mailer.
+
+### Laravel
+
+Install the package:
+
+```bash
+composer require php-mjml/php-mjml
+```
+
+Register the renderer as a singleton in `app/Providers/AppServiceProvider.php`:
+
+```php
+use PhpMjml\Renderer\Mjml2Html;
+
+public function register(): void
+{
+    $this->app->singleton(Mjml2Html::class, fn () => Mjml2Html::create());
+}
+```
+
+Write the email as MJML in a Blade view, e.g. `resources/views/emails/welcome.blade.php`.
+Blade escapes `{{ }}` output, so user data is safe to interpolate:
+
+```blade
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="20px">Welcome, {{ $user->name }}!</mj-text>
+        <mj-button href="{{ url('/dashboard') }}">Open your dashboard</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+> [!TIP]
+> Blade treats `@` as a directive prefix. Inside `<mj-style>`, write CSS at-rules as
+> `@@media` so Blade outputs a literal `@media`.
+
+Render it in a Mailable:
+
+```php
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use PhpMjml\Renderer\Mjml2Html;
+
+class WelcomeMail extends Mailable
+{
+    public function __construct(public User $user)
+    {
+    }
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(subject: 'Welcome!');
+    }
+
+    public function content(): Content
+    {
+        $mjml = view('emails.welcome', ['user' => $this->user])->render();
+
+        return new Content(htmlString: app(Mjml2Html::class)->render($mjml)->html);
+    }
+}
+```
+
+Send it as usual with `Mail::to($user)->send(new WelcomeMail($user));`.
+
+### Symfony
+
+Install the package:
+
+```bash
+composer require php-mjml/php-mjml
+```
+
+Register the renderer in `config/services.yaml` using its factory method, so it can be
+autowired anywhere:
+
+```yaml
+services:
+    PhpMjml\Renderer\Mjml2Html:
+        factory: ['PhpMjml\Renderer\Mjml2Html', 'create']
+```
+
+Write the email as MJML in a Twig template, e.g. `templates/emails/welcome.mjml.twig`.
+Twig auto-escapes variables as HTML for this file:
+
+```twig
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="20px">Welcome, {{ user.name }}!</mj-text>
+        <mj-button href="{{ url('app_dashboard') }}">Open your dashboard</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+Render and send it with Symfony Mailer:
+
+```php
+use PhpMjml\Renderer\Mjml2Html;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Twig\Environment;
+
+final class WelcomeMailer
+{
+    public function __construct(
+        private readonly Environment $twig,
+        private readonly Mjml2Html $mjml,
+        private readonly MailerInterface $mailer,
+    ) {
+    }
+
+    public function send(User $user): void
+    {
+        $mjml = $this->twig->render('emails/welcome.mjml.twig', ['user' => $user]);
+
+        $email = (new Email())
+            ->to($user->getEmail())
+            ->subject('Welcome!')
+            ->html($this->mjml->render($mjml)->html);
+
+        $this->mailer->send($email);
+    }
+}
+```
+
+### Tips for Both Frameworks
+
+- Log `$result->errors` (or fail your tests on `$result->hasErrors()`) to catch invalid
+  attributes in your templates early.
+- The renderer holds no per-email state, so a single shared instance can render any number
+  of emails.
+- For HTML that comes from users rather than your templates (e.g. rich-text content
+  inserted with `{!! !!}` or `|raw`), run it through the [`EmailContentSanitizer`](#security)
+  first.
 
 ## Post-Processing (Minify, Beautify)
 
@@ -196,6 +526,9 @@ See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security guidance.
 | `mj-font` | Custom web font registration |
 | `mj-style` | Custom CSS styles |
 | `mj-html-attributes` | Add attributes to rendered HTML elements |
+
+`mj-include` is not supported. Compose templates in PHP (for example with your templating
+engine) before passing the final MJML to the renderer.
 
 ## Requirements
 

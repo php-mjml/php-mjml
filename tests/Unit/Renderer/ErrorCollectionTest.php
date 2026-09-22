@@ -209,4 +209,79 @@ MJML;
         $this->assertSame([], $secondResult->errors);
         $this->assertStringContainsString('Second render', $secondResult->html);
     }
+
+    public function testReportsEachInvalidAttributeOnce(): void
+    {
+        $mjml = <<<'MJML'
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text foo="bar">Hello</mj-text>
+        <mj-image src="https://example.com/image.png" align="middle" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+MJML;
+
+        $result = $this->renderer->render($mjml);
+
+        $this->assertSame([
+            'mj-text: The option(s) "foo" do not exist.',
+            'mj-image: The option "align" with value "middle" is invalid. Accepted values are: "left", "center", "right".',
+        ], $result->errors);
+    }
+
+    public function testReportsInvalidAttributesOnHeadAndBodyElements(): void
+    {
+        $mjml = <<<'MJML'
+<mjml>
+  <mj-head>
+    <mj-title foo="bar">Title</mj-title>
+  </mj-head>
+  <mj-body foo="bar">
+    <mj-section>
+      <mj-column>
+        <mj-text>Hello</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+MJML;
+
+        $result = $this->renderer->render($mjml);
+
+        $this->assertSame([
+            'mj-title: The option(s) "foo" do not exist.',
+            'mj-body: The option(s) "foo" do not exist.',
+        ], $result->errors);
+    }
+
+    public function testDoesNotReportAttributesFromMjAttributesDefaults(): void
+    {
+        $mjml = <<<'MJML'
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-class name="large" font-size="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section mj-class="large">
+      <mj-column>
+        <mj-text mj-class="large">Hello</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+MJML;
+
+        $result = $this->renderer->render($mjml);
+
+        $this->assertSame([], $result->errors);
+        $this->assertStringContainsString('font-family:Helvetica, Arial, sans-serif', $result->html);
+        $this->assertStringContainsString('font-size:20px', $result->html);
+    }
 }
