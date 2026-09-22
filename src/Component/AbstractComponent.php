@@ -99,6 +99,31 @@ abstract class AbstractComponent implements ComponentInterface
     }
 
     /**
+     * Validate the attributes written on an MJML element against this component's spec.
+     *
+     * Only the element's own attributes are validated, matching the JS validator:
+     * defaults from mj-attributes (mj-all, per-component, mj-class) and attributes
+     * inherited from parent components are not reported.
+     *
+     * @param array<string, string|null> $attributes
+     *
+     * @return string|null The violation message prefixed with the component name, or null if valid
+     */
+    public static function validateAttributes(array $attributes): ?string
+    {
+        $class = static::class;
+
+        self::$specCache[$class] ??= AttributeResolver::createSpec(
+            static::getAllowedAttributes(),
+            static::getDefaultAttributes()
+        );
+
+        $violation = AttributeResolver::findViolation(self::$specCache[$class], $attributes);
+
+        return null === $violation ? null : \sprintf('%s: %s', static::getComponentName(), $violation);
+    }
+
+    /**
      * Whether content should be preserved exactly as provided (no trimming).
      *
      * Override in subclasses that need to preserve raw content (e.g., mj-raw).
@@ -178,8 +203,7 @@ abstract class AbstractComponent implements ComponentInterface
 
         $merged = array_merge($merged, $instanceAttributesWithoutMjClass);
 
-        // Validate through cached attribute spec
-        return $this->normalizeColorAttributes($this->validateAttributes($merged));
+        return $this->normalizeColorAttributes($merged);
     }
 
     /**
@@ -201,37 +225,6 @@ abstract class AbstractComponent implements ComponentInterface
             if (\is_string($value) && 1 === preg_match('/^#\w{3}$/', $value)) {
                 $attributes[$name] = preg_replace('/^#(\w)(\w)(\w)$/', '#$1$1$2$2$3$3', $value);
             }
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * Validate attributes using a cached, compiled attribute spec.
-     *
-     * Invalid attributes are reported as errors but still returned, matching
-     * the previous lenient behavior for dynamic attributes and edge cases.
-     *
-     * @param array<string, string|null> $attributes
-     *
-     * @return array<string, string|null>
-     */
-    private function validateAttributes(array $attributes): array
-    {
-        $class = static::class;
-
-        self::$specCache[$class] ??= AttributeResolver::createSpec(
-            static::getAllowedAttributes(),
-            static::getDefaultAttributes()
-        );
-
-        $violation = AttributeResolver::findViolation(self::$specCache[$class], $attributes);
-        if (null !== $violation && null !== $this->context) {
-            $this->context->globalData->addError(\sprintf(
-                '%s: %s',
-                static::getComponentName(),
-                $violation
-            ));
         }
 
         return $attributes;

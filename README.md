@@ -109,14 +109,15 @@ background or border across several sections.
 ### Global Styles with `mj-attributes` and `mj-class`
 
 Set defaults once in the head instead of repeating attributes on every element. Defaults
-can target a component type or a reusable class that elements opt into with `mj-class`.
+can target all components (`mj-all`), a single component type, or a reusable class that
+elements opt into with `mj-class`.
 
 ```xml
 <mjml>
   <mj-head>
     <mj-attributes>
-      <mj-text font-family="Helvetica, Arial, sans-serif" font-size="16px" color="#333333" />
-      <mj-button font-family="Helvetica, Arial, sans-serif" />
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text font-size="16px" line-height="24px" color="#333333" />
       <mj-class name="primary" background-color="#4a154b" color="#ffffff" />
     </mj-attributes>
   </mj-head>
