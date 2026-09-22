@@ -279,6 +279,155 @@ $renderer = new Mjml2Html($registry, new MjmlParser(registry: $registry));
 
 See `CLAUDE.md` and the classes in `src/Components/` for complete examples.
 
+## Framework Integration
+
+PHP-MJML is framework agnostic. The pattern is the same everywhere: register the renderer as
+a shared service, write your emails as MJML templates in your usual template engine, render
+the template, and pass the resulting HTML to your mailer.
+
+### Laravel
+
+Install the package:
+
+```bash
+composer require php-mjml/php-mjml
+```
+
+Register the renderer as a singleton in `app/Providers/AppServiceProvider.php`:
+
+```php
+use PhpMjml\Renderer\Mjml2Html;
+
+public function register(): void
+{
+    $this->app->singleton(Mjml2Html::class, fn () => Mjml2Html::create());
+}
+```
+
+Write the email as MJML in a Blade view, e.g. `resources/views/emails/welcome.blade.php`.
+Blade escapes `{{ }}` output, so user data is safe to interpolate:
+
+```blade
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="20px">Welcome, {{ $user->name }}!</mj-text>
+        <mj-button href="{{ url('/dashboard') }}">Open your dashboard</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+> [!TIP]
+> Blade treats `@` as a directive prefix. Inside `<mj-style>`, write CSS at-rules as
+> `@@media` so Blade outputs a literal `@media`.
+
+Render it in a Mailable:
+
+```php
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use PhpMjml\Renderer\Mjml2Html;
+
+class WelcomeMail extends Mailable
+{
+    public function __construct(public User $user)
+    {
+    }
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(subject: 'Welcome!');
+    }
+
+    public function content(): Content
+    {
+        $mjml = view('emails.welcome', ['user' => $this->user])->render();
+
+        return new Content(htmlString: app(Mjml2Html::class)->render($mjml)->html);
+    }
+}
+```
+
+Send it as usual with `Mail::to($user)->send(new WelcomeMail($user));`.
+
+### Symfony
+
+Install the package:
+
+```bash
+composer require php-mjml/php-mjml
+```
+
+Register the renderer in `config/services.yaml` using its factory method, so it can be
+autowired anywhere:
+
+```yaml
+services:
+    PhpMjml\Renderer\Mjml2Html:
+        factory: ['PhpMjml\Renderer\Mjml2Html', 'create']
+```
+
+Write the email as MJML in a Twig template, e.g. `templates/emails/welcome.mjml.twig`.
+Twig auto-escapes variables as HTML for this file:
+
+```twig
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="20px">Welcome, {{ user.name }}!</mj-text>
+        <mj-button href="{{ url('app_dashboard') }}">Open your dashboard</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+Render and send it with Symfony Mailer:
+
+```php
+use PhpMjml\Renderer\Mjml2Html;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Twig\Environment;
+
+final class WelcomeMailer
+{
+    public function __construct(
+        private readonly Environment $twig,
+        private readonly Mjml2Html $mjml,
+        private readonly MailerInterface $mailer,
+    ) {
+    }
+
+    public function send(User $user): void
+    {
+        $mjml = $this->twig->render('emails/welcome.mjml.twig', ['user' => $user]);
+
+        $email = (new Email())
+            ->to($user->getEmail())
+            ->subject('Welcome!')
+            ->html($this->mjml->render($mjml)->html);
+
+        $this->mailer->send($email);
+    }
+}
+```
+
+### Tips for Both Frameworks
+
+- Log `$result->errors` (or fail your tests on `$result->hasErrors()`) to catch invalid
+  attributes in your templates early.
+- The renderer holds no per-email state, so a single shared instance can render any number
+  of emails.
+- For HTML that comes from users rather than your templates (e.g. rich-text content
+  inserted with `{!! !!}` or `|raw`), run it through the [`EmailContentSanitizer`](#security)
+  first.
+
 ## Post-Processing (Minify, Beautify)
 
 Like the JavaScript MJML library, post-processing (minification, beautification) is not
