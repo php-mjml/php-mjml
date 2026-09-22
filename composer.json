@@ -9,16 +9,16 @@
         "php": ">=8.2",
         "ext-dom": "*",
         "ext-libxml": "*",
-        "symfony/css-selector": "^7.0 || ^8.0",
-        "symfony/dom-crawler": "^7.0 || ^8.0",
-        "symfony/html-sanitizer": "^7.0 || ^8.0",
-        "symfony/options-resolver": "^7.0 || ^8.0"
+        "symfony/css-selector": "^7.4 || ^8.0",
+        "symfony/dom-crawler": "^7.4.12 || ^8.0.12",
+        "symfony/html-sanitizer": "^7.4.13 || ^8.0.13",
+        "symfony/options-resolver": "^7.4 || ^8.0"
     },
     "require-dev": {
-        "php-cs-fixer/shim": "^3.91",
+        "php-cs-fixer/shim": "^3.95",
         "phpstan/phpstan": "^2.2",
         "phpstan/phpstan-phpunit": "^2.0",
-        "phpunit/phpunit": "^11.0"
+        "phpunit/phpunit": "^11.5.50"
     },
     "autoload": {
         "psr-4": {
