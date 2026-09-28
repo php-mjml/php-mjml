@@ -30,6 +30,7 @@ final class Body extends BodyComponent
         return [
             'width' => 'unit(px)',
             'background-color' => 'color',
+            'id' => 'string',
         ];
     }
 
@@ -73,18 +74,22 @@ final class Body extends BodyComponent
             $this->context->setBackgroundColor($backgroundColor);
         }
 
+        // id and css-class belong on the <body> tag, rendered by the skeleton
+        if (null !== $this->context) {
+            foreach (['id' => 'id', 'class' => 'css-class'] as $name => $attribute) {
+                $value = $this->getAttribute($attribute);
+                if (null !== $value && '' !== $value) {
+                    $this->context->globalData->bodyAttributes[$name] = $value;
+                }
+            }
+        }
+
         // Add aria attributes
         $attributes = [];
         if (null !== $this->context?->title && '' !== $this->context->title) {
             $attributes['aria-label'] = $this->context->title;
         }
         $attributes['aria-roledescription'] = 'email';
-
-        // Add css-class if set
-        $cssClass = $this->getAttribute('css-class');
-        if (null !== $cssClass && '' !== $cssClass) {
-            $attributes['class'] = $cssClass;
-        }
 
         $attributes['style'] = 'div';
         $attributes['role'] = 'article';

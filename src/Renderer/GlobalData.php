@@ -31,6 +31,7 @@ final class GlobalData
      * @param array<int, string>                        $errors             Validation errors collected during rendering
      * @param bool                                      $forceOwaDesktop    Whether to emit [owa] media queries (root owa="desktop")
      * @param list<string>                              $headRaw            Raw content from mj-raw inside mj-head
+     * @param array<string, string>                     $bodyAttributes     Attributes for the <body> tag (id, class) from mj-body
      */
     public function __construct(
         public array $mediaQueries = [],
@@ -42,6 +43,7 @@ final class GlobalData
         public array $errors = [],
         public bool $forceOwaDesktop = false,
         public array $headRaw = [],
+        public array $bodyAttributes = [],
     ) {
     }
 

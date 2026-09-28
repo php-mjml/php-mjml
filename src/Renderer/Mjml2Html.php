@@ -371,7 +371,7 @@ final class Mjml2Html
         $mediaQueries = $this->buildMediaQueries($context);
         $componentHeadStyles = $this->buildComponentHeadStyles($context);
         $styleTags = $this->buildStyleTags($context);
-        $bodyStyle = $this->buildBodyStyle($context);
+        $bodyAttributes = $this->buildBodyAttributes($context);
 
         // Build html tag attributes - lang and dir always included with defaults
         $lang = htmlspecialchars($context->getLang(), \ENT_QUOTES, 'UTF-8');
@@ -395,15 +395,20 @@ final class Mjml2Html
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {$styles}{$fonts}{$mediaQueries}{$componentHeadStyles}{$styleTags}{$headRaw}</head>
-<body{$bodyStyle}>
+<body{$bodyAttributes}>
 {$preview}{$bodyHtml}
 </body>
 </html>
 HTML;
     }
 
-    private function buildBodyStyle(RenderContext $context): string
+    private function buildBodyAttributes(RenderContext $context): string
     {
+        $attributes = '';
+        foreach ($context->globalData->bodyAttributes as $name => $value) {
+            $attributes .= \sprintf(' %s="%s"', $name, htmlspecialchars($value, \ENT_QUOTES, 'UTF-8'));
+        }
+
         $styles = ['word-spacing:normal'];
         $backgroundColor = $context->getBackgroundColor();
 
@@ -411,7 +416,7 @@ HTML;
             $styles[] = "background-color:{$backgroundColor}";
         }
 
-        return ' style="'.implode(';', $styles).';"';
+        return $attributes.' style="'.implode(';', $styles).';"';
     }
 
     private function buildPreview(string $preview): string
