@@ -29,6 +29,7 @@ final class GlobalData
      * @param list<string>                              $inlineStyles       Inline CSS styles for inlining into elements
      * @param array<string, array<string, string|null>> $htmlAttributes     Custom HTML attributes indexed by CSS selector
      * @param array<int, string>                        $errors             Validation errors collected during rendering
+     * @param bool                                      $forceOwaDesktop    Whether to emit [owa] media queries (root owa="desktop")
      */
     public function __construct(
         public array $mediaQueries = [],
@@ -38,6 +39,7 @@ final class GlobalData
         public array $inlineStyles = [],
         public array $htmlAttributes = [],
         public array $errors = [],
+        public bool $forceOwaDesktop = false,
     ) {
     }
 
