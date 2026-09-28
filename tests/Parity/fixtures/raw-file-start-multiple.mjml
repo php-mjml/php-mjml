@@ -1,0 +1,12 @@
+<mjml>
+  <mj-raw position="file-start">{% set a = 1 %}</mj-raw>
+  <mj-raw position="file-start">{% set b = 2 %}</mj-raw>
+  <mj-raw>ignored outside body</mj-raw>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Hi</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

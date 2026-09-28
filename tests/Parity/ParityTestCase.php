@@ -75,7 +75,16 @@ abstract class ParityTestCase extends TestCase
         $html = $this->normalizeCarouselIds($html);
 
         // Remove FILE comments added by MJML CLI
-        $html = preg_replace('/<!-- FILE: [^>]+ -->/', '', $html) ?? $html;
+        $html = preg_replace('/<!-- FILE: [^>]+ -->\s*/', '', $html) ?? $html;
+
+        // Content before the doctype (mj-raw position="file-start") is not part of
+        // the HTML document and would be mangled by DOMDocument, so compare it as text
+        $beforeDoctype = '';
+        $doctypePos = stripos($html, '<!doctype');
+        if (false !== $doctypePos && $doctypePos > 0) {
+            $beforeDoctype = trim(substr($html, 0, $doctypePos))."\n";
+            $html = substr($html, $doctypePos);
+        }
 
         // Remove whitespace between tags
         $html = preg_replace('/>\s+</', '><', $html) ?? $html;
@@ -113,7 +122,7 @@ abstract class ParityTestCase extends TestCase
 
         $result = $dom->saveHTML();
 
-        return false !== $result ? $result : $original;
+        return $beforeDoctype.(false !== $result ? $result : $original);
     }
 
     protected function getFixturePath(string $name): string
