@@ -68,6 +68,14 @@ final class RootLangDirTest extends TestCase
         $this->assertStringNotContainsString('dir="auto"', $html);
     }
 
+    public function testEmptyRootLangAndDirFallBackToDefaults(): void
+    {
+        $html = $this->renderer->render($this->mjml('<mjml lang="" dir="">'))->html;
+
+        $this->assertStringContainsString('<html lang="und" dir="auto"', $html);
+        $this->assertMatchesRegularExpression('/<div[^>]*role="article"[^>]*lang="und"[^>]*dir="auto"/', $html);
+    }
+
     private function mjml(string $rootTag): string
     {
         return $rootTag.'<mj-body><mj-section><mj-column><mj-text>Hoi</mj-text></mj-column></mj-section></mj-body></mjml>';

@@ -55,9 +55,17 @@ final class Mjml2Html
 
         $ast = $this->parser->parse($mjml);
 
+        // Root <mjml> attributes; empty values fall back to defaults like in MJML
+        $lang = $ast->attributes['lang'] ?? '';
+        $dir = $ast->attributes['dir'] ?? '';
+
         $context = new RenderContext(
             registry: $this->registry,
             renderOptions: $options,
+            options: [
+                'lang' => '' !== $lang ? $lang : 'und',
+                'dir' => '' !== $dir ? $dir : 'auto',
+            ],
         );
 
         // Process head components first
