@@ -68,6 +68,9 @@ final class Mjml2Html
             ],
         );
 
+        // Root <mjml owa="desktop"> makes Outlook Web App use the desktop layout
+        $context->globalData->forceOwaDesktop = 'desktop' === ($ast->attributes['owa'] ?? 'mobile');
+
         // Process head components first
         $this->processHead($ast, $context);
 
@@ -517,14 +520,21 @@ CSS;
         $breakpoint = $context->getBreakpoint();
         $queries = [];
         $thunderbirdQueries = [];
+        $owaQueries = [];
 
         foreach ($mediaQueries as $className => $cssValue) {
             $queries[] = ".{$className} {$cssValue}";
             $thunderbirdQueries[] = ".moz-text-html .{$className} {$cssValue}";
+            $owaQueries[] = "[owa] .{$className} {$cssValue}";
         }
 
         $baseQueries = implode("\n", $queries);
         $mozQueries = implode("\n", $thunderbirdQueries);
+
+        $owaStyle = '';
+        if ($context->globalData->forceOwaDesktop) {
+            $owaStyle = "\n<style type=\"text/css\">\n".implode("\n", $owaQueries)."\n</style>";
+        }
 
         return <<<CSS
 
@@ -535,7 +545,7 @@ CSS;
 </style>
 <style media="screen and (min-width:{$breakpoint})">
 {$mozQueries}
-</style>
+</style>{$owaStyle}
 CSS;
     }
 }
