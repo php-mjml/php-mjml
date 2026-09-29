@@ -189,7 +189,9 @@ final class WrapperTest extends TestCase
         $this->assertSame(520, $childContext['containerWidth']);
         // Gap should be passed to children via componentData
         $this->assertArrayHasKey('componentData', $childContext);
+        $this->assertIsArray($childContext['componentData']);
         $this->assertArrayHasKey('gap', $childContext['componentData']);
+        $this->assertIsArray($childContext['componentData']['gap']);
         $this->assertSame('20px', $childContext['componentData']['gap']['value']);
     }
 
