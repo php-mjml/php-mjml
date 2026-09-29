@@ -18,6 +18,7 @@ use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Registry;
 use PhpMjml\Components\Body\Body;
+use PhpMjml\Components\Body\Raw;
 use PhpMjml\Components\Head\Head;
 use PhpMjml\Helper\CssInliner;
 use PhpMjml\Helper\OutlookConditionalHelper;
@@ -87,7 +88,7 @@ final class Mjml2Html
         $bodyHtml = OutlookConditionalHelper::mergeConditionals($bodyHtml);
 
         // Build final HTML
-        $html = $this->buildSkeleton($bodyHtml, $context);
+        $html = $this->buildSkeleton($bodyHtml, $context, $this->buildBeforeDoctype($ast));
 
         return new RenderResult(
             html: $html,
@@ -124,6 +125,9 @@ final class Mjml2Html
 
             if (method_exists($component, 'handle')) {
                 $component->handle($context);
+            } elseif ($component instanceof Raw) {
+                // mj-raw in mj-head is output at the end of <head>
+                $context->globalData->headRaw[] = $component->render();
             }
         }
     }
@@ -342,7 +346,23 @@ final class Mjml2Html
         return RenderContext::fromArray($childContextArray, $baseContext);
     }
 
-    private function buildSkeleton(string $bodyHtml, RenderContext $context): string
+    /**
+     * Collect mj-raw elements placed directly under <mjml> with position="file-start".
+     */
+    private function buildBeforeDoctype(Node $ast): string
+    {
+        $contents = [];
+
+        foreach ($ast->children as $child) {
+            if (Raw::getComponentName() === $child->tagName && 'file-start' === ($child->attributes['position'] ?? null)) {
+                $contents[] = $child->content;
+            }
+        }
+
+        return [] !== $contents ? implode("\n", $contents)."\n" : '';
+    }
+
+    private function buildSkeleton(string $bodyHtml, RenderContext $context, string $beforeDoctype = ''): string
     {
         $title = htmlspecialchars($context->getTitle(), \ENT_QUOTES, 'UTF-8');
         $preview = '' !== $context->getPreview() ? $this->buildPreview($context->getPreview()) : '';
@@ -362,8 +382,10 @@ final class Mjml2Html
             $dir
         );
 
+        $headRaw = [] !== $context->globalData->headRaw ? "\n".implode("\n", $context->globalData->headRaw)."\n" : '';
+
         return <<<HTML
-<!doctype html>
+{$beforeDoctype}<!doctype html>
 <html {$htmlAttrs}>
 <head>
 <title>{$title}</title>
@@ -372,7 +394,7 @@ final class Mjml2Html
 <!--<![endif]-->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{$styles}{$fonts}{$mediaQueries}{$componentHeadStyles}{$styleTags}</head>
+{$styles}{$fonts}{$mediaQueries}{$componentHeadStyles}{$styleTags}{$headRaw}</head>
 <body{$bodyStyle}>
 {$preview}{$bodyHtml}
 </body>

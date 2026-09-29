@@ -1,0 +1,13 @@
+<mjml>
+  <mj-head>
+    <!-- head comment -->
+    <mj-title>Hi</mj-title>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Hi</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
