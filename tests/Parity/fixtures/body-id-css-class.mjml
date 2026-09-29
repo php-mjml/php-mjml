@@ -1,0 +1,14 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-class name="page" css-class="from-class" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body id="main" mj-class="page" css-class="wrap">
+    <mj-section>
+      <mj-column>
+        <mj-text>Hi</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
