@@ -13,12 +13,16 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Constant\PreviewHeader;
 use App\Service\EmailVerificationService;
 use App\Service\TestEmailService;
 use PhpMjml\Component\Registry;
 use PhpMjml\Parser\MjmlParser;
+use PhpMjml\Parser\ParserException;
 use PhpMjml\Preset\CorePreset;
 use PhpMjml\Renderer\Mjml2Html;
+use PhpMjml\Renderer\ValidationException;
+use PhpMjml\Security\LimitExceededException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,15 +39,25 @@ class DemoController extends AbstractController
         return $this->render('demo/index.html.twig');
     }
 
+    /**
+     * Renders user-supplied MJML for the preview iframe.
+     *
+     * The result is returned as plain text with a sandbox CSP: the endpoint has no CSRF
+     * protection (it needs no session), so a cross-site form posting here must not get
+     * attacker-controlled HTML executed on this origin.
+     */
     #[Route('/render', name: 'demo_render', methods: ['POST'])]
     public function renderMjml(Request $request): Response
     {
         $mjml = $request->request->getString('mjml') ?: $this->getDefaultMjml();
 
-        $renderer = $this->createRenderer();
-        $result = $renderer->render($mjml);
+        try {
+            $result = $this->createRenderer()->render($mjml);
+        } catch (ParserException|ValidationException|LimitExceededException $e) {
+            return $this->createPreviewResponse($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        return new Response($result->html);
+        return $this->createPreviewResponse($result->html);
     }
 
     #[Route('/preview', name: 'demo_preview')]
@@ -51,10 +65,21 @@ class DemoController extends AbstractController
     {
         $mjml = $this->getDefaultMjml();
 
-        $renderer = $this->createRenderer();
-        $result = $renderer->render($mjml);
+        $result = $this->createRenderer()->render($mjml);
 
-        return new Response($result->html);
+        // Trusted template, displayed as a page; the sandbox CSP still keeps it off this origin
+        return new Response($result->html, Response::HTTP_OK, [
+            PreviewHeader::CONTENT_SECURITY_POLICY => PreviewHeader::SANDBOX_POLICY,
+        ]);
+    }
+
+    private function createPreviewResponse(string $content, int $status = Response::HTTP_OK): Response
+    {
+        return new Response($content, $status, [
+            PreviewHeader::CONTENT_TYPE => PreviewHeader::PLAIN_TEXT,
+            PreviewHeader::CONTENT_TYPE_OPTIONS => PreviewHeader::NOSNIFF,
+            PreviewHeader::CONTENT_SECURITY_POLICY => PreviewHeader::SANDBOX_POLICY,
+        ]);
     }
 
     private function getDefaultMjml(): string

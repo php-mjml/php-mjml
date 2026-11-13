@@ -25,14 +25,20 @@ export default class extends Controller {
                 body: formData,
             });
 
-            this.renderedHtml = await response.text();
+            const body = await response.text();
+
+            if (!response.ok) {
+                this.showError(body || 'Error rendering MJML');
+                return;
+            }
+
+            this.renderedHtml = body;
             this.previewTarget.srcdoc = this.renderedHtml;
 
             this.dispatch('rendered', { detail: { html: this.renderedHtml } });
         } catch (error) {
             console.error('Error rendering MJML:', error);
-            this.previewTarget.srcdoc = '<html><body><p style="color: red;">Error rendering MJML</p></body></html>';
-            this.renderedHtml = '';
+            this.showError('Error rendering MJML');
         } finally {
             this.renderButtonTarget.disabled = false;
             this.renderButtonTarget.textContent = 'Render';
@@ -41,5 +47,15 @@ export default class extends Controller {
 
     getRenderedHtml() {
         return this.renderedHtml;
+    }
+
+    showError(message) {
+        // Built with textContent: error messages can echo parts of the user's MJML
+        const paragraph = document.createElement('p');
+        paragraph.style.color = 'red';
+        paragraph.textContent = message;
+
+        this.previewTarget.srcdoc = `<html><body>${paragraph.outerHTML}</body></html>`;
+        this.renderedHtml = '';
     }
 }

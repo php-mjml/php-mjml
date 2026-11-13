@@ -140,7 +140,11 @@
                 </div>
             </div>
             <div class="panel-content">
-                <iframe data-mjml-editor-target="preview"></iframe>
+                {# The rendered email is user-controlled HTML: without allow-scripts/allow-same-origin it runs
+                   with an opaque origin and no JavaScript. Popups are allowed so links can open in a new tab. #}
+                <iframe data-mjml-editor-target="preview"
+                        title="Email preview"
+                        sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>
             </div>
         </div>
     </div>
