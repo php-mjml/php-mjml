@@ -206,4 +206,66 @@ final class UrlValidatorTest extends TestCase
         // Valid URL with encoded characters
         $this->assertTrue($this->validator->isValid('https://example.com/path%20with%20spaces'));
     }
+
+    /**
+     * Browsers remove tab and newline characters anywhere in a URL and strip leading
+     * control characters, so these all resolve to javascript: URLs.
+     */
+    #[DataProvider('browserNormalizedSchemeProvider')]
+    public function testSchemesHiddenByBrowserNormalizationAreRejected(string $url): void
+    {
+        $this->assertFalse($this->validator->isValid($url));
+        $this->assertFalse(UrlValidator::blockDangerousSchemes()->isValid($url));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function browserNormalizedSchemeProvider(): array
+    {
+        return [
+            'tab inside scheme' => ["java\tscript:alert(1)"],
+            'newline inside scheme' => ["java\nscript:alert(1)"],
+            'carriage return inside scheme' => ["jav\rascript:alert(1)"],
+            'leading control character' => ["\x01javascript:alert(1)"],
+            'leading null byte' => ["\x00javascript:alert(1)"],
+        ];
+    }
+
+    public function testBlockDangerousSchemesAllowsOtherSchemes(): void
+    {
+        $validator = UrlValidator::blockDangerousSchemes();
+
+        $this->assertTrue($validator->isValid('cid:logo@example.com'));
+        $this->assertTrue($validator->isValid('sms:+123'));
+        $this->assertFalse($validator->isValid('javascript:alert(1)'));
+    }
+
+    public function testDataImagesAreOnlyAllowedWhenEnabled(): void
+    {
+        $png = 'data:image/png;base64,iVBORw0KGgo=';
+
+        $this->assertFalse($this->validator->isValid($png));
+        $this->assertTrue((new UrlValidator(allowDataImages: true))->isValid($png));
+        $this->assertTrue((new UrlValidator(allowDataImages: true))->isValid('data:image/jpeg;base64,AAAA'));
+    }
+
+    #[DataProvider('unsafeDataUriProvider')]
+    public function testUnsafeDataUrisAreRejectedEvenWhenDataImagesAreAllowed(string $url): void
+    {
+        $this->assertFalse((new UrlValidator(allowDataImages: true))->isValid($url));
+        $this->assertFalse(UrlValidator::blockDangerousSchemes(allowDataImages: true)->isValid($url));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function unsafeDataUriProvider(): array
+    {
+        return [
+            'svg can carry scripts' => ['data:image/svg+xml,<svg onload=alert(1)>'],
+            'html' => ['data:text/html,<script>alert(1)</script>'],
+            'image prefix without separator' => ['data:image/pngx,abc'],
+        ];
+    }
 }

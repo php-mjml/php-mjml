@@ -15,9 +15,30 @@ namespace PhpMjml\Component;
 
 use PhpMjml\Components\Head\Attributes;
 use PhpMjml\Renderer\RenderContext;
+use PhpMjml\Security\UrlValidator;
 
 abstract class AbstractComponent implements ComponentInterface
 {
+    /**
+     * Attributes holding a single URL. Values rejected by the configured UrlValidator are removed.
+     */
+    public const URL_ATTRIBUTES = [
+        'href',
+        'src',
+        'background-url',
+        'base-url',
+        'icon-wrapped-url',
+        'icon-unwrapped-url',
+        'left-icon',
+        'right-icon',
+        'thumbnails-src',
+    ];
+
+    /**
+     * Attributes holding a comma-separated list of "url descriptor" candidates.
+     */
+    public const SRCSET_ATTRIBUTES = ['srcset'];
+
     /** @var array<string, string|null> */
     protected array $attributes = [];
 
@@ -36,7 +57,7 @@ abstract class AbstractComponent implements ComponentInterface
     /**
      * Compiled attribute validation specs, keyed by component class.
      *
-     * @var array<string, array{allowed: array<string, true>, enums: array<string, list<string>>, defaults: array<string, string|null>}>
+     * @var array<string, array{allowed: array<string, true>, enums: array<string, list<string>>, types: array<string, string>, defaults: array<string, string|null>}>
      */
     private static array $specCache = [];
 
@@ -124,6 +145,80 @@ abstract class AbstractComponent implements ComponentInterface
     }
 
     /**
+     * Validate only the types of the given attribute values, ignoring unknown names.
+     *
+     * Used for defaults declared in mj-attributes, which are not checked for unknown names.
+     *
+     * @param array<string, string|null> $attributes
+     */
+    public static function validateAttributeTypes(array $attributes): ?string
+    {
+        $class = static::class;
+
+        self::$specCache[$class] ??= AttributeResolver::createSpec(
+            static::getAllowedAttributes(),
+            static::getDefaultAttributes()
+        );
+
+        $violation = AttributeResolver::findViolation(self::$specCache[$class], $attributes, checkNames: false);
+
+        return null === $violation ? null : \sprintf('%s: %s', static::getComponentName(), $violation);
+    }
+
+    /**
+     * Find the first URL attribute whose value the validator rejects.
+     *
+     * @param array<string, string|null> $attributes
+     */
+    public static function findUrlViolation(array $attributes, UrlValidator $validator): ?string
+    {
+        foreach ($attributes as $name => $value) {
+            if (null !== $value && !self::isUrlAttributeValueAllowed($name, $value, $validator)) {
+                return \sprintf('%s: The option "%s" with value "%s" uses a URL scheme that is not allowed.', static::getComponentName(), $name, $value);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether a value is allowed for the given attribute; non-URL attributes are always allowed.
+     */
+    public static function isUrlAttributeValueAllowed(string $name, string $value, UrlValidator $validator): bool
+    {
+        if (\in_array($name, self::URL_ATTRIBUTES, true)) {
+            return $validator->isValid($value);
+        }
+
+        if (\in_array($name, self::SRCSET_ATTRIBUTES, true)) {
+            foreach (explode(',', $value) as $candidate) {
+                // A candidate is "url [descriptor]"; the URL itself cannot contain whitespace
+                $url = preg_split('/\s+/', trim($candidate), 2)[0] ?? '';
+                if (!$validator->isValid($url)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate a URL built at render time (e.g. a base URL joined with an href) and report it if rejected.
+     */
+    protected function sanitizeUrl(string $attribute, ?string $url): ?string
+    {
+        $validator = $this->context?->renderOptions->urlValidator;
+        if (null === $url || null === $validator || $validator->isValid($url)) {
+            return $url;
+        }
+
+        $this->reportRemovedUrl($attribute);
+
+        return null;
+    }
+
+    /**
      * Whether content should be preserved exactly as provided (no trimming).
      *
      * Override in subclasses that need to preserve raw content (e.g., mj-raw).
@@ -131,6 +226,39 @@ abstract class AbstractComponent implements ComponentInterface
     protected function shouldPreserveContent(): bool
     {
         return false;
+    }
+
+    /**
+     * Remove URL attributes whose value is rejected by the configured validator.
+     *
+     * @param array<string, string|null> $attributes
+     *
+     * @return array<string, string|null>
+     */
+    private function removeDisallowedUrls(array $attributes): array
+    {
+        $validator = $this->context?->renderOptions->urlValidator;
+        if (null === $validator) {
+            return $attributes;
+        }
+
+        foreach ($attributes as $name => $value) {
+            if (null !== $value && !self::isUrlAttributeValueAllowed($name, $value, $validator)) {
+                $attributes[$name] = null;
+                $this->reportRemovedUrl($name);
+            }
+        }
+
+        return $attributes;
+    }
+
+    private function reportRemovedUrl(string $attribute): void
+    {
+        $this->context?->globalData->addUniqueError(\sprintf(
+            '%s: Removed "%s" because its URL scheme is not allowed.',
+            static::getComponentName(),
+            $attribute
+        ));
     }
 
     /**
@@ -203,7 +331,7 @@ abstract class AbstractComponent implements ComponentInterface
 
         $merged = array_merge($merged, $instanceAttributesWithoutMjClass);
 
-        return $this->normalizeColorAttributes($merged);
+        return $this->removeDisallowedUrls($this->normalizeColorAttributes($merged));
     }
 
     /**

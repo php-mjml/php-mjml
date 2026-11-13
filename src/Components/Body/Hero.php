@@ -16,6 +16,7 @@ namespace PhpMjml\Components\Body;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Helper\ConditionalTag;
+use PhpMjml\Helper\CssHelper;
 
 /**
  * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
@@ -243,7 +244,7 @@ final class Hero extends BodyComponent
 
         $backgroundUrl = $this->getAttribute('background-url');
         if (null !== $backgroundUrl) {
-            $parts[] = \sprintf("url('%s')", $backgroundUrl);
+            $parts[] = \sprintf("url('%s')", CssHelper::escapeUrl($backgroundUrl));
             $parts[] = 'no-repeat';
             $parts[] = \sprintf('%s / cover', $this->getAttribute('background-position'));
         }

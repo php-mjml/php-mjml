@@ -178,7 +178,7 @@ final class Navbar extends BodyComponent
             ]),
             ConditionalTag::wrap(\sprintf(
                 '<table role="presentation" border="0" cellpadding="0" cellspacing="0" align="%s"><tr>',
-                $align
+                htmlspecialchars($align ?? '', \ENT_QUOTES, 'UTF-8')
             )),
             $this->renderChildren(),
             ConditionalTag::wrap('</tr></table>'),

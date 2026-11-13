@@ -216,7 +216,7 @@ class Section extends BodyComponent
         $parts = array_filter([
             $this->getAttribute('background-color'),
             $this->hasBackground()
-                ? \sprintf("url('%s')", $this->getAttribute('background-url'))
+                ? \sprintf("url('%s')", CssHelper::escapeUrl($this->getAttribute('background-url') ?? ''))
                 : null,
             $this->hasBackground() ? $this->getBackgroundString() : null,
             $this->hasBackground() ? \sprintf('/ %s', $this->getAttribute('background-size')) : null,

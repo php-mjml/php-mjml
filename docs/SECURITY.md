@@ -5,6 +5,7 @@ This guide documents security considerations when using PHP-MJML and provides be
 ## Table of Contents
 
 - [Threat Model](#threat-model)
+- [Rendering User-Supplied MJML](#rendering-user-supplied-mjml)
 - [Security Architecture](#security-architecture)
 - [Using the Sanitizer](#using-the-sanitizer)
 - [URL Validation](#url-validation)
@@ -31,20 +32,62 @@ PHP-MJML is designed for **trusted input** by default. Like the JavaScript MJML 
 
 | Vector | Risk Level | Mitigation |
 |--------|------------|------------|
-| XSS via mj-text content | High if untrusted | Use EmailContentSanitizer |
-| XSS via mj-raw content | High if untrusted | Use EmailContentSanitizer |
-| JavaScript URL injection | Medium | Use UrlValidator |
-| CSS injection via style | Low | Email clients strip most CSS |
-| XXE attacks | None | PHP 8+ disables external entities by default |
-| Attribute injection | None | All attributes are escaped |
+| XSS via mj-text / mj-raw / other ending tag content | High if untrusted | Use EmailContentSanitizer, or isolate the output (see below) |
+| XSS via comments (`<!--[if mso]>`) | High if untrusted | `keepComments: false` |
+| XSS via mj-html-attributes (`onclick`, ...) | High if untrusted | Isolate the output; do not accept mj-html-attributes from users |
+| JavaScript URL injection | Mitigated | URL attributes are validated by default (`urlValidator` option) |
+| Attribute / style-tag breakout | Mitigated | Attribute values and CSS values are escaped for their context |
+| CSS property injection (`color="red;background:url(...)"`) | Low | `ValidationLevel::Strict` rejects values not matching the attribute type |
+| XXE / external DTD | None | Document type declarations are rejected |
+| Entity expansion (billion laughs, quadratic blowup) | None | Document type declarations are rejected |
+| Resource exhaustion | Mitigated | Input size, carousel and inline CSS limits (see RenderOptions) |
+
+## Rendering User-Supplied MJML
+
+When users write the **whole MJML document** (template editors, email builders), treat the
+rendered HTML as untrusted: MJML is designed to pass raw HTML through `mj-raw`, `mj-text` and
+the other ending tags, so the output can always contain scripts.
+
+1. **Render with the untrusted-input preset:**
+
+   ```php
+   use PhpMjml\Renderer\Mjml2Html;
+   use PhpMjml\Renderer\RenderOptions;
+
+   $result = Mjml2Html::create()->render($userMjml, RenderOptions::forUntrustedInput());
+   ```
+
+   This enables strict validation (invalid attribute values throw a `ValidationException`),
+   drops comments, and only allows `http`, `https`, `mailto` and `tel` URLs (plus raster
+   `data:image/...` URIs). Pass a custom `UrlValidator` to allow more schemes, e.g. `cid:`.
+
+2. **Never display the output on your application's origin.** Show previews in a sandboxed
+   iframe without `allow-scripts` and `allow-same-origin`:
+
+   ```html
+   <iframe sandbox="allow-popups allow-popups-to-escape-sandbox" srcdoc="..."></iframe>
+   ```
+
+   If an endpoint returns rendered HTML, serve it as `text/plain` with
+   `X-Content-Type-Options: nosniff` and `Content-Security-Policy: sandbox`, or from a
+   separate origin. A `srcdoc` iframe without `sandbox` runs with your origin.
+
+3. **Catch the library's exceptions** and turn them into user-facing errors:
+   `ParserException`, `ValidationException` and `LimitExceededException`. Error messages may
+   contain parts of the input: escape them before displaying them as HTML.
+
+4. **Keep the limits on.** `RenderOptions` defaults to a 2 MiB input limit, 50 images per
+   `mj-carousel` (its CSS grows quadratically) and 1000 inline CSS rules. Pass `null` to disable a limit.
 
 ## Security Architecture
 
 ### What's Automatically Secured
 
-1. **HTML Attributes**: All attribute values are escaped using `htmlspecialchars(ENT_QUOTES, 'UTF-8')`
-2. **Title and Preview**: Head component content is properly escaped
-3. **XML Parser**: Uses PHP 8+ secure defaults (external entity loading disabled)
+1. **HTML Attributes**: All attribute values are escaped with `htmlspecialchars` (`style` values keep single quotes but escape double quotes)
+2. **CSS Contexts**: Values written into `<style>` blocks (breakpoint, carousel colors, column units, font URLs, background URLs) are sanitized so they cannot open new rules or close the element; `</style` inside `mj-style` is neutralized
+3. **URL Attributes**: `href`, `src`, `srcset`, `background-url` and other URL attributes are validated; values with dangerous schemes (`javascript:`, `vbscript:`, `data:` except raster images, ...) are removed and reported
+4. **Title and Preview**: Head component content is properly escaped
+5. **XML Parser**: Document type declarations are rejected (no external entities, no entity expansion); comments that would close early in HTML5 (`<!-->`) are neutralized
 
 ### What Requires Manual Sanitization
 
@@ -193,7 +236,16 @@ $validator = UrlValidator::webUrls();
 
 // Custom schemes
 $validator = new UrlValidator(['https', 'http', 'ftp']);
+
+// Any scheme except the dangerous ones (the renderer default), allowing raster data:image URIs
+$validator = UrlValidator::blockDangerousSchemes(allowDataImages: true);
 ```
+
+The validator normalizes URLs the way browsers do before checking the scheme, so
+`java&#9;script:` or a leading control character cannot hide a `javascript:` URL.
+
+Pass a validator to the renderer with `new RenderOptions(urlValidator: $validator)`, or
+`urlValidator: null` to disable URL validation.
 
 ## Best Practices
 
@@ -391,23 +443,21 @@ Never use `raw` with user content:
 
 ## Known Limitations
 
-### 1. CSS Background URLs
+### 1. Default URL Policy
 
-Background URLs in `mj-section` and `mj-hero` are not automatically validated:
-
-```php
-// You must validate these manually
-$validator = new UrlValidator();
-$bgUrl = $validator->sanitize($userProvidedUrl);
-```
+By default only dangerous schemes are blocked, so `cid:`, `sms:` and similar schemes keep
+working. `RenderOptions::forUntrustedInput()` switches to an allowlist. URLs set through
+`mj-html-attributes` are not validated.
 
 ### 2. Font URLs
 
-Font URLs in `@import` statements are not validated. Only use fonts from trusted sources.
+Font URLs are scheme-validated and escaped, but the stylesheet they point to is loaded by
+the email client. Only allow fonts from sources you trust.
 
 ### 3. mj-style Content
 
-The `mj-style` component renders CSS directly. Never include user content in style blocks.
+The `mj-style` component renders CSS directly. It cannot close the `<style>` element, but it
+can restyle the whole email (overlays, hidden text, tracking `url()`s).
 
 ### 4. Sanitizer Length Limits
 

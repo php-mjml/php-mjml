@@ -56,6 +56,19 @@ final class GlobalData
     }
 
     /**
+     * Add an error message unless the exact same message was already reported.
+     *
+     * Components are instantiated more than once while building the tree, so errors
+     * raised during attribute resolution would otherwise be reported repeatedly.
+     */
+    public function addUniqueError(string $error): void
+    {
+        if (!\in_array($error, $this->errors, true)) {
+            $this->errors[] = $error;
+        }
+    }
+
+    /**
      * Add a media query for responsive column widths.
      *
      * @param string                                      $className CSS class name (e.g., 'mj-column-per-50')

@@ -36,6 +36,9 @@ final class Attributes extends HeadComponent
     public const TAG_NAME_ALL = 'mj-all';
     public const TAG_NAME_CLASS = 'mj-class';
 
+    /** Attribute of mj-class holding the class name. */
+    public const ATTRIBUTE_NAME = 'name';
+
     /**
      * Key under which component-specific defaults of an mj-class are stored.
      */
@@ -73,7 +76,7 @@ final class Attributes extends HeadComponent
 
             if (self::TAG_NAME_CLASS === $tagName) {
                 // mj-class defines named CSS classes that can be applied via mj-class attribute
-                $className = $attributes['name'] ?? null;
+                $className = $attributes[self::ATTRIBUTE_NAME] ?? null;
                 if (null === $className || '' === $className) {
                     continue;
                 }
@@ -81,7 +84,7 @@ final class Attributes extends HeadComponent
                 // Store class attributes (excluding the 'name' attribute)
                 $classAttributes = array_filter(
                     $attributes,
-                    static fn (string $key) => 'name' !== $key,
+                    static fn (string $key) => self::ATTRIBUTE_NAME !== $key,
                     \ARRAY_FILTER_USE_KEY
                 );
 

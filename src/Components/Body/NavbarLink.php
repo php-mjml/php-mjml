@@ -135,9 +135,11 @@ final class NavbarLink extends BodyComponent
         $href = $this->getAttribute('href');
         $navbarBaseUrl = $this->getNavbarBaseUrl();
 
-        $link = (null !== $navbarBaseUrl && null !== $href)
+        // base-url and href are validated separately, but their concatenation can form a new scheme
+        // (base-url="java" + href="script:..."), so the final link is validated as well
+        $link = $this->sanitizeUrl('href', (null !== $navbarBaseUrl && null !== $href)
             ? $navbarBaseUrl.$href
-            : $href;
+            : $href);
 
         $cssClass = $this->getAttribute('css-class');
         $classAttr = null !== $cssClass ? 'mj-link '.$cssClass : 'mj-link';

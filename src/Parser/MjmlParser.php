@@ -19,6 +19,18 @@ use PhpMjml\Preset\CorePreset;
 
 final class MjmlParser
 {
+    /**
+     * Matches a document type declaration. DTDs are never needed for MJML and allow
+     * entity-expansion attacks (e.g. quadratic blowup), so documents declaring one are rejected.
+     */
+    private const DOCTYPE_PATTERN = '/<!DOCTYPE/i';
+
+    /**
+     * Comment text that HTML5 parsers treat as an abruptly closed comment ("<!-->" or "<!--->"),
+     * which would turn the rest of the comment into live markup when re-emitted.
+     */
+    private const UNSAFE_COMMENT_START_PATTERN = '/^-?>/';
+
     private XmlPreprocessorInterface $xmlPreprocessor;
 
     private ?Registry $registry;
@@ -37,6 +49,8 @@ final class MjmlParser
      */
     private ?array $endingTags = null;
 
+    private bool $keepComments = true;
+
     public function __construct(
         ?XmlPreprocessorInterface $xmlPreprocessor = null,
         ?Registry $registry = null,
@@ -45,12 +59,23 @@ final class MjmlParser
         $this->registry = $registry;
     }
 
-    public function parse(string $mjml): Node
+    /**
+     * @param bool $keepComments Whether XML comments are kept as mj-raw nodes (like the JS keepComments option)
+     *
+     * @throws ParserException
+     */
+    public function parse(string $mjml, bool $keepComments = true): Node
     {
         // Step 1: Extract ending tag content and replace with safe placeholders
         // This allows invalid HTML inside ending tags to pass through XML parsing
         $this->endingTagContents = [];
+        $this->keepComments = $keepComments;
         $mjml = $this->extractEndingTagContents($mjml);
+
+        // Reject DTDs before libxml sees them: internal entities are expanded at parse time
+        if (1 === preg_match(self::DOCTYPE_PATTERN, $mjml)) {
+            throw new ParserException('Invalid MJML: document type declarations (<!DOCTYPE>) are not allowed');
+        }
 
         // Step 2: Preprocess XML for compatibility (convert HTML entities, escape ampersands, etc.)
         $mjml = $this->xmlPreprocessor->preprocess($mjml);
@@ -111,29 +136,81 @@ final class MjmlParser
      */
     private function extractEndingTagContents(string $mjml): string
     {
+        $openTags = $this->getEndingTags();
+        $result = '';
+        $offset = 0;
         $counter = 0;
-        $endingTagContents = &$this->endingTagContents;
+        $length = \strlen($mjml);
 
-        // Build regex for all ending tags
-        // Use negative lookbehind (?<!\/) to exclude self-closing tags like <mj-text />
-        // Use \s* before closing > to handle tags split across lines like </mj-text\n      >
-        $tagPattern = implode('|', array_map('preg_quote', $this->getEndingTags()));
-        $pattern = '/<('.$tagPattern.')([^>]*)(?<!\/)>(.*?)<\/\1\s*>/s';
+        // Scan linearly: each position is visited a bounded number of times. Once a tag has no
+        // closing tag after some position, it cannot have one after any later position either,
+        // so it is removed from the search instead of being re-scanned (which would be quadratic).
+        $openPattern = self::buildOpeningTagPattern($openTags);
 
-        return preg_replace_callback(
-            $pattern,
-            static function (array $matches) use (&$endingTagContents, &$counter): string {
-                $tagName = $matches[1];
-                $attrs = $matches[2];
-                $content = $matches[3];
-                $placeholder = "__MJML_ENDING_{$counter}__";
-                $endingTagContents[$placeholder] = $content;
-                ++$counter;
+        while ([] !== $openTags && $offset < $length) {
+            $matched = preg_match($openPattern, $mjml, $open, \PREG_OFFSET_CAPTURE, $offset);
+            if (false === $matched) {
+                throw $this->createPcreException();
+            }
+            if (0 === $matched) {
+                break;
+            }
 
-                return "<{$tagName}{$attrs}>{$placeholder}</{$tagName}>";
-            },
-            $mjml
-        ) ?? $mjml;
+            [$fullOpen, $openPos] = $open[0];
+            $tagName = $open[1][0];
+            $attrs = $open[2][0];
+            $contentStart = $openPos + \strlen($fullOpen);
+
+            // Self-closing tag (<mj-text />): leave it to the XML parser
+            if (str_ends_with($attrs, '/')) {
+                $result .= substr($mjml, $offset, $contentStart - $offset);
+                $offset = $contentStart;
+                continue;
+            }
+
+            $closePattern = '/<\/'.preg_quote($tagName, '/').'\s*>/';
+            $closed = preg_match($closePattern, $mjml, $close, \PREG_OFFSET_CAPTURE, $contentStart);
+            if (false === $closed) {
+                throw $this->createPcreException();
+            }
+            if (0 === $closed) {
+                // No closing tag anywhere after this point: stop looking for this tag
+                $openTags = array_values(array_diff($openTags, [$tagName]));
+                $openPattern = self::buildOpeningTagPattern($openTags);
+                $result .= substr($mjml, $offset, $contentStart - $offset);
+                $offset = $contentStart;
+                continue;
+            }
+
+            [$fullClose, $closePos] = $close[0];
+            $placeholder = "__MJML_ENDING_{$counter}__";
+            $this->endingTagContents[$placeholder] = substr($mjml, $contentStart, $closePos - $contentStart);
+            ++$counter;
+
+            $result .= substr($mjml, $offset, $openPos - $offset)."<{$tagName}{$attrs}>{$placeholder}</{$tagName}>";
+            $offset = $closePos + \strlen($fullClose);
+        }
+
+        return $result.substr($mjml, $offset);
+    }
+
+    /**
+     * Build the pattern matching the opening tag of any of the given ending tags.
+     *
+     * The tag name must be followed by whitespace, "/" or ">" so that <mj-text> does not match <mj-textfoo>.
+     *
+     * @param list<string> $tagNames
+     */
+    private static function buildOpeningTagPattern(array $tagNames): string
+    {
+        $alternatives = implode('|', array_map(static fn (string $tag): string => preg_quote($tag, '/'), $tagNames));
+
+        return '/<('.$alternatives.')(?=[\s\/>])([^>]*)>/';
+    }
+
+    private function createPcreException(): ParserException
+    {
+        return new ParserException('Failed to parse MJML: '.preg_last_error_msg());
     }
 
     /**
@@ -224,13 +301,13 @@ final class MjmlParser
                         if ('' !== $text) {
                             $content .= $text;
                         }
-                    } elseif ($isChildComment) {
+                    } elseif ($isChildComment && $this->keepComments) {
                         // Comments are kept as mj-raw nodes, matching the JS parser
                         $children[] = new Node(
                             tagName: Raw::getComponentName(),
                             attributes: [],
                             children: [],
-                            content: '<!--'.($child->textContent ?? '').'-->',
+                            content: '<!--'.$this->sanitizeCommentText($child->textContent ?? '').'-->',
                         );
                     }
                 }
@@ -243,6 +320,21 @@ final class MjmlParser
             children: $children,
             content: $content,
         );
+    }
+
+    /**
+     * Make comment text safe to re-emit inside "<!--" and "-->".
+     *
+     * XML allows a comment to start with ">" or "->", but HTML5 parses "<!-->" and "<!--->"
+     * as complete (empty) comments, so the remaining text would become live markup.
+     */
+    private function sanitizeCommentText(string $text): string
+    {
+        if (1 === preg_match(self::UNSAFE_COMMENT_START_PATTERN, $text)) {
+            return ' '.$text;
+        }
+
+        return $text;
     }
 
     /**

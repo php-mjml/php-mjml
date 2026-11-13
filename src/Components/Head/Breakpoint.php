@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Components\Head;
 
 use PhpMjml\Component\HeadComponent;
+use PhpMjml\Helper\CssHelper;
 use PhpMjml\Renderer\RenderContext;
 
 final class Breakpoint extends HeadComponent
@@ -38,7 +39,8 @@ final class Breakpoint extends HeadComponent
         $width = $this->getAttribute('width');
 
         if (null !== $width) {
-            $context->breakpoint = $width;
+            // The breakpoint is embedded in several <style> blocks and a media attribute
+            $context->breakpoint = CssHelper::sanitizeValue($width);
         }
     }
 }

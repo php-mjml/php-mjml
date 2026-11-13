@@ -18,6 +18,14 @@ final class WidthParser
     private const UNIT_REGEX = '/[\d.,]*(\D*)$/';
 
     /**
+     * A unit is only ever letters or a percent sign. The parsed unit ends up in
+     * generated CSS (media queries, class names), so anything else is discarded.
+     */
+    private const VALID_UNIT_REGEX = '/^(?:[a-z]+|%)$/i';
+
+    private const DEFAULT_UNIT = 'px';
+
+    /**
      * Parse a width value and return its numeric value and unit.
      *
      * @return array{parsedWidth: float|int, unit: string}
@@ -25,10 +33,10 @@ final class WidthParser
     public static function parse(string $width, bool $parseFloatToInt = true): array
     {
         preg_match(self::UNIT_REGEX, $width, $matches);
-        $unit = $matches[1] ?? 'px';
+        $unit = $matches[1] ?? self::DEFAULT_UNIT;
 
-        if ('' === $unit) {
-            $unit = 'px';
+        if (1 !== preg_match(self::VALID_UNIT_REGEX, $unit)) {
+            $unit = self::DEFAULT_UNIT;
         }
 
         $parsedWidth = match ($unit) {

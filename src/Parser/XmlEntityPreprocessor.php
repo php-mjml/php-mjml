@@ -75,9 +75,9 @@ final class XmlEntityPreprocessor implements XmlPreprocessorInterface
             '/&(?!(?:[a-zA-Z][a-zA-Z0-9]*|#[0-9]+|#x[0-9a-fA-F]+);)/',
             '&amp;',
             $xml
-        ) ?? $xml;
+        );
 
-        return $xml;
+        return $xml ?? throw self::createPcreException();
     }
 
     /**
@@ -110,9 +110,17 @@ final class XmlEntityPreprocessor implements XmlPreprocessorInterface
                     $attrString
                 );
 
-                return '<'.$tagName.($deduplicated ?? $attrString).$selfClose.'>';
+                return '<'.$tagName.($deduplicated ?? throw self::createPcreException()).$selfClose.'>';
             },
             $xml
-        ) ?? $xml;
+        ) ?? throw self::createPcreException();
+    }
+
+    /**
+     * A failed regex (e.g. backtrack limit) must not silently skip preprocessing.
+     */
+    private static function createPcreException(): ParserException
+    {
+        return new ParserException('Failed to preprocess MJML: '.preg_last_error_msg());
     }
 }

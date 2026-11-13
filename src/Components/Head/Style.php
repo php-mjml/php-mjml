@@ -18,6 +18,14 @@ use PhpMjml\Renderer\RenderContext;
 
 final class Style extends HeadComponent
 {
+    /**
+     * Closing style tag sequence. CSS never needs it, but inside a <style> element it would end
+     * the element and switch the browser back to HTML parsing.
+     */
+    private const STYLE_END_TAG_PATTERN = '/<\/(style)/i';
+
+    private const STYLE_END_TAG_REPLACEMENT = '<\\/$1';
+
     public static function getComponentName(): string
     {
         return 'mj-style';
@@ -40,7 +48,7 @@ final class Style extends HeadComponent
 
     public function handle(RenderContext $context): void
     {
-        $content = $this->getContent();
+        $content = (string) preg_replace(self::STYLE_END_TAG_PATTERN, self::STYLE_END_TAG_REPLACEMENT, $this->getContent());
 
         if ('' === $content) {
             return;

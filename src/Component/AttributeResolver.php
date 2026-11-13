@@ -29,6 +29,7 @@ use PhpMjml\Components\Head\Attributes;
  * @phpstan-type AttributeSpec array{
  *     allowed: array<string, true>,
  *     enums: array<string, list<string>>,
+ *     types: array<string, string>,
  *     defaults: array<string, string|null>,
  * }
  */
@@ -50,8 +51,10 @@ final class AttributeResolver
         }
 
         $enums = [];
+        $types = [];
         foreach ($allowedAttributes as $name => $type) {
             $allowed[$name] = true;
+            $types[$name] = $type;
             if (str_starts_with($type, 'enum(')) {
                 $enums[$name] = self::parseEnumValues($type);
             }
@@ -61,7 +64,7 @@ final class AttributeResolver
         $allowed['css-class'] = true;
         $allowed[Attributes::TAG_NAME_CLASS] = true;
 
-        return ['allowed' => $allowed, 'enums' => $enums, 'defaults' => $defaults];
+        return ['allowed' => $allowed, 'enums' => $enums, 'types' => $types, 'defaults' => $defaults];
     }
 
     /**
@@ -69,12 +72,13 @@ final class AttributeResolver
      *
      * @param AttributeSpec              $spec
      * @param array<string, string|null> $attributes
+     * @param bool                       $checkNames Whether unknown attribute names are violations
      *
      * @return string|null The first violation message, or null if all attributes are valid
      */
-    public static function findViolation(array $spec, array $attributes): ?string
+    public static function findViolation(array $spec, array $attributes, bool $checkNames = true): ?string
     {
-        $unknown = array_diff_key($attributes, $spec['allowed']);
+        $unknown = $checkNames ? array_diff_key($attributes, $spec['allowed']) : [];
         if ([] !== $unknown) {
             return \sprintf('The option(s) "%s" do not exist.', implode('", "', array_keys($unknown)));
         }
@@ -96,6 +100,11 @@ final class AttributeResolver
                     $value,
                     implode('", "', $spec['enums'][$name])
                 );
+            }
+
+            $type = $spec['types'][$name] ?? null;
+            if (null !== $type && !AttributeType::isValid($type, $value)) {
+                return \sprintf('The option "%s" with value "%s" is invalid for type "%s".', $name, $value, $type);
             }
         }
 

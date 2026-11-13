@@ -162,7 +162,9 @@ abstract class BodyComponent extends AbstractComponent
                 continue;
             }
 
-            $flags = 'style' === $key ? \ENT_NOQUOTES : \ENT_QUOTES;
+            // style values keep single quotes readable (font-family: 'Helvetica') but must
+            // escape double quotes, otherwise a value could close the attribute
+            $flags = 'style' === $key ? \ENT_COMPAT : \ENT_QUOTES;
             $result[] = \sprintf('%s="%s"', $key, htmlspecialchars((string) $value, $flags, 'UTF-8'));
         }
 

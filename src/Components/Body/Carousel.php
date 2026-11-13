@@ -15,7 +15,9 @@ namespace PhpMjml\Components\Body;
 
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Helper\ConditionalTag;
+use PhpMjml\Helper\CssHelper;
 use PhpMjml\Helper\RandomHexString;
+use PhpMjml\Security\LimitExceededException;
 
 /**
  * @phpstan-import-type ContextData from \PhpMjml\Renderer\RenderContext
@@ -124,6 +126,12 @@ final class Carousel extends BodyComponent
             return '';
         }
 
+        // The carousel CSS pairs every image with every other one, so its size grows quadratically
+        $maxImages = $this->context?->renderOptions->maxCarouselImages;
+        if (null !== $maxImages && $length > $maxImages) {
+            throw LimitExceededException::create('mj-carousel image count', $length, $maxImages);
+        }
+
         // Add component head style
         $this->addComponentHeadStyle();
 
@@ -180,9 +188,10 @@ final class Carousel extends BodyComponent
             return;
         }
 
-        $iconWidth = $this->getAttribute('icon-width');
-        $tbSelectedBorderColor = $this->getAttribute('tb-selected-border-color');
-        $tbHoverBorderColor = $this->getAttribute('tb-hover-border-color');
+        // These values end up inside a <style> block, so strip anything that could break out of it
+        $iconWidth = CssHelper::sanitizeValue($this->getAttribute('icon-width') ?? '');
+        $tbSelectedBorderColor = CssHelper::sanitizeValue($this->getAttribute('tb-selected-border-color') ?? '');
+        $tbHoverBorderColor = CssHelper::sanitizeValue($this->getAttribute('tb-hover-border-color') ?? '');
 
         // Build the carousel CSS
         $carouselCss = <<<CSS

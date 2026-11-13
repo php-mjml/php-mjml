@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace PhpMjml\Helper;
 
+use PhpMjml\Security\LimitExceededException;
+
 /**
  * Inlines CSS rules into matching HTML elements' style attributes.
  *
@@ -28,12 +30,19 @@ final class CssInliner
      * @param string       $html       The HTML to process
      * @param list<string> $cssStrings Raw CSS strings to inline
      * @param list<string> $errors     Collects any errors encountered
+     * @param int|null     $maxRules   Maximum number of rules (each is matched against the whole document)
+     *
+     * @throws LimitExceededException
      */
-    public static function inline(string $html, array $cssStrings, array &$errors): string
+    public static function inline(string $html, array $cssStrings, array &$errors, ?int $maxRules = null): string
     {
         $rules = [];
         foreach ($cssStrings as $css) {
             $rules = array_merge($rules, self::parseCssRules($css));
+        }
+
+        if (null !== $maxRules && \count($rules) > $maxRules) {
+            throw LimitExceededException::create('inline CSS rule count', \count($rules), $maxRules);
         }
 
         if ([] === $rules) {

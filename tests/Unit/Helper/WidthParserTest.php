@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PhpMjml\Tests\Unit\Helper;
 
 use PhpMjml\Helper\WidthParser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class WidthParserTest extends TestCase
@@ -56,5 +57,26 @@ final class WidthParserTest extends TestCase
 
         $this->assertSame(10, $result['parsedWidth']);
         $this->assertSame('em', $result['unit']);
+    }
+
+    /**
+     * The unit ends up in generated CSS (media queries), so only letters or "%" are accepted.
+     */
+    #[DataProvider('invalidUnitProvider')]
+    public function testInvalidUnitFallsBackToPixels(string $width): void
+    {
+        $this->assertSame('px', WidthParser::parse($width)['unit']);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function invalidUnitProvider(): array
+    {
+        return [
+            'style end tag' => ['100x</style><script>'],
+            'css rule' => ['10px;}.a{color:red'],
+            'spaces' => ['10 px'],
+        ];
     }
 }

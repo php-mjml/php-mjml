@@ -14,21 +14,34 @@ declare(strict_types=1);
 namespace PhpMjml\Renderer;
 
 use PhpMjml\Component\AbstractComponent;
+use PhpMjml\Component\AttributeType;
 use PhpMjml\Component\BodyComponent;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Component\Registry;
 use PhpMjml\Components\Body\Body;
 use PhpMjml\Components\Body\Raw;
+use PhpMjml\Components\Head\Attributes;
 use PhpMjml\Components\Head\Head;
+use PhpMjml\Helper\CssHelper;
 use PhpMjml\Helper\CssInliner;
 use PhpMjml\Helper\OutlookConditionalHelper;
 use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\Node;
 use PhpMjml\Preset\CorePreset;
+use PhpMjml\Security\LimitExceededException;
+use PhpMjml\Security\UrlValidator;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 
 final class Mjml2Html
 {
+    /**
+     * Attribute types declared by registered components, indexed by attribute name.
+     *
+     * @var array<string, list<string>>|null
+     */
+    private ?array $attributeTypesByName = null;
+
     public function __construct(
         private readonly Registry $registry,
         private readonly MjmlParser $parser,
@@ -50,11 +63,21 @@ final class Mjml2Html
         return new self($registry, new MjmlParser(registry: $registry));
     }
 
+    /**
+     * @throws \PhpMjml\Parser\ParserException When the MJML is not well-formed
+     * @throws ValidationException             In ValidationLevel::Strict mode, when attributes are invalid
+     * @throws LimitExceededException          When a limit configured in RenderOptions is exceeded
+     * @throws InvalidOptionsException         When an enum attribute checked by a context resolver is invalid
+     */
     public function render(string $mjml, ?RenderOptions $options = null): RenderResult
     {
         $options ??= new RenderOptions();
 
-        $ast = $this->parser->parse($mjml);
+        if (null !== $options->maxInputLength && \strlen($mjml) > $options->maxInputLength) {
+            throw LimitExceededException::create('input length (bytes)', \strlen($mjml), $options->maxInputLength);
+        }
+
+        $ast = $this->parser->parse($mjml, $options->keepComments);
 
         // Root <mjml> attributes; empty values fall back to defaults like in MJML
         $lang = $ast->attributes['lang'] ?? '';
@@ -71,6 +94,9 @@ final class Mjml2Html
 
         // Root <mjml owa="desktop"> makes Outlook Web App use the desktop layout
         $context->globalData->forceOwaDesktop = 'desktop' === ($ast->attributes['owa'] ?? 'mobile');
+
+        // Validate attributes before rendering anything (strict mode throws here)
+        $this->validate($ast, $context);
 
         // Process head components first
         $this->processHead($ast, $context);
@@ -109,8 +135,6 @@ final class Mjml2Html
                 continue;
             }
 
-            $this->validateNode($componentClass, $child, $context);
-
             $component = new $componentClass(
                 attributes: $child->attributes,
                 children: [],
@@ -143,8 +167,6 @@ final class Mjml2Html
         if (null === $componentClass) {
             return '';
         }
-
-        $this->validateNode($componentClass, $body, $context);
 
         // Create the body component
         $bodyComponent = new $componentClass(
@@ -228,7 +250,7 @@ final class Mjml2Html
         }
 
         $errors = [];
-        $html = CssInliner::inline($html, $inlineStyles, $errors);
+        $html = CssInliner::inline($html, $inlineStyles, $errors, $context->renderOptions->maxInlineCssRules);
 
         foreach ($errors as $error) {
             $context->globalData->addError($error);
@@ -274,8 +296,6 @@ final class Mjml2Html
                 'nonRawSiblings' => $nonRawSiblings,
             ];
 
-            $this->validateNode($componentClass, $node, $rootContext);
-
             // Create temporary component to get its child context
             $tempComponent = new $componentClass(
                 attributes: $node->attributes,
@@ -308,11 +328,82 @@ final class Mjml2Html
     }
 
     /**
-     * Report invalid attributes on an MJML element, once per element.
+     * Validate attributes of the whole document, in document order.
+     *
+     * Soft mode reports violations as errors, strict mode throws, skip mode does nothing.
+     */
+    private function validate(Node $ast, RenderContext $context): void
+    {
+        $options = $context->renderOptions;
+        if (ValidationLevel::Skip === $options->validationLevel) {
+            return;
+        }
+
+        // In soft mode disallowed URLs are removed (and reported) while resolving attributes;
+        // in strict mode they make the whole template invalid
+        $urlValidator = ValidationLevel::Strict === $options->validationLevel ? $options->urlValidator : null;
+        $errors = [];
+
+        $head = $ast->findChild(Head::getComponentName());
+        foreach ($head->children ?? [] as $child) {
+            $componentClass = $this->registry->get($child->tagName);
+            if (null === $componentClass) {
+                continue;
+            }
+
+            $this->validateNode($componentClass, $child, $urlValidator, $errors);
+
+            if (Attributes::getComponentName() === $child->tagName) {
+                $this->validateHeadAttributes($child, $urlValidator, $errors);
+            }
+        }
+
+        $body = $ast->findChild(Body::getComponentName());
+        $bodyClass = null !== $body ? $this->registry->get($body->tagName) : null;
+        if (null !== $body && null !== $bodyClass) {
+            $this->validateNode($bodyClass, $body, $urlValidator, $errors);
+            $this->validateBodyNodes($body->children, $urlValidator, $errors);
+        }
+
+        if ([] === $errors) {
+            return;
+        }
+
+        if (ValidationLevel::Strict === $options->validationLevel) {
+            throw new ValidationException($errors);
+        }
+
+        foreach ($errors as $error) {
+            $context->globalData->addError($error);
+        }
+    }
+
+    /**
+     * Validate body nodes recursively, skipping unknown elements like the renderer does.
+     *
+     * @param Node[]       $nodes
+     * @param list<string> $errors
+     */
+    private function validateBodyNodes(array $nodes, ?UrlValidator $urlValidator, array &$errors): void
+    {
+        foreach ($nodes as $node) {
+            $componentClass = $this->registry->get($node->tagName);
+            if (null === $componentClass) {
+                continue;
+            }
+
+            $this->validateNode($componentClass, $node, $urlValidator, $errors);
+            $this->validateBodyNodes($node->children, $urlValidator, $errors);
+        }
+    }
+
+    /**
+     * Report invalid attributes on an MJML element.
      *
      * @param class-string<ComponentInterface> $componentClass
+     * @param list<string>                     $errors
      */
-    private function validateNode(string $componentClass, Node $node, RenderContext $context): void
+    private function validateNode(string $componentClass, Node $node, ?UrlValidator $urlValidator, array &$errors): void
     {
         if (!is_subclass_of($componentClass, AbstractComponent::class)) {
             return;
@@ -320,8 +411,120 @@ final class Mjml2Html
 
         $error = $componentClass::validateAttributes($node->attributes);
         if (null !== $error) {
-            $context->globalData->addError($error);
+            $errors[] = $error;
         }
+
+        $urlError = null !== $urlValidator ? $componentClass::findUrlViolation($node->attributes, $urlValidator) : null;
+        if (null !== $urlError) {
+            $errors[] = $urlError;
+        }
+    }
+
+    /**
+     * Validate the defaults declared in mj-attributes.
+     *
+     * Their values reach the same output as element attributes, so they are type-checked too.
+     * Unknown names are not reported (matching the JS validator).
+     *
+     * @param list<string> $errors
+     */
+    private function validateHeadAttributes(Node $attributesNode, ?UrlValidator $urlValidator, array &$errors): void
+    {
+        foreach ($attributesNode->children as $child) {
+            if (Attributes::TAG_NAME_ALL === $child->tagName) {
+                $this->validateSharedAttributes($child->tagName, $child->attributes, $urlValidator, $errors);
+            } elseif (Attributes::TAG_NAME_CLASS === $child->tagName) {
+                $classAttributes = array_diff_key($child->attributes, [Attributes::ATTRIBUTE_NAME => true]);
+                $this->validateSharedAttributes($child->tagName, $classAttributes, $urlValidator, $errors);
+
+                foreach ($child->children as $componentDefaults) {
+                    $this->validateComponentDefaults($componentDefaults, $urlValidator, $errors);
+                }
+            } else {
+                $this->validateComponentDefaults($child, $urlValidator, $errors);
+            }
+        }
+    }
+
+    /**
+     * Validate defaults declared for one component, e.g. <mj-text color="..."> inside mj-attributes.
+     *
+     * @param list<string> $errors
+     */
+    private function validateComponentDefaults(Node $node, ?UrlValidator $urlValidator, array &$errors): void
+    {
+        $componentClass = $this->registry->get($node->tagName);
+        if (null === $componentClass || !is_subclass_of($componentClass, AbstractComponent::class)) {
+            return;
+        }
+
+        $error = $componentClass::validateAttributeTypes($node->attributes);
+        if (null !== $error) {
+            $errors[] = $error;
+        }
+
+        $urlError = null !== $urlValidator ? $componentClass::findUrlViolation($node->attributes, $urlValidator) : null;
+        if (null !== $urlError) {
+            $errors[] = $urlError;
+        }
+    }
+
+    /**
+     * Validate attributes that apply to any component (mj-all, mj-class).
+     *
+     * A value is valid when at least one component declaring that attribute accepts it.
+     *
+     * @param array<string, string> $attributes
+     * @param list<string>          $errors
+     */
+    private function validateSharedAttributes(string $tagName, array $attributes, ?UrlValidator $urlValidator, array &$errors): void
+    {
+        $typesByName = $this->getAttributeTypesByName();
+
+        foreach ($attributes as $name => $value) {
+            if (null !== $urlValidator && !AbstractComponent::isUrlAttributeValueAllowed($name, $value, $urlValidator)) {
+                $errors[] = \sprintf('%s: The option "%s" with value "%s" uses a URL scheme that is not allowed.', $tagName, $name, $value);
+                continue;
+            }
+
+            $types = $typesByName[$name] ?? [];
+            if ([] === $types) {
+                continue;
+            }
+
+            foreach ($types as $type) {
+                if (AttributeType::isValid($type, $value)) {
+                    continue 2;
+                }
+            }
+
+            $errors[] = \sprintf('%s: The option "%s" with value "%s" is invalid for type "%s".', $tagName, $name, $value, implode('" or "', $types));
+        }
+    }
+
+    /**
+     * Map every attribute name to the distinct types registered components declare for it.
+     *
+     * @return array<string, list<string>>
+     */
+    private function getAttributeTypesByName(): array
+    {
+        if (null !== $this->attributeTypesByName) {
+            return $this->attributeTypesByName;
+        }
+
+        $typesByName = [];
+        foreach ($this->registry->all() as $componentClass) {
+            if (!is_subclass_of($componentClass, AbstractComponent::class)) {
+                continue;
+            }
+
+            foreach ($componentClass::getAllowedAttributes() as $name => $type) {
+                $typesByName[$name][$type] = $type;
+            }
+        }
+
+        return $this->attributeTypesByName = array_map(array_values(...), $typesByName);
     }
 
     /**
@@ -416,7 +619,7 @@ HTML;
             $styles[] = "background-color:{$backgroundColor}";
         }
 
-        return $attributes.' style="'.implode(';', $styles).';"';
+        return $attributes.' style="'.htmlspecialchars(implode(';', $styles).';', \ENT_COMPAT, 'UTF-8').'"';
     }
 
     private function buildPreview(string $preview): string
@@ -462,7 +665,7 @@ HTML;
         foreach ($toImport as $url) {
             $escapedUrl = htmlspecialchars($url, \ENT_QUOTES, 'UTF-8');
             $links .= \sprintf('<link href="%s" rel="stylesheet" type="text/css">', $escapedUrl);
-            $imports .= \sprintf('@import url(%s);', $url);
+            $imports .= \sprintf('@import url(%s);', CssHelper::escapeUrl($url));
         }
 
         return <<<HTML

@@ -57,10 +57,31 @@ final class UrlValidator
     ];
 
     /**
-     * @param list<string> $allowedSchemes Schemes that are explicitly allowed
+     * Raster image data URIs. SVG is excluded because it can carry scripts.
+     */
+    private const DATA_IMAGE_PATTERN = '/^data:image\/(?:png|jpe?g|gif|webp)[;,]/i';
+
+    private const DATA_SCHEME = 'data';
+
+    /**
+     * Browsers remove ASCII tab and newline characters from anywhere in a URL
+     * ("java\tscript:" is "javascript:"), so they must be removed before inspecting it.
+     */
+    private const URL_STRIPPED_CHARS_PATTERN = '/[\t\n\r]/';
+
+    /**
+     * Browsers also strip leading and trailing C0 control characters and spaces.
+     */
+    private const C0_CONTROL_AND_SPACE = "\x00..\x20";
+
+    /**
+     * @param list<string> $allowedSchemes  Schemes that are explicitly allowed; an empty list allows
+     *                                      every scheme except the dangerous ones
+     * @param bool         $allowDataImages Whether raster image data URIs (data:image/png etc.) are allowed
      */
     public function __construct(
         private readonly array $allowedSchemes = self::DEFAULT_ALLOWED_SCHEMES,
+        private readonly bool $allowDataImages = false,
     ) {
     }
 
@@ -73,7 +94,7 @@ final class UrlValidator
      */
     public function isValid(string $url): bool
     {
-        $url = trim($url);
+        $url = $this->normalize($url);
 
         // Empty URLs are considered safe (they do nothing)
         if ('' === $url) {
@@ -93,6 +114,10 @@ final class UrlValidator
         }
 
         $scheme = strtolower($scheme);
+
+        if (self::DATA_SCHEME === $scheme && $this->allowDataImages && 1 === preg_match(self::DATA_IMAGE_PATTERN, $url)) {
+            return true;
+        }
 
         // Check if scheme is in the dangerous list
         if (\in_array($scheme, self::DANGEROUS_SCHEMES, true)) {
@@ -146,11 +171,29 @@ final class UrlValidator
     }
 
     /**
+     * Create a validator that allows any scheme except the dangerous ones.
+     */
+    public static function blockDangerousSchemes(bool $allowDataImages = false): self
+    {
+        return new self([], $allowDataImages);
+    }
+
+    /**
      * Create a validator with the default allowed schemes.
      */
     public static function default(): self
     {
         return new self();
+    }
+
+    /**
+     * Normalize a URL the way browsers do before resolving its scheme.
+     */
+    private function normalize(string $url): string
+    {
+        $url = (string) preg_replace(self::URL_STRIPPED_CHARS_PATTERN, '', $url);
+
+        return trim($url, self::C0_CONTROL_AND_SPACE);
     }
 
     /**
