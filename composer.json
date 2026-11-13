@@ -11,10 +11,11 @@
         "ext-libxml": "*",
         "symfony/css-selector": "^7.4 || ^8.0",
         "symfony/dom-crawler": "^7.4.12 || ^8.0.12",
-        "symfony/html-sanitizer": "^7.4.13 || ^8.0.13",
+        "symfony/html-sanitizer": "^7.4.23 || ^8.1.11",
         "symfony/options-resolver": "^7.4 || ^8.0"
     },
     "require-dev": {
+        "masterminds/html5": "^2.9",
         "php-cs-fixer/shim": "^3.95",
         "phpstan/phpstan": "^2.3.0",
         "phpstan/phpstan-phpunit": "^2.0",
