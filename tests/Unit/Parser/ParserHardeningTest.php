@@ -18,8 +18,8 @@ use PhpMjml\Parser\MjmlParser;
 use PhpMjml\Parser\ParserException;
 use PhpMjml\Renderer\Mjml2Html;
 use PhpMjml\Renderer\RenderOptions;
+use PhpMjml\Tests\Support\Html5Document;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 
 final class ParserHardeningTest extends TestCase
@@ -63,15 +63,13 @@ final class ParserHardeningTest extends TestCase
     }
 
     #[DataProvider('abruptCommentProvider')]
-    #[RequiresPhp('>= 8.4')]
     public function testCommentsCannotCloseThemselvesEarly(string $comment): void
     {
         $html = Mjml2Html::create()->render(
             '<mjml><mj-body><mj-section><mj-column>'.$comment.'</mj-column></mj-section></mj-body></mjml>'
         )->html;
 
-        $document = \Dom\HTMLDocument::createFromString('<!doctype html>'.$html, \LIBXML_NOERROR);
-        $this->assertNull($document->querySelector('img'), 'Comment content must not become live markup');
+        $this->assertFalse(Html5Document::parse($html)->hasElement('img'), 'Comment content must not become live markup');
     }
 
     /**

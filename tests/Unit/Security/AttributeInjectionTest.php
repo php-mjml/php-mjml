@@ -16,8 +16,8 @@ namespace PhpMjml\Tests\Unit\Security;
 use PhpMjml\Component\ComponentInterface;
 use PhpMjml\Preset\CorePreset;
 use PhpMjml\Renderer\Mjml2Html;
+use PhpMjml\Tests\Support\Html5Document;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 
@@ -29,7 +29,6 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
  * Outlook conditional comments are invisible to browsers but rendered by Outlook, so their
  * bodies are parsed as HTML and checked as well.
  */
-#[RequiresPhp('>= 8.4')]
 final class AttributeInjectionTest extends TestCase
 {
     private const INJECTED_ATTRIBUTE = 'xpwn';
@@ -193,12 +192,12 @@ final class AttributeInjectionTest extends TestCase
      */
     private function findInjections(string $html): array
     {
-        $injections = $this->findInjectionsIn($html, 'html');
+        $document = Html5Document::parse($html);
+        $injections = $this->findInjectionsIn($document, 'html');
 
-        $document = \Dom\HTMLDocument::createFromString('<!doctype html>'.$html, \LIBXML_NOERROR);
-        foreach ($this->collectComments($document) as $comment) {
+        foreach ($document->getComments() as $comment) {
             if (1 === preg_match(self::CONDITIONAL_COMMENT_PATTERN, $comment, $matches)) {
-                $injections = [...$injections, ...$this->findInjectionsIn($matches[1], 'conditional comment')];
+                $injections = [...$injections, ...$this->findInjectionsIn(Html5Document::parse($matches[1]), 'conditional comment')];
             }
         }
 
@@ -206,38 +205,20 @@ final class AttributeInjectionTest extends TestCase
     }
 
     /**
-     * @return list<string> The text of every comment below the node
-     */
-    private function collectComments(\Dom\Node $node): array
-    {
-        $comments = [];
-        foreach ($node->childNodes as $child) {
-            if ($child instanceof \Dom\Comment) {
-                $comments[] = $child->textContent ?? '';
-            } else {
-                $comments = [...$comments, ...$this->collectComments($child)];
-            }
-        }
-
-        return $comments;
-    }
-
-    /**
      * @return list<string>
      */
-    private function findInjectionsIn(string $html, string $where): array
+    private function findInjectionsIn(Html5Document $document, string $where): array
     {
-        $document = \Dom\HTMLDocument::createFromString('<!doctype html>'.$html, \LIBXML_NOERROR);
         $injections = [];
 
-        if (null !== $document->querySelector('['.self::INJECTED_ATTRIBUTE.']')) {
+        if ($document->hasElementWithAttribute(self::INJECTED_ATTRIBUTE)) {
             $injections[] = "{$where}: attribute injection";
         }
-        if (null !== $document->querySelector(self::INJECTED_ELEMENT)) {
+        if ($document->hasElement(self::INJECTED_ELEMENT)) {
             $injections[] = "{$where}: element injection";
         }
-        foreach ($document->querySelectorAll('style') as $style) {
-            if (str_contains($style->textContent ?? '', self::INJECTED_CSS_RULE)) {
+        foreach ($document->getStyleContents() as $style) {
+            if (str_contains($style, self::INJECTED_CSS_RULE)) {
                 $injections[] = "{$where}: CSS rule injection";
             }
         }
